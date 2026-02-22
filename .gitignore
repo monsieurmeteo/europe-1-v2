@@ -1,0 +1,10 @@
+.vercel
+__pycache__/
+*.jpg
+*.txt
+*.png
+!logo meteo climat pro 3.png
+!pictogramme/*.png
+*.log
+.env
+node_modules/
