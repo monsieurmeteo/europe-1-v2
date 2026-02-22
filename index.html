@@ -1861,12 +1861,13 @@
         let lastFetchKey = ""; // Pour le cache des données
 
         const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes de validité
+        const CACHE_VERSION = "v2"; // Incrémenter pour forcer le rafraîchissement
 
         async function fetchWeatherData(model) {
             const lats = currentConfig.cities.map(c => c.lat).join(',');
             const lons = currentConfig.cities.map(c => c.lon).join(',');
             const fetchKey = `${lats}|${lons}`;
-            const storageKey = 'weather_cache_' + fetchKey;
+            const storageKey = 'weather_cache_' + CACHE_VERSION + '_' + fetchKey;
 
             const loading = document.getElementById('loading');
 
@@ -2193,10 +2194,11 @@
 
                     // Priorité à la donnée daily pour le 24h si dispo, sinon calcul hourly
                     if (v === null) {
-                        if (is24h && loc.daily.wind_gusts_10m_max[dayIdx] !== null) {
+                        if (is24h && loc.daily && loc.daily.wind_gusts_10m_max && loc.daily.wind_gusts_10m_max[dayIdx] !== null) {
                             v = Math.round(loc.daily.wind_gusts_10m_max[dayIdx] / 5) * 5;
                         } else {
-                            v = Math.round(Math.max(...chunk) / 5) * 5;
+                            const validChunk = chunk.filter(x => x !== null);
+                            v = validChunk.length > 0 ? Math.round(Math.max(...validChunk) / 5) * 5 : 0;
                         }
                     }
                 } else if (v === null) {
@@ -2205,7 +2207,7 @@
                     const hEnd = dayIdx * 24 + (is24h ? 24 : (period === 'morning' ? 11 : period === 'afternoon' ? 18 : period === 'evening' ? 23 : 24));
 
                     if (param.startsWith('precip')) {
-                        if (is24h && loc.daily.precipitation_sum[dayIdx] !== null) {
+                        if (is24h && loc.daily && loc.daily.precipitation_sum && loc.daily.precipitation_sum[dayIdx] !== null) {
                             v = Math.round(loc.daily.precipitation_sum[dayIdx]);
                         } else {
                             const dataKey = 'precipitation';
