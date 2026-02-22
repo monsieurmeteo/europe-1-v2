@@ -1903,7 +1903,7 @@
             }
 
             const hourlyParams = "temperature_2m,precipitation,weathercode,wind_gusts_10m,windspeed_10m,winddirection_10m,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high";
-            const dailyParams = "temperature_2m_max,temperature_2m_min,weathercode,sunrise,sunset";
+            const dailyParams = "temperature_2m_max,temperature_2m_min,weathercode,sunrise,sunset,precipitation_sum,wind_gusts_10m_max";
             const models = "arome_france,meteofrance_arpege_world,icon_eu,ecmwf_ifs";
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&hourly=${hourlyParams}&daily=${dailyParams}&models=${models}&forecast_days=16&timezone=Europe/Paris`;
 
@@ -1940,7 +1940,7 @@
                         merged.hourly[v] = dataTable;
                     });
 
-                    ["temperature_2m_max", "temperature_2m_min", "weathercode", "sunrise", "sunset"].forEach(v => {
+                    ["temperature_2m_max", "temperature_2m_min", "weathercode", "sunrise", "sunset", "precipitation_sum", "wind_gusts_10m_max"].forEach(v => {
                         let dailyTable = new Array(dLength).fill(null);
                         for (const m of modelList) {
                             const modelData = loc.daily[`${v}_${m}`] || loc.daily[v];
@@ -2190,16 +2190,31 @@
                         mean: roundedMean,
                         dir: loc.hourly.winddirection_10m[absoluteIdx]
                     };
-                    if (v === null) v = Math.round(Math.max(...chunk) / 5) * 5;
+
+                    // Priorité à la donnée daily pour le 24h si dispo, sinon calcul hourly
+                    if (v === null) {
+                        if (is24h && loc.daily.wind_gusts_10m_max[dayIdx] !== null) {
+                            v = Math.round(loc.daily.wind_gusts_10m_max[dayIdx] / 5) * 5;
+                        } else {
+                            v = Math.round(Math.max(...chunk) / 5) * 5;
+                        }
+                    }
                 } else if (v === null) {
                     const is24h = param.includes('_24h');
                     const hStart = dayIdx * 24 + (is24h ? 0 : (period === 'morning' ? 0 : period === 'afternoon' ? 11 : period === 'evening' ? 17 : 0));
                     const hEnd = dayIdx * 24 + (is24h ? 24 : (period === 'morning' ? 11 : period === 'afternoon' ? 18 : period === 'evening' ? 23 : 24));
-                    const dataKey = (param.startsWith('precip') ? 'precipitation' : 'temperature_2m');
-                    const chunk = loc.hourly[dataKey].slice(hStart, hEnd);
 
-                    if (param.startsWith('precip')) v = Math.round(chunk.reduce((a, b) => a + b, 0));
-                    else {
+                    if (param.startsWith('precip')) {
+                        if (is24h && loc.daily.precipitation_sum[dayIdx] !== null) {
+                            v = Math.round(loc.daily.precipitation_sum[dayIdx]);
+                        } else {
+                            const dataKey = 'precipitation';
+                            const chunk = loc.hourly[dataKey].slice(hStart, hEnd);
+                            v = Math.round(chunk.reduce((a, b) => a + b, 0));
+                        }
+                    } else {
+                        const dataKey = 'temperature_2m';
+                        const chunk = loc.hourly[dataKey].slice(hStart, hEnd);
                         if (period === 'morning') v = Math.round(Math.min(...chunk));
                         else v = Math.round(Math.max(...chunk));
                     }
