@@ -1123,9 +1123,9 @@
                         <option value="weather_temp" selected>🌡️ MÉTÉO + T°</option>
                         <option value="temp">🌡️ TEMPÉRATURES</option>
                         <option value="gusts">💨 RAFALES (INST.)</option>
-                        <option value="gusts_24h">🌪️ RAFALES MAX (24H)</option>
+                        <option value="gusts_24h">🌪️ RAFALES MAXIMALES</option>
                         <option value="precip">☔ PLUIE (INST.)</option>
-                        <option value="precip_24h">🌧️ CUMULS PLUIE (24H)</option>
+                        <option value="precip_24h">🌧️ CUMULS PRÉCIPITATIONS</option>
                     </select>
                 </div>
 
@@ -2269,19 +2269,24 @@
 
             // Traduction des périodes
             let periodLabel = "";
-            if (period === 'morning') periodLabel = " - MATIN";
-            else if (period === 'afternoon') periodLabel = " - APRÈS-MIDI";
-            else if (period === 'evening') periodLabel = " - SOIRÉE";
-            else periodLabel = ""; // Journée complète par défaut
+            if (param.includes('_24h')) {
+                periodLabel = ""; // Pas de période pour le 24h
+            } else if (period === 'morning') {
+                periodLabel = " - MATIN";
+            } else if (period === 'afternoon') {
+                periodLabel = " - APRÈS-MIDI";
+            } else if (period === 'evening') {
+                periodLabel = " - SOIRÉE";
+            }
 
             const titles = {
                 weather: dateStr.toUpperCase(),
                 weather_temp: dateStr.toUpperCase(),
                 temp: period === 'morning' ? "TEMPÉRATURES MINIMALES" : "TEMPÉRATURES MAXIMALES",
                 gusts: "RAFALES MAXIMALES",
-                gusts_24h: "RAFALES MAXIMALES (24H)",
+                gusts_24h: "RAFALES MAXIMALES",
                 precip: "CUMULS DE PRÉCIPITATIONS",
-                precip_24h: "CUMULS DE PRÉCIPITATIONS (24H)"
+                precip_24h: "CUMULS DE PRÉCIPITATIONS"
             };
 
 
