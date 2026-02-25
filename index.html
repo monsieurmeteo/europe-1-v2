@@ -1802,7 +1802,8 @@
             { code: 14, label: "P14", icon: "fa-smog", color: "#ccc", emoji: "🌫️", img: "P14.png" }      // P14 -> Brouillard
         ];
 
-        let map, markersGroup, drawingGroup, autoZoningGroup, geoLayer = null, maskLayer = null, globalWeatherData = null, currentConfig = zoneConfigs.france;
+        let map, markersGroup, drawingGroup, autoZoningGroup, geoLayer = null, maskLayer = null, globalWeatherData = null, currentConfig = zoneConfigs.france, globalGeoBoundary = null, globalBoundaryPolygon = null;
+        let lastZoningMarkers = [], lastZoningGusts = [];
         let manualWeatherOverrides = {}; let manualTempOverrides = {}; let hiddenMarkers = new Set();
         let suppressedAutoZones = new Set();
         let currentPickingCityIndex = null;
@@ -2268,11 +2269,28 @@
                     try {
                         const hull = turf.convex(turf.featureCollection(spreadPoints.map(p => turf.point(p))));
                         if (hull) {
+                            let polyToUse = hull;
+
+                            // CLIP SUR LA CARTE (FRANCE OU RÉGION)
+                            if (globalBoundaryPolygon) {
+                                try {
+                                    const clipped = turf.intersect(hull, globalBoundaryPolygon);
+                                    if (clipped) {
+                                        polyToUse = clipped;
+                                    } else {
+                                        // Si pas d'intersection, on n'affiche rien (hors carte)
+                                        return;
+                                    }
+                                } catch (err) {
+                                    console.warn("Clipping error:", err);
+                                }
+                            }
+
                             allClusters.push({
-                                poly: hull,
+                                poly: polyToUse,
                                 color: col,
                                 label: group.label,
-                                area: turf.area(hull)
+                                area: turf.area(polyToUse)
                             });
                         }
                     } catch (e) { }
@@ -2314,58 +2332,82 @@
 
                         layer.on('click', () => openDeleteZoneModal(layer, layer.relatedMarker));
 
-                        // Labels aux centres de masse pour chaque partie
-                        const parts = feature.geometry.type === 'MultiPolygon'
+                        // Labels aux centres de masse avec évitement global pour l'homogénéité
+                        const placedLabelPoints = [];
+                        const minDistanceBetweenLabels = 80000; // 80km en mètres
+
+                        // On aplatit toutes les parties pour les trier par taille (plus gros d'abord pour priorité de placement)
+                        const allParts = (feature.geometry.type === 'MultiPolygon'
                             ? feature.geometry.coordinates.map(c => turf.polygon(c))
-                            : [feature];
+                            : [feature])
+                            .map(p => ({ poly: p, area: turf.area(p) }))
+                            .filter(p => p.area > 800 * 1000000) // Seuil porté à 800km2
+                            .sort((a, b) => b.area - a.area);
 
-                        parts.forEach(part => {
+                        allParts.forEach(partItem => {
+                            const part = partItem.poly;
+                            const areaKm2 = partItem.area / 1000000;
+
+                            // Candidat 1 : Centre de masse (plus beau visuellement)
+                            let candidates = [];
                             try {
-                                const areaKm2 = turf.area(part) / 1000000;
-                                if (areaKm2 < 500) return; // Ignore les résidus de calcul insignifiants
-
-                                // On utilise pointOnFeature pour garantir que le label est à l'intérieur de la zone
-                                let pointsToLabel = [turf.pointOnFeature(part).geometry.coordinates];
-
-                                // Ajout de points supplémentaires si la zone est vraiment grande
-                                if (areaKm2 > 40000) {
-                                    const bbox = turf.bbox(part);
-                                    const midLat = (bbox[1] + bbox[3]) / 2;
-                                    const midLon = (bbox[0] + bbox[2]) / 2;
-                                    const altPoints = [
-                                        [midLon, bbox[3] - (bbox[3] - bbox[1]) * 0.25], // Nord
-                                        [midLon, bbox[1] + (bbox[3] - bbox[1]) * 0.25], // Sud
-                                        [bbox[0] + (bbox[2] - bbox[0]) * 0.25, midLat], // Ouest
-                                        [bbox[2] - (bbox[2] - bbox[0]) * 0.25, midLat]  // Est
-                                    ];
-                                    altPoints.forEach(pt => {
-                                        if (turf.booleanPointInPolygon(turf.point(pt), part)) {
-                                            pointsToLabel.push(pt);
-                                        }
-                                    });
+                                const com = turf.centerOfMass(part).geometry.coordinates;
+                                if (turf.booleanPointInPolygon(turf.point(com), part)) {
+                                    candidates.push(com);
+                                } else {
+                                    candidates.push(turf.pointOnFeature(part).geometry.coordinates);
                                 }
+                            } catch (e) {
+                                candidates.push(turf.pointOnFeature(part).geometry.coordinates);
+                            }
 
-                                pointsToLabel.forEach(coord => {
-                                    const labelBorder = (col === '#333333' || col === '#000000') ? '#ffffff' : col;
-                                    const labelMarker = L.marker([coord[1], coord[0]], {
-                                        icon: L.divIcon({
-                                            className: 'zone-label',
-                                            html: `<div style="background:#000; color:#fff; border:3px solid ${labelBorder}; padding:3px 10px; border-radius:6px; font-size:18px; font-weight:900; box-shadow: 0 0 15px rgba(0,0,0,0.8); text-shadow: 1px 1px 2px #000;">${labelText}</div>`,
-                                            iconSize: [50, 30],
-                                            iconAnchor: [25, 15]
-                                        }),
-                                        interactive: true,
-                                        pane: 'pictogramLabelPane'
-                                    }).addTo(autoZoningGroup);
-
-                                    labelMarker.isAutoZone = true;
-                                    labelMarker.autoZoneSig = item.color + "_" + coord[1].toFixed(3) + "_" + coord[0].toFixed(3);
-                                    labelMarker.on('click', (ev) => {
-                                        L.DomEvent.stopPropagation(ev);
-                                        openDeleteZoneModal(labelMarker, null);
-                                    });
+                            // Candidats supplémentaires si la zone est immense (France entière par ex)
+                            if (areaKm2 > 50000) {
+                                const bbox = turf.bbox(part);
+                                const hSplit = (bbox[3] - bbox[1]) * 0.3;
+                                const wSplit = (bbox[2] - bbox[0]) * 0.3;
+                                const extras = [
+                                    [bbox[0] + wSplit, bbox[1] + hSplit], // Sud Ouest
+                                    [bbox[2] - wSplit, bbox[3] - hSplit]  // Nord Est
+                                ];
+                                extras.forEach(pt => {
+                                    if (turf.booleanPointInPolygon(turf.point(pt), part)) candidates.push(pt);
                                 });
-                            } catch (e) { }
+                            }
+
+                            candidates.forEach(coord => {
+                                const currentLatLng = L.latLng(coord[1], coord[0]);
+
+                                // Vérification de l'évitement (global à l'application)
+                                // On vérifie si un label (de n'importe quelle zone) est déjà trop près
+                                const isTooClose = autoZoningGroup.getLayers().some(layer => {
+                                    if (layer instanceof L.Marker && layer.options.icon.options.className === 'zone-label') {
+                                        return layer.getLatLng().distanceTo(currentLatLng) < minDistanceBetweenLabels;
+                                    }
+                                    return false;
+                                });
+
+                                if (isTooClose) return;
+
+                                const labelBorder = (col === '#333333' || col === '#000000') ? '#ffffff' : col;
+                                const labelMarker = L.marker([coord[1], coord[0]], {
+                                    icon: L.divIcon({
+                                        className: 'zone-label',
+                                        html: `<div style="background:#000; color:#fff; border:3px solid ${labelBorder}; padding:3px 10px; border-radius:6px; font-size:18px; font-weight:900; box-shadow: 0 0 15px rgba(0,0,0,0.8); text-shadow: 1px 1px 2px #000;">${labelText}</div>`,
+                                        iconSize: [50, 30],
+                                        iconAnchor: [25, 15]
+                                    }),
+                                    interactive: true,
+                                    pane: 'pictogramLabelPane'
+                                }).addTo(autoZoningGroup);
+
+                                labelMarker.isAutoZone = true;
+                                labelMarker.autoZoneSig = item.color + "_" + coord[1].toFixed(3) + "_" + coord[0].toFixed(3);
+                                labelMarker.on('click', (ev) => {
+                                    L.DomEvent.stopPropagation(ev);
+                                    openDeleteZoneModal(labelMarker, null);
+                                });
+                            });
                         });
                     }
                 }).addTo(autoZoningGroup);
@@ -2510,6 +2552,21 @@
                 const res = await fetch(url);
                 if (!res.ok) throw new Error("Fetch failed");
                 let data = await res.json();
+                globalGeoBoundary = data;
+
+                // Pré-calcul de la frontière unique (Union de tous les polygones du GeoJSON)
+                try {
+                    if (data.features.length > 0) {
+                        globalBoundaryPolygon = data.features.reduce((acc, feat) => {
+                            try { return acc ? turf.union(acc, feat) : feat; } catch (ex) { return acc; }
+                        }, null);
+                    } else {
+                        globalBoundaryPolygon = null;
+                    }
+                } catch (e) {
+                    console.error("Boundary calculation error:", e);
+                    globalBoundaryPolygon = null;
+                }
 
                 // Normalisation : s'assurer que data est toujours une FeatureCollection
                 // Certains fichiers régionaux ne contiennent qu'une seule "Feature" brute.
@@ -2572,6 +2629,12 @@
                 }).addTo(map);
 
                 geoLayer.isClassicSilhouette = (isFrance && styleMode === 'classic' && !showDepts);
+
+                // Rafraîchir le zonage automatique avec la nouvelle frontière
+                if (lastZoningMarkers.length > 0) {
+                    updateAutoZoning(lastZoningMarkers, lastZoningGusts);
+                }
+
                 fitMapToZone();
             } catch (e) {
                 console.error("GeoJSON Error:", e);
@@ -3115,6 +3178,8 @@
                 });
             }
 
+            lastZoningMarkers = allMarkerData;
+            lastZoningGusts = gustsData;
             updateAutoZoning(allMarkerData, gustsData);
 
             // GESTION DES MOYENNES NORD/SUD
