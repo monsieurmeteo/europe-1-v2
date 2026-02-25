@@ -896,11 +896,11 @@
         }
 
         .zone-label {
-            background: rgba(0, 0, 0, 0.7);
-            border: 2px solid currentColor;
+            background: transparent;
+            border: none;
             color: white;
             font-weight: 900;
-            padding: 4px 8px;
+            padding: 0;
             border-radius: 6px;
             font-size: 14px;
             text-transform: uppercase;
@@ -1786,19 +1786,19 @@
         // Les 'code' ici servent d'identifiants internes pour la logique de mapping ci-dessus.
         // P1=0, P2=1, P3=2, P4=3, P5=45, P6=71, P7=51, P8=61, P9=65, P10=80, P11=81, P12=95
         const weatherCodes = [
-            { code: 0, label: "P1", icon: "fa-sun", color: "#66ff66", emoji: "☀️", img: "P1.png" },       // P1 -> Vert (Beau temps)
-            { code: 13, label: "P13", icon: "fa-cloud-sun", color: "#66ff66", emoji: "🌤️", img: "P13.png" }, // P13 -> Vert
-            { code: 1, label: "P2", icon: "fa-cloud-sun", color: "#66ff66", emoji: "🌤️", img: "P2.png" }, // P2 -> Vert
-            { code: 2, label: "P3", icon: "fa-cloud-sun", color: "#66ff66", emoji: "⛅", img: "P3.png" },     // P3 -> Vert
-            { code: 3, label: "P4", icon: "fa-cloud", color: "#FFD700", emoji: "☁️", img: "P4.png" },    // P4 -> Jaune (Instable/Variable)
-            { code: 45, label: "P5", icon: "fa-cloud-sun-rain", color: "#FFD700", emoji: "🌦️", img: "P5.png" }, // P5 -> Jaune
-            { code: 71, label: "P6", icon: "fa-cloud", color: "#FFD700", emoji: "☁️", img: "P6.png" },        // P6 -> Jaune
-            { code: 51, label: "P7", icon: "fa-cloud-rain", color: "#ff4d4d", emoji: "🌧️", img: "P7.png" }, // P7 -> Rouge (Pluie/Dégradé)
-            { code: 61, label: "P8", icon: "fa-cloud-showers-heavy", color: "#ff4d4d", emoji: "🌧️", img: "P8.png" }, // P8 -> Rouge
-            { code: 65, label: "P9", icon: "fa-bolt", color: "#ff4d4d", emoji: "⚡", img: "P9.png" },       // P9 -> Rouge
-            { code: 80, label: "P10", icon: "fa-cloud-meatball", color: "#ff4d4d", emoji: "⛈️", img: "P10.png" }, // P10 -> Rouge
-            { code: 81, label: "P11", icon: "fa-snowflake", color: "#ff4d4d", emoji: "🌨️", img: "P11.png" }, // P11 -> Rouge
-            { code: 95, label: "P12", icon: "fa-snowflake", color: "#ff4d4d", emoji: "❄️", img: "P12.png" },      // P12 -> Rouge
+            { code: 0, label: "P1", icon: "fa-sun", color: "#ff4d4d", emoji: "☀️", img: "P1.png" },       // P1 -> Rouge (Beau temps)
+            { code: 13, label: "P13", icon: "fa-cloud-sun", color: "#333333", emoji: "🌤️", img: "P13.png" }, // P13 -> Noir
+            { code: 1, label: "P2", icon: "fa-cloud-sun", color: "#333333", emoji: "🌤️", img: "P2.png" }, // P2 -> Noir
+            { code: 2, label: "P3", icon: "fa-cloud-sun", color: "#FFD700", emoji: "⛅", img: "P3.png" },     // P3 -> Jaune
+            { code: 3, label: "P4", icon: "fa-cloud", color: "#bf55ec", emoji: "☁️", img: "P4.png" },    // P4 -> Violet
+            { code: 45, label: "P5", icon: "fa-cloud-sun-rain", color: "#bf55ec", emoji: "🌦️", img: "P5.png" }, // P5 -> Violet
+            { code: 71, label: "P6", icon: "fa-cloud", color: "#bf55ec", emoji: "☁️", img: "P6.png" },        // P6 -> Violet
+            { code: 51, label: "P7", icon: "fa-cloud-rain", color: "#3498db", emoji: "🌧️", img: "P7.png" }, // P7 -> Bleu
+            { code: 61, label: "P8", icon: "fa-cloud-showers-heavy", color: "#3498db", emoji: "🌧️", img: "P8.png" }, // P8 -> Bleu
+            { code: 65, label: "P9", icon: "fa-bolt", color: "#e67e22", emoji: "⚡", img: "P9.png" },       // P9 -> Orange (Orages)
+            { code: 80, label: "P10", icon: "fa-cloud-meatball", color: "#e67e22", emoji: "⛈️", img: "P10.png" }, // P10 -> Orange
+            { code: 81, label: "P11", icon: "fa-snowflake", color: "#bdc3c7", emoji: "🌨️", img: "P11.png" }, // P11 -> Neige/Gris
+            { code: 95, label: "P12", icon: "fa-snowflake", color: "#bdc3c7", emoji: "❄️", img: "P12.png" },      // P12 -> Neige/Gris
             { code: 14, label: "P14", icon: "fa-smog", color: "#ccc", emoji: "🌫️", img: "P14.png" }      // P14 -> Brouillard
         ];
 
@@ -1954,9 +1954,9 @@
                 let marker = L.marker(pendingZoneCenter, {
                     icon: L.divIcon({
                         className: 'zone-label',
-                        html: `<div style="color:${currentDrawColor}; border-color:${currentDrawColor}">${name}</div>`,
-                        iconSize: [60, 20],
-                        iconAnchor: [30, 10]
+                        html: `<div style="background:#000; color:#fff; border:3px solid ${currentDrawColor}; padding:3px 10px; border-radius:6px; font-size:18px; font-weight:900; box-shadow: 0 0 15px rgba(0,0,0,0.8); text-shadow: 1px 1px 2px #000;">${name}</div>`,
+                        iconSize: [60, 30],
+                        iconAnchor: [30, 15]
                     }),
                     draggable: true // Permet de déplacer l'étiquette et la zone
                 }).addTo(drawingGroup);
@@ -2200,36 +2200,29 @@
             const check = document.getElementById('auto-zoning-check');
             if (!check || !check.checked) return;
 
-            // Remapping P13 -> P3 dans le zonage automatique
-            const autoZoneLabel = (label) => label === 'P13' ? 'P3' : label;
+            // Remapping P13 -> P2 dans le zonage automatique (P2 et P13 partagent la même zone)
+            const autoZoneLabel = (label) => label === 'P13' ? 'P2' : label;
 
-            // 1. Groupement par COULEUR
-            const colorGroups = {};
+            // 1. Groupement par LABEL (Chaque icône a maintenant sa propre zone, sauf exception P13/P2)
+            const labelGroups = {};
             markerData.forEach(d => {
                 const wConfig = weatherCodes.find(wc => wc.code == d.code) || weatherCodes[0];
                 const zLabel = autoZoneLabel(wConfig.label);
                 const col = wConfig.color;
-                if (!colorGroups[col]) {
-                    colorGroups[col] = { points: [], labelCounts: {} };
+                if (!labelGroups[zLabel]) {
+                    labelGroups[zLabel] = { points: [], color: col, label: zLabel };
                 }
-                colorGroups[col].points.push(L.latLng(d.lat, d.lon));
-                colorGroups[col].labelCounts[zLabel] = (colorGroups[col].labelCounts[zLabel] || 0) + 1;
+                labelGroups[zLabel].points.push(L.latLng(d.lat, d.lon));
             });
 
-            // Déterminer le label dominant (le plus fréquent) pour chaque groupe de couleur
-            Object.keys(colorGroups).forEach(col => {
-                const counts = colorGroups[col].labelCounts;
-                colorGroups[col].label = Object.keys(counts).reduce((a, b) => counts[a] >= counts[b] ? a : b);
-            });
-
-            const priorityColors = ['#ff4d4d', '#FFD700', '#66ff66']; // Rouge > Jaune > Vert
+            const priorityColors = ['#ff4d4d', '#bf55ec', '#FFD700', '#3498db', '#e67e22', '#333333']; // Rouge > Violet > Jaune > Bleu > Orange > Noir
             const rawPolygonsByColor = {};
 
             // 2. Génération des enveloppes par cluster individuel
             const allClusters = [];
-            priorityColors.forEach(col => {
-                const group = colorGroups[col];
-                if (!group || group.points.length === 0) return;
+            Object.values(labelGroups).forEach(group => {
+                const col = group.color;
+                if (!priorityColors.includes(col)) return;
 
                 const points = group.points;
                 const clusters = [];
@@ -2308,7 +2301,7 @@
                 const labelText = item.label;
 
                 L.geoJSON(geojson, {
-                    style: { color: col, weight: 3, fillColor: col, fillOpacity: 0.15, smoothFactor: 0.5 },
+                    style: { color: col, weight: 4, fillColor: col, fillOpacity: 0.3, smoothFactor: 0.5 },
                     onEachFeature: (feature, layer) => {
                         layer.isAutoZone = true;
 
@@ -2353,12 +2346,13 @@
                                 }
 
                                 pointsToLabel.forEach(coord => {
+                                    const labelBorder = (col === '#333333' || col === '#000000') ? '#ffffff' : col;
                                     const labelMarker = L.marker([coord[1], coord[0]], {
                                         icon: L.divIcon({
                                             className: 'zone-label',
-                                            html: `<div style="background:#222; color:#fff; border:2px solid ${col}; padding:2px 8px; border-radius:4px; font-size:16px; font-weight:900; box-shadow: 0 0 10px rgba(0,0,0,0.5);">${labelText}</div>`,
-                                            iconSize: [40, 24],
-                                            iconAnchor: [20, 12]
+                                            html: `<div style="background:#000; color:#fff; border:3px solid ${labelBorder}; padding:3px 10px; border-radius:6px; font-size:18px; font-weight:900; box-shadow: 0 0 15px rgba(0,0,0,0.8); text-shadow: 1px 1px 2px #000;">${labelText}</div>`,
+                                            iconSize: [50, 30],
+                                            iconAnchor: [25, 15]
                                         }),
                                         interactive: true,
                                         pane: 'pictogramLabelPane'
