@@ -3573,6 +3573,12 @@
             if (!manualCityMapGroup && map) {
                 manualCityMapGroup = L.layerGroup().addTo(map);
             }
+
+            // Si la valeur contient un chiffre suivi de texte (ex: 25°C, 30 mm, 50 km/h), 
+            // on réduit la taille de l'unité pour que ça soit plus joli.
+            let valStr = val.toString().trim();
+            valStr = valStr.replace(/^([-+]?[0-9.$,]+)\s*([^0-9.,\s].*)$/i, '$1<span style="font-size:0.55em; margin-left:3px; vertical-align:10%;">$2</span>');
+
             const html = `
             <div style="position:relative; width:400px; height:100px;">
                 <!-- Le carré noir parfaitement au centre ANCHOR: [200, 50] -->
@@ -3580,12 +3586,12 @@
                 
                 <!-- La valeur à gauche -->
                 <div style="position:absolute; right:216px; top:28px; text-align:right;">
-                    <span style="font-size:40px; font-weight:900; color:#000; text-shadow: 3px 3px 0 #fff, -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff; line-height:1; letter-spacing: -1.5px;">${val}</span>
+                    <span style="font-size:40px; font-weight:900; color:#000; text-shadow: 3px 3px 0 #fff, -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff; line-height:1; white-space:nowrap;">${valStr}</span>
                 </div>
 
                 <!-- Le nom de la ville en haut à droite -->
                 <div style="position:absolute; left:200px; top:16px; width:200px; text-align:left;">
-                    <span style="font-size:22px; font-weight:900; color:#000; text-shadow: 3px 3px 0 #fff, -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff; letter-spacing: -0.5px;">${name}</span>
+                    <span style="font-size:22px; font-weight:900; color:#000; text-shadow: 3px 3px 0 #fff, -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff; letter-spacing: -0.5px; white-space:nowrap;">${name}</span>
                 </div>
             </div>
             `;
