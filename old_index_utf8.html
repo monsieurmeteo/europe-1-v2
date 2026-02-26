@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Météo France - Expert Edition Finale</title>
+    <title>M├®t├®o France - Expert Edition Finale</title>
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -46,7 +46,7 @@
             height: 100vh;
         }
 
-        /* BARRE LATÉRALE (GAUCHE) */
+        /* BARRE LAT├ëRALE (GAUCHE) */
         #sidebar {
             width: 340px;
             background-color: #1a1a1a;
@@ -102,7 +102,7 @@
             height: 100vh;
         }
 
-        /* ZONE DE CAPTURE - PLEIN ÉCRAN (Modifié pour remplir l'espace) */
+        /* ZONE DE CAPTURE - PLEIN ├ëCRAN (Modifi├® pour remplir l'espace) */
         #capture-area {
             position: relative;
             width: 100%;
@@ -115,7 +115,7 @@
             overflow: hidden;
         }
 
-        /* Suppression des media queries 16:9 pour laisser le plein écran */
+        /* Suppression des media queries 16:9 pour laisser le plein ├®cran */
         /*
         @media (min-aspect-ratio: 16/9) {
             #capture-area {
@@ -131,7 +131,7 @@
             width: 100%;
             height: 100%;
             background: #1a2a3a;
-            /* Fond bleu très sombre pour l'océan */
+            /* Fond bleu tr├¿s sombre pour l'oc├®an */
         }
 
         #map {
@@ -140,7 +140,7 @@
             background: #000;
         }
 
-        /* TITRE AUTOMATISÉ SUR LA CARTE */
+        /* TITRE AUTOMATIS├ë SUR LA CARTE */
         #auto-title-container {
             position: absolute;
             top: 25px;
@@ -354,13 +354,13 @@
             box-shadow: 0 0 5px #fff;
         }
 
-        /* MARQUEURS - TAILLE AUGMENTÉE (COEFFICIENT ~1.8) */
-        /* RECONSTRUCTION DE SÉCURITÉ : TAILLES PROFESSIONNELLES */
-        /* RECONSTRUCTION DU SYSTÈME DE MARQUEURS : PRÉCISION ET ÉCHELLE */
+        /* MARQUEURS - TAILLE AUGMENT├ëE (COEFFICIENT ~1.8) */
+        /* RECONSTRUCTION DE S├ëCURIT├ë : TAILLES PROFESSIONNELLES */
+        /* RECONSTRUCTION DU SYST├êME DE MARQUEURS : PR├ëCISION ET ├ëCHELLE */
         .weather-marker {
             width: 160px;
             height: 140px;
-            /* Augmenté pour éviter tout clipping */
+            /* Augment├® pour ├®viter tout clipping */
             position: relative;
             pointer-events: none;
             display: flex;
@@ -392,13 +392,13 @@
             position: relative;
             width: 100%;
             height: 75px;
-            /* Égal à iconH par défaut */
+            /* ├ëgal ├á iconH par d├®faut */
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        /* Hybride : Picto au CENTRE exact, Temp à DROITE */
+        /* Hybride : Picto au CENTRE exact, Temp ├á DROITE */
         .weather-temp-hybrid {
             display: flex;
             align-items: center;
@@ -419,7 +419,7 @@
             position: relative;
         }
 
-        /* Mode solo (Standard) : Météo, Temp, ou Pluie seule */
+        /* Mode solo (Standard) : M├®t├®o, Temp, ou Pluie seule */
         .type-weather .marker-content-wrapper,
         .type-temp .marker-content-wrapper,
         .type-precip .marker-content-wrapper,
@@ -434,7 +434,7 @@
             height: 120px;
             font-size: 85px;
             overflow: hidden;
-            /* Pour masquer les bords des images zoomées */
+            /* Pour masquer les bords des images zoom├®es */
             border-radius: 12px;
         }
 
@@ -452,7 +452,7 @@
             white-space: nowrap;
         }
 
-        /* Mode Standalone (Solo Temp / Pluie) : Centrage par Flexbox pour éviter les décalages d'export (html2canvas) */
+        /* Mode Standalone (Solo Temp / Pluie) : Centrage par Flexbox pour ├®viter les d├®calages d'export (html2canvas) */
         .type-temp .marker-content-wrapper,
         .type-precip .marker-content-wrapper {
             display: flex !important;
@@ -471,7 +471,7 @@
             white-space: nowrap;
         }
 
-        /* Mode Hybride : Forcer la hauteur pour correspondre à l'ancrage JS (100px) */
+        /* Mode Hybride : Forcer la hauteur pour correspondre ├á l'ancrage JS (100px) */
         .type-weather_temp .marker-content-wrapper {
             height: 100px;
         }
@@ -491,13 +491,13 @@
         .weather-icon-large img,
         .icon-center-anchor img {
             width: 108% !important;
-            /* Zoom léger pour supprimer les artefacts de bordure (halos) */
+            /* Zoom l├®ger pour supprimer les artefacts de bordure (halos) */
             height: 108% !important;
             max-width: 108%;
             max-height: 108%;
             object-fit: contain;
             transform: translate(-3.5%, -3.5%);
-            /* Recentrage après zoom */
+            /* Recentrage apr├¿s zoom */
         }
 
         .weather-icon-large:hover {
@@ -601,34 +601,11 @@
             border-radius: 12px;
         }
 
-        /* Centrage parfait pour le brouillard manuel */
-        .fog-manual-marker {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: auto !important;
-        }
-
-        .fog-manual-marker .weather-icon-large {
-            width: 80px;
-            height: 80px;
-            font-size: 55px;
-        }
-
-        .fog-manual-marker img {
-            width: 100% !important;
-            height: 100% !important;
-            transform: none !important;
-            /* Pas de décalage pour le mode manuel */
-            filter: drop-shadow(0 0 10px white) !important;
-            /* Flashy/Brillant */
-        }
-
-        /* --- OVERRIDES POUR MODE FRANCE / RÉGIONS (IS-SMALL) --- */
+        /* --- OVERRIDES POUR MODE FRANCE / R├ëGIONS (IS-SMALL) --- */
         .weather-marker.is-small {
             width: 100px;
             height: 100px;
-            /* Augmenté de 70px à 100px */
+            /* Augment├® de 70px ├á 100px */
             overflow: visible !important;
         }
 
@@ -640,7 +617,7 @@
 
         .weather-marker.is-small .marker-content-wrapper {
             height: 50px;
-            /* Égal à iconH par défaut */
+            /* ├ëgal ├á iconH par d├®faut */
         }
 
         /* Override Hybride Petit */
@@ -648,7 +625,7 @@
             height: 65px;
         }
 
-        /* Mode Météo + Temp (Fin) */
+        /* Mode M├®t├®o + Temp (Fin) */
         .weather-marker.is-small .icon-center-anchor,
         .weather-marker.is-small .weather-icon-large {
             width: 50px !important;
@@ -664,7 +641,7 @@
         }
 
 
-        /* Mode Standalone Petit (France Entière) */
+        /* Mode Standalone Petit (France Enti├¿re) */
         .weather-marker.is-small.type-temp .temp-standalone,
         .weather-marker.is-small.type-precip .temp-standalone,
         .weather-marker.is-small.type-precip_24h .temp-standalone {
@@ -691,7 +668,7 @@
             height: 100% !important;
         }
 
-        /* --- AGRANDISSEMENT SPÉCIFIQUE MÉTÉO + T° --- */
+        /* --- AGRANDISSEMENT SP├ëCIFIQUE M├ëT├ëO + T┬░ --- */
         .type-weather_temp .icon-center-anchor,
         .type-weather_temp .weather-icon-large {
             width: 90px !important;
@@ -753,9 +730,6 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 12px;
             margin-top: 15px;
-            max-height: 380px;
-            overflow-y: auto;
-            padding-right: 5px;
         }
 
         .picker-item {
@@ -857,7 +831,7 @@
             border-radius: 15px;
             z-index: 3000;
             display: none;
-            /* Masqué par défaut */
+            /* Masqu├® par d├®faut */
             flex-direction: column;
             align-items: center;
             gap: 12px;
@@ -896,11 +870,11 @@
         }
 
         .zone-label {
-            background: transparent;
-            border: none;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid currentColor;
             color: white;
             font-weight: 900;
-            padding: 0;
+            padding: 4px 8px;
             border-radius: 6px;
             font-size: 14px;
             text-transform: uppercase;
@@ -908,17 +882,16 @@
             white-space: nowrap;
             cursor: move;
             pointer-events: auto !important;
-            z-index: 1000 !important;
-            /* Priorité absolue */
+            z-index: 9999 !important;
         }
 
-        /* --- STYLES PRÉVISIONS PAR COMMUNE --- */
+        /* --- STYLES PR├ëVISIONS PAR COMMUNE --- */
         #commune-forecast-area {
             display: none;
             width: 100%;
             height: 100%;
             background-color: #f0f8ff;
-            /* Bleu très pâle comme l'image */
+            /* Bleu tr├¿s p├óle comme l'image */
             overflow-y: auto;
             color: #333;
             font-family: Arial, sans-serif;
@@ -1235,7 +1208,7 @@
 
 <body>
 
-    <!-- ===== ÉCRAN DE CONNEXION ===== -->
+    <!-- ===== ├ëCRAN DE CONNEXION ===== -->
     <div id="login-overlay" style="
         position:fixed; inset:0; z-index:99999;
         background:linear-gradient(135deg,#060d1a 0%,#0f1e3a 50%,#091228 100%);
@@ -1253,12 +1226,12 @@
             <!-- Logo / titre -->
             <div style="
                 font-size:13px; font-weight:900; letter-spacing:4px; color:#4db8ff;
-                text-transform:uppercase; margin-bottom:4px;">MÉTÉO-CLIMAT PRO</div>
+                text-transform:uppercase; margin-bottom:4px;">M├ëT├ëO-CLIMAT PRO</div>
             <div style="font-size:28px; font-weight:900; color:#fff; margin-bottom:6px;">
                 Espace<span style="color:#4db8ff;"> CNews</span>
             </div>
             <div style="font-size:12px; color:#7a9cbb; margin-bottom:32px; letter-spacing:1px;">
-                Accès réservé — identifiez-vous
+                Acc├¿s r├®serv├® ÔÇö identifiez-vous
             </div>
 
             <div id="login-error" style="
@@ -1300,13 +1273,13 @@
             </button>
 
             <div style="margin-top:22px; font-size:10px; color:#344a60; letter-spacing:1px;">
-                © MÉTÉO-CLIMAT PRO — USAGE PROFESSIONNEL
+                ┬® M├ëT├ëO-CLIMAT PRO ÔÇö USAGE PROFESSIONNEL
             </div>
         </div>
     </div>
 
     <script>
-        // Vérification au chargement : déjà connecté dans cette session ?
+        // V├®rification au chargement : d├®j├á connect├® dans cette session ?
         (function () {
             if (sessionStorage.getItem('mcp_auth') === '1') {
                 document.getElementById('login-overlay').style.display = 'none';
@@ -1330,10 +1303,10 @@
             }
         }
     </script>
-    <!-- ===== FIN ÉCRAN DE CONNEXION ===== -->
+    <!-- ===== FIN ├ëCRAN DE CONNEXION ===== -->
 
     <div id="app-layout">
-        <!-- BARRE LATÉRALE GAUCHE -->
+        <!-- BARRE LAT├ëRALE GAUCHE -->
         <div id="sidebar">
             <div class="sidebar-section">
                 <h3>VUE PRINCIPALE</h3>
@@ -1341,9 +1314,7 @@
                     <button id="tab-map" class="tab-btn active" onclick="switchTab('map')"
                         style="border-radius: 8px 0 0 8px;">CARTE EXPERT</button>
                     <button id="tab-commune" class="tab-btn" onclick="switchTab('commune')"
-                        style="border-radius: 0;">MÉTÉO COMMUNE</button>
-                    <button id="tab-manual" class="tab-btn" onclick="switchTab('manual')"
-                        style="border-radius: 0 8px 8px 0;">VILLES MANUELLES</button>
+                        style="border-radius: 0 8px 8px 0;">M├ëT├ëO COMMUNE</button>
                 </div>
                 <div style="margin-top: 6px;">
                     <button onclick="toggleDrawingMode()"
@@ -1353,7 +1324,7 @@
                     <label
                         style="margin-top:7px; font-size:11px; color:#ff9933; cursor:pointer; display:flex; align-items:center; gap:8px;">
                         <input type="checkbox" id="hide-markers-check" onchange="toggleMarkers()"> MASQUER PICTOS &amp;
-                        T°
+                        T┬░
                     </label>
                 </div>
             </div>
@@ -1368,33 +1339,7 @@
                 <div id="search-results" style="margin-top: 10px; font-size: 12px; color: #FFD700;"></div>
             </div>
 
-            <!-- Groupe supprimé ou remplacé pour l'onglet manuel -->
-            <div id="manual-city-section" class="sidebar-section" style="display:none;">
-                <h3>VILLES MANUELLES</h3>
-                <input type="text" id="manual-city-val" placeholder="Valeur (ex: 23°C, 15 mm, 65 km/h)"
-                    class="search-input" style="width:100%; margin-bottom:10px; box-sizing:border-box;">
-                <div class="search-container">
-                    <input type="text" id="manual-city-search" class="search-input" placeholder="Code postal ou nom">
-                    <button class="search-btn" onclick="searchManualCity()"><i class="fas fa-search"></i></button>
-                </div>
-                <div id="manual-city-results" style="margin-top: 10px; font-size: 12px; color: #FFD700;"></div>
-
-                <label
-                    style="margin-top:10px; font-size:11px; color:#ff9933; cursor:pointer; display:flex; align-items:center; gap:8px;">
-                    <input type="checkbox" id="manual-highlight-check" onchange="renderManualCities()"> MISE EN AVANT
-                    MIN/MAX
-                </label>
-
-                <h3 style="margin-top:20px;">MODIFIER LES TITRES SUR CARTE</h3>
-                <input type="text" id="manual-title-main" placeholder="Forcer titre principal" class="search-input"
-                    style="width:100%; margin-bottom:5px; box-sizing:border-box;" oninput="updateManualTitles()">
-                <input type="text" id="manual-title-sub" placeholder="Forcer sous-titre" class="search-input"
-                    style="width:100%; margin-bottom:15px; box-sizing:border-box;" oninput="updateManualTitles()">
-
-                <button onclick="clearManualAddedCities()"
-                    style="width:100%; margin-top:5px; padding:10px; background:#e74c3c; color:#fff; border:none; border-radius:6px; cursor:pointer;"
-                    class="sidebar-btn">EFFACER LES VILLES PLACÉES</button>
-            </div>
+            <!-- Groupe supprim├® car on utilise d├®sormais zone-select pour tout -->
 
             <div id="commune-actions" style="display:none; margin-top:15px; flex-direction:column; gap:8px;">
                 <label style="font-size:11px; color:#FFD700; cursor:pointer; display:flex; align-items:center; gap:5px">
@@ -1413,72 +1358,59 @@
 
             <div id="map-controls-group">
                 <div class="sidebar-section">
-                    <h3>RÉGION & VILLES</h3>
+                    <h3>R├ëGION & VILLES</h3>
                     <button onclick="document.getElementById('zone-select').value='cnews'; handleZoneChange();"
                         style="width:100%; margin-bottom:8px; padding:10px; background:linear-gradient(135deg,#e8a020,#c0392b); color:#fff; font-weight:900; font-size:15px; border:none; border-radius:8px; cursor:pointer; letter-spacing:2px; box-shadow:0 2px 8px rgba(230,100,0,0.5);">
-                        📺 CNEWS
+                        ­ƒô║ CNEWS
                     </button>
                     <select id="zone-select" onchange="handleZoneChange()">
-                        <option value="france">🌎 FRANCE ENTIÈRE</option>
-                        <option value="hdf">🏘️ HAUTS-DE-FRANCE</option>
-                        <option value="normandie">🍏 NORMANDIE</option>
-                        <option value="ile-de-france">🗼 ÎLE-DE-FRANCE</option>
-                        <option value="grand-est">🥨 GRAND EST</option>
-                        <option value="ara">⛰️ AUVERGNE-RHÔNE-ALPES</option>
-                        <option value="naq">🌊 NOUVELLE-AQUITAINE</option>
-                        <option value="occitanie">🌞 OCCITANIE</option>
-                        <option value="paca">🌴 PACA</option>
-                        <option value="bfc">🍷 BOURGOGNE-F-COMTÉ</option>
-                        <option value="bretagne">⛵ BRETAGNE</option>
-                        <option value="pdl">🌾 PAYS DE LA LOIRE</option>
-                        <option value="cvl">🏰 CENTRE-VAL DE LOIRE</option>
-                        <option value="corse">⛰️ CORSE</option>
-                        <option value="cnews">📺 CNEWS</option>
+                        <option value="france">­ƒîÄ FRANCE ENTI├êRE</option>
+                        <option value="hdf">­ƒÅÿ´©Å HAUTS-DE-FRANCE</option>
+                        <option value="normandie">­ƒìÅ NORMANDIE</option>
+                        <option value="ile-de-france">­ƒù╝ ├ÄLE-DE-FRANCE</option>
+                        <option value="grand-est">­ƒÑ¿ GRAND EST</option>
+                        <option value="ara">Ôø░´©Å AUVERGNE-RH├öNE-ALPES</option>
+                        <option value="naq">­ƒîè NOUVELLE-AQUITAINE</option>
+                        <option value="occitanie">­ƒî× OCCITANIE</option>
+                        <option value="paca">­ƒî┤ PACA</option>
+                        <option value="bfc">­ƒìÀ BOURGOGNE-F-COMT├ë</option>
+                        <option value="bretagne">ÔøÁ BRETAGNE</option>
+                        <option value="pdl">­ƒî¥ PAYS DE LA LOIRE</option>
+                        <option value="cvl">­ƒÅ░ CENTRE-VAL DE LOIRE</option>
+                        <option value="corse">Ôø░´©Å CORSE</option>
+                        <option value="cnews">­ƒô║ CNEWS</option>
                     </select>
                 </div>
 
                 <div class="sidebar-section">
-                    <h3>DONNÉES</h3>
+                    <h3>DONN├ëES</h3>
                     <select id="icon-bank-select" onchange="updateDisplay()">
-                        <option value="custom" selected>📸 PICTOGRAMMES</option>
+                        <option value="custom" selected>­ƒô© PICTOGRAMMES</option>
                         <optgroup label="STANDARDS">
-                            <option value="modern">💎 STYLE MODERNE</option>
-                            <option value="flat">⚪ ÉPURÉ</option>
-                            <option value="emoji">😀 EMOJI</option>
+                            <option value="modern">­ƒÆÄ STYLE MODERNE</option>
+                            <option value="flat">ÔÜ¬ ├ëPUR├ë</option>
+                            <option value="emoji">­ƒÿÇ EMOJI</option>
                         </optgroup>
                     </select>
 
                     <select id="param-select" onchange="clearManualOverrides(); updateDisplay()">
-                        <option value="weather">🌦️ MÉTÉO</option>
-                        <option value="weather_temp" selected>🌡️ MÉTÉO + T°</option>
-                        <option value="temp">🌡️ TEMPÉRATURES</option>
-                        <option value="gusts">🌪️ RAFALES MAXIMALES</option>
-                        <option value="precip">🌧️ CUMULS DE PRÉCIPITATIONS</option>
+                        <option value="weather">­ƒîª´©Å M├ëT├ëO</option>
+                        <option value="weather_temp" selected>­ƒîí´©Å M├ëT├ëO + T┬░</option>
+                        <option value="temp">­ƒîí´©Å TEMP├ëRATURES</option>
+                        <option value="gusts">­ƒî¬´©Å RAFALES MAXIMALES</option>
+                        <option value="precip">­ƒîº´©Å CUMULS DE PR├ëCIPITATIONS</option>
                     </select>
                 </div>
 
                 <div class="sidebar-section">
-                    <h3>PÉRIODE</h3>
+                    <h3>P├ëRIODE</h3>
                     <select id="day-select" onchange="handleDayChange()"></select>
-                    <select id="period-select" onchange="toggleHourlySlider(); clearManualOverrides(); updateDisplay()">
-                        <option value="day" selected>JOURNÉE (24H)</option>
+                    <select id="period-select" onchange="clearManualOverrides(); updateDisplay()">
+                        <option value="day" selected>JOURN├ëE (24H)</option>
                         <option value="morning">MATIN</option>
-                        <option value="afternoon">APRÈS-MIDI</option>
-                        <option value="evening">SOIRÉE</option>
-                        <option value="hourly">⏱️ MODE HORAIRE (36H)</option>
+                        <option value="afternoon">APR├êS-MIDI</option>
+                        <option value="evening">SOIR├ëE</option>
                     </select>
-
-                    <div id="hourly-controls"
-                        style="display:none; margin-top:10px; background:rgba(0,0,0,0.2); padding:8px; border-radius:6px;">
-                        <input type="range" id="hour-slider" min="0" max="36" value="0" style="width:100%"
-                            oninput="updateHourLabel(); updateDisplay()">
-                        <div
-                            style="display:flex; justify-content:space-between; font-size:10px; color:#aaa; margin-top:4px;">
-                            <span>Actuel</span>
-                            <span id="hour-label" style="color:#FFD700; font-weight:bold;">+0h</span>
-                            <span>+36h</span>
-                        </div>
-                    </div>
                     <div style="display: flex; justify-content: flex-end; margin-top: -10px;">
                         <div id="active-model-display"
                             style="font-size: 8px; color: #555; font-weight: bold; letter-spacing: 0.5px; margin-right: 5px;">
@@ -1489,19 +1421,19 @@
                 <div class="sidebar-section">
                     <h3>STYLE</h3>
                     <select id="map-style-select" onchange="updateMapStyle()" style="padding:10px">
-                        <option value="blue">🔹 BLEU ÉCHO (TEXTURED)</option>
-                        <option value="deep-blue">🌑 BLEU NUIT PROFOND</option>
-                        <option value="sky-blue">💎 BLEU CIEL MODERNE</option>
-                        <option value="periwinkle" selected>🌌 BLEU PERVENCHE</option>
-                        <option value="green">🍃 VERT PRAIRIE</option>
-                        <option value="grey">🌫️ GRIS BRUME</option>
-                        <option value="classic">🔸 CLASSIQUE (OR)</option>
+                        <option value="blue">­ƒö╣ BLEU ├ëCHO (TEXTURED)</option>
+                        <option value="deep-blue">­ƒîæ BLEU NUIT PROFOND</option>
+                        <option value="sky-blue">­ƒÆÄ BLEU CIEL MODERNE</option>
+                        <option value="periwinkle" selected>­ƒîî BLEU PERVENCHE</option>
+                        <option value="green">­ƒìâ VERT PRAIRIE</option>
+                        <option value="grey">­ƒî½´©Å GRIS BRUME</option>
+                        <option value="classic">­ƒö© CLASSIQUE (OR)</option>
                     </select>
 
                     <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px">
                         <label
                             style="font-size:11px; color:#fff; cursor:pointer; display:flex; align-items:center; gap:10px">
-                            <input type="checkbox" id="show-depts-check" onchange="updateGeoJson()"> DÉPARTEMENTS
+                            <input type="checkbox" id="show-depts-check" onchange="updateGeoJson()"> D├ëPARTEMENTS
                         </label>
                         <label
                             style="font-size:11px; color:#fff; cursor:pointer; display:flex; align-items:center; gap:10px">
@@ -1524,7 +1456,7 @@
                         </label>
                         <label
                             style="font-size:11px; color:#ff4d4d; cursor:pointer; display:flex; align-items:center; gap:10px">
-                            <input type="checkbox" id="temp-dynamic-check" onchange="updateDisplay()"> DÉGRADÉ DYNAMIQUE
+                            <input type="checkbox" id="temp-dynamic-check" onchange="updateDisplay()"> D├ëGRAD├ë DYNAMIQUE
                             (B/R)
                         </label>
                         <label
@@ -1535,17 +1467,13 @@
                         <label
                             style="font-size:11px; color:#ddd; cursor:pointer; display:flex; align-items:center; gap:10px">
                             <input type="checkbox" id="show-legend-check" onchange="updateDisplay()" checked> AFFICHER
-                            LA LÉGENDE
+                            LA L├ëGENDE
                         </label>
                         <label
                             style="font-size:11px; color:#ff9933; cursor:pointer; display:flex; align-items:center; gap:10px">
                             <input type="checkbox" id="hide-markers-check" onchange="toggleMarkers()"> MASQUER PICTOS
-                            &amp; T°
+                            &amp; T┬░
                         </label>
-                        <button id="btn-toggle-fog" onclick="toggleFogMode()"
-                            style="padding:6px; font-size:0.75rem; margin-top:2px; background:#444; border-radius:4px; color:#fff; border:1px solid #666; width:fit-content;">
-                            <i class="fas fa-smog"></i> PIC TO BROUILLARD
-                        </button>
                         <label
                             style="font-size:11px; color:#FFD700; cursor:pointer; display:flex; align-items:center; gap:10px">
                             <input type="checkbox" id="show-logo-check" onchange="toggleLogo()" checked> AFFICHER LE
@@ -1563,7 +1491,7 @@
                         </label>
                         <label
                             style="font-size:11px; color:#FFD700; cursor:pointer; display:flex; align-items:center; gap:10px">
-                            <input type="checkbox" id="freeze-map-check" onchange="toggleMapFreeze()" checked> 🔒 FIGER
+                            <input type="checkbox" id="freeze-map-check" onchange="toggleMapFreeze()" checked> ­ƒöÆ FIGER
                             (EXPORT)
                         </label>
                     </div>
@@ -1612,19 +1540,19 @@
                     <div id="averages-container">
                         <div class="average-box north">
                             <div class="average-label">Moyenne NORD</div>
-                            <div class="average-value" id="avg-north-val">--°</div>
+                            <div class="average-value" id="avg-north-val">--┬░</div>
                         </div>
                         <div class="average-box south">
                             <div class="average-label">Moyenne SUD</div>
-                            <div class="average-value" id="avg-south-val">--°</div>
+                            <div class="average-value" id="avg-south-val">--┬░</div>
                         </div>
                     </div>
                     <!-- Encart Records Lille - visible uniquement en vue HDF -->
                     <div id="lille-records-panel">
-                        <div class="lrp-title">🌡️ Lille-Lesquin — Historique</div>
+                        <div class="lrp-title">­ƒîí´©Å Lille-Lesquin ÔÇö Historique</div>
                         <div class="lrp-date-badge" id="lrp-date">--</div>
 
-                        <div class="lrp-section">📉 Records froids</div>
+                        <div class="lrp-section">­ƒôë Records froids</div>
                         <div class="lrp-row">
                             <span class="lrp-label">Record Tn absolu</span>
                             <div class="lrp-right">
@@ -1649,7 +1577,7 @@
 
                         <hr class="lrp-divider">
 
-                        <div class="lrp-section">📈 Records chauds</div>
+                        <div class="lrp-section">­ƒôê Records chauds</div>
                         <div class="lrp-row">
                             <span class="lrp-label">Record Tx absolu</span>
                             <div class="lrp-right">
@@ -1660,7 +1588,7 @@
 
                         <hr class="lrp-divider">
 
-                        <div class="lrp-section">📊 Normales journalières</div>
+                        <div class="lrp-section">­ƒôè Normales journali├¿res</div>
                         <div class="lrp-row">
                             <span class="lrp-label">Normale Tx</span>
                             <div class="lrp-right">
@@ -1677,20 +1605,20 @@
                 </div>
             </div>
 
-            <!-- VUE MÉTÉO COMMUNE -->
+            <!-- VUE M├ëT├ëO COMMUNE -->
             <div id="commune-forecast-area">
                 <div class="forecast-container" id="forecast-content">
                     <div style="text-align:center; padding: 50px; color: #7f8c8d;">
                         <i class="fas fa-search-location fa-4x" style="margin-bottom: 20px;"></i>
                         <h2>RECHERCHEZ UNE COMMUNE PAR CODE POSTAL</h2>
-                        <p>Saisissez un code postal dans la barre latérale pour afficher les prévisions détaillées.</p>
+                        <p>Saisissez un code postal dans la barre lat├®rale pour afficher les pr├®visions d├®taill├®es.</p>
                     </div>
                 </div>
             </div>
             <div id="loading">
                 <div class="spinner"></div>
                 <span id="loading-text"
-                    style="font-weight:bold; color:#FFD700; font-size: 16px; text-transform: uppercase;">Mise à
+                    style="font-weight:bold; color:#FFD700; font-size: 16px; text-transform: uppercase;">Mise ├á
                     jour...</span>
             </div>
         </div>
@@ -1701,7 +1629,7 @@
 
     <!-- Icon Picker -->
     <div id="icon-picker-modal" class="custom-modal">
-        <h3 style="text-align:center; color:#FFD700; margin: 0 0 15px 0; font-weight: 900;">ÉDITION MÉTÉO</h3>
+        <h3 style="text-align:center; color:#FFD700; margin: 0 0 15px 0; font-weight: 900;">├ëDITION M├ëT├ëO</h3>
         <div class="picker-grid" id="picker-grid-content"></div>
         <button onclick="hideCurrentMarker()" class="modal-btn btn-delete">MASQUER CE POINT</button>
         <button onclick="closePickers()" class="modal-btn btn-cancel">ANNULER</button>
@@ -1751,20 +1679,20 @@
 
     <script>
         const zoneConfigs = {
-            france: { id: 'fra', name: "FRANCE ENTIÈRE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/france.geojson', padding: [15, 15, 15, 15], center: [46.5, 2.5], zoom: 6, cities: [{ name: "BREST", lat: 48.39, lon: -4.48 }, { name: "RENNES", lat: 48.11, lon: -1.67 }, { name: "CHERBOURG", lat: 49.63, lon: -1.62 }, { name: "ROUEN", lat: 49.44, lon: 1.10 }, { name: "PARIS", lat: 48.85, lon: 2.35 }, { name: "AMIENS", lat: 49.89, lon: 2.29 }, { name: "LILLE", lat: 50.62, lon: 3.05 }, { name: "REIMS", lat: 49.25, lon: 4.03 }, { name: "METZ", lat: 49.11, lon: 6.17 }, { name: "NANTES", lat: 47.21, lon: -1.55 }, { name: "TOURS", lat: 47.39, lon: 0.68 }, { name: "AUXERRE", lat: 47.79, lon: 3.57 }, { name: "CHAUMONT", lat: 48.11, lon: 5.14 }, { name: "STRASBOURG", lat: 48.57, lon: 7.75 }, { name: "BOURGES", lat: 47.08, lon: 2.39 }, { name: "BELFORT", lat: 47.63, lon: 6.86 }, { name: "LIMOGES", lat: 45.83, lon: 1.26 }, { name: "VICHY", lat: 46.12, lon: 3.42 }, { name: "CHALON/S.", lat: 46.78, lon: 4.85 }, { name: "LYON", lat: 45.76, lon: 4.83 }, { name: "PONTARLIER", lat: 46.90, lon: 6.35 }, { name: "LA ROCHELLE", lat: 46.16, lon: -1.15 }, { name: "BORDEAUX", lat: 44.83, lon: -0.57 }, { name: "BIARRITZ", lat: 43.48, lon: -1.56 }, { name: "TARBES", lat: 43.23, lon: 0.07 }, { name: "TOULOUSE", lat: 43.60, lon: 1.44 }, { name: "AURILLAC", lat: 44.92, lon: 2.44 }, { name: "MONTÉLIMAR", lat: 44.55, lon: 4.75 }, { name: "GAP", lat: 44.55, lon: 6.07 }, { name: "PERPIGNAN", lat: 42.69, lon: 2.89 }, { name: "MONTPELLIER", lat: 43.61, lon: 3.87 }, { name: "MARSEILLE", lat: 43.29, lon: 5.36 }, { name: "NICE", lat: 43.71, lon: 7.26 }, { name: "AJACCIO", lat: 41.92, lon: 8.73 }, { name: "BASTIA", lat: 42.69, lon: 9.45 }, { name: "ALENÇON", lat: 48.43, lon: 0.09 }, { name: "BOURG-ST-M.", lat: 45.62, lon: 6.77 }] },
-            hdf: { id: 'hdf', name: "HAUTS-DE-FRANCE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/hauts-de-france/region-hauts-de-france.geojson', padding: [60, 20, 20, 20], center: [49.9, 2.8], zoom: 8, cities: [{ name: "Château-Thierry", lat: 49.046, lon: 3.403 }, { name: "Laon", lat: 49.56, lon: 3.62 }, { name: "Saint-Quentin", lat: 49.85, lon: 3.29 }, { name: "Soissons", lat: 49.38, lon: 3.32 }, { name: "Vervins", lat: 49.83, lon: 3.91 }, { name: "Avesnes-sur-Helpe", lat: 50.12, lon: 3.93 }, { name: "Cambrai", lat: 50.17, lon: 3.23 }, { name: "Dunkerque", lat: 51.03, lon: 2.37 }, { name: "Hazebrouck", lat: 50.72, lon: 2.53 }, { name: "Lille", lat: 50.63, lon: 3.06 }, { name: "Valenciennes", lat: 50.36, lon: 3.52 }, { name: "Beauvais", lat: 49.43, lon: 2.08 }, { name: "Compiègne", lat: 49.41, lon: 2.82 }, { name: "Senlis", lat: 49.207, lon: 2.585 }, { name: "Feuquières", lat: 49.64, lon: 1.85 }, { name: "Rosoy-en-Multien", lat: 49.098, lon: 2.995 }, { name: "Arras", lat: 50.29, lon: 2.78 }, { name: "Berck", lat: 50.40, lon: 1.57 }, { name: "Calais", lat: 50.95, lon: 1.85 }, { name: "Renty", lat: 50.58, lon: 2.06 }, { name: "Saint-Pol-sur-Ternoise", lat: 50.38, lon: 2.33 }, { name: "Abbeville", lat: 50.11, lon: 1.83 }, { name: "Amiens", lat: 49.89, lon: 2.30 }, { name: "Estrées-Deniécourt", lat: 49.87, lon: 2.82 }, { name: "Montdidier", lat: 49.65, lon: 2.57 }] },
-            normandie: { id: 'nor', name: "NORMANDIE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/normandie/region-normandie.geojson', padding: [60, 20, 20, 20], center: [49.1, 0.4], zoom: 8, cities: [{ name: "Bayeux", lat: 49.28, lon: -0.70 }, { name: "Caen", lat: 49.18, lon: -0.37 }, { name: "Clécy", lat: 48.91, lon: -0.48 }, { name: "Lisieux", lat: 49.14, lon: 0.22 }, { name: "Vire", lat: 48.84, lon: -0.89 }, { name: "Brionne", lat: 49.19, lon: 0.72 }, { name: "Étrépagny", lat: 49.30, lon: 1.61 }, { name: "Évreux", lat: 49.02, lon: 1.15 }, { name: "Giverny", lat: 49.07, lon: 1.53 }, { name: "Vesly", lat: 49.24, lon: 1.65 }, { name: "Verneuil-sur-Avre", lat: 48.74, lon: 0.93 }, { name: "Avranches", lat: 48.68, lon: -1.36 }, { name: "Cherbourg-Octeville", lat: 49.63, lon: -1.62 }, { name: "Coutances", lat: 49.05, lon: -1.44 }, { name: "Saint-Lô", lat: 49.11, lon: -1.09 }, { name: "Alençon", lat: 48.43, lon: 0.09 }, { name: "Argentan", lat: 48.74, lon: -0.02 }, { name: "Domfront", lat: 48.59, lon: -0.65 }, { name: "Mortagne-au-Perche", lat: 48.52, lon: 0.54 }, { name: "Villers-en-Ouche", lat: 48.86, lon: 0.57 }, { name: "Dieppe", lat: 49.92, lon: 1.07 }, { name: "Fécamp", lat: 49.75, lon: 0.37 }, { name: "Le Havre", lat: 49.49, lon: 0.10 }, { name: "Neufchâtel-en-Bray", lat: 49.73, lon: 1.44 }, { name: "Rouen", lat: 49.44, lon: 1.09 }, { name: "Le Tréport", lat: 50.06, lon: 1.37 }] },
-            "ile-de-france": { id: 'idf', name: "ÎLE-DE-FRANCE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/ile-de-france/region-ile-de-france.geojson', padding: [60, 20, 20, 20], center: [48.8, 2.3], zoom: 9, cities: [{ name: "Paris", lat: 48.85, lon: 2.35 }, { name: "Chelles", lat: 48.88, lon: 2.59 }, { name: "Coulommiers", lat: 48.81, lon: 3.08 }, { name: "Fontainebleau", lat: 48.41, lon: 2.70 }, { name: "La Ferté-Gaucher", lat: 48.78, lon: 3.30 }, { name: "Meaux", lat: 48.96, lon: 2.89 }, { name: "Melun", lat: 48.54, lon: 2.66 }, { name: "Montereau-Fault-Yonne", lat: 48.38, lon: 2.95 }, { name: "Nangis", lat: 48.56, lon: 3.02 }, { name: "Nemours", lat: 48.27, lon: 2.69 }, { name: "Provins", lat: 48.56, lon: 3.30 }, { name: "Tournan-en-Brie", lat: 48.74, lon: 2.77 }, { name: "Houdan", lat: 48.79, lon: 1.60 }, { name: "Mantes-la-Jolie", lat: 48.99, lon: 1.72 }, { name: "Orgeval", lat: 48.92, lon: 1.98 }, { name: "Rambouillet", lat: 48.64, lon: 1.83 }, { name: "Versailles", lat: 48.80, lon: 2.13 }, { name: "Arpajon", lat: 48.59, lon: 2.25 }, { name: "Étampes", lat: 48.43, lon: 2.16 }, { name: "Évry", lat: 48.62, lon: 2.44 }, { name: "Milly-la-Forêt", lat: 48.40, lon: 2.47 }, { name: "Nanterre", lat: 48.89, lon: 2.20 }, { name: "Aulnay-sous-Bois", lat: 48.93, lon: 2.50 }, { name: "Bobigny", lat: 48.91, lon: 2.44 }, { name: "Créteil", lat: 48.79, lon: 2.46 }, { name: "Cergy", lat: 49.04, lon: 2.08 }, { name: "Magny-en-Vexin", lat: 49.16, lon: 1.79 }, { name: "Marly-la-Ville", lat: 49.08, lon: 2.50 }, { name: "Pontoise", lat: 49.05, lon: 2.10 }] },
-            "grand-est": { id: 'ges', name: "GRAND EST", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/grand-est/region-grand-est.geojson', padding: [60, 20, 20, 20], center: [48.6, 5.8], zoom: 7.2, cities: [{ name: "Charleville-Mézières", lat: 49.76, lon: 4.71 }, { name: "Rethel", lat: 49.51, lon: 4.36 }, { name: "Nogent-sur-Seine", lat: 48.49, lon: 3.50 }, { name: "Troyes", lat: 48.30, lon: 4.07 }, { name: "Vitry-le-Croisé", lat: 48.15, lon: 4.65 }, { name: "Châlons-en-Champagne", lat: 48.95, lon: 4.36 }, { name: "Épernay", lat: 49.04, lon: 3.95 }, { name: "Reims", lat: 49.25, lon: 4.03 }, { name: "Vitry-le-François", lat: 48.72, lon: 4.58 }, { name: "Chaumont", lat: 48.11, lon: 5.14 }, { name: "Langres", lat: 47.86, lon: 5.33 }, { name: "Saint-Dizier", lat: 48.63, lon: 4.95 }, { name: "Longwy", lat: 49.52, lon: 5.76 }, { name: "Lunéville", lat: 48.59, lon: 6.49 }, { name: "Nancy", lat: 48.69, lon: 6.18 }, { name: "Bar-le-Duc", lat: 48.77, lon: 5.16 }, { name: "Commercy", lat: 48.76, lon: 5.59 }, { name: "Verdun", lat: 49.16, lon: 5.38 }, { name: "Metz", lat: 49.11, lon: 6.17 }, { name: "Sarrebourg", lat: 48.73, lon: 7.05 }, { name: "Sarreguemines", lat: 49.11, lon: 7.06 }, { name: "Strasbourg", lat: 48.57, lon: 7.75 }, { name: "Wissembourg", lat: 49.03, lon: 7.94 }, { name: "Colmar", lat: 48.08, lon: 7.35 }, { name: "Mulhouse", lat: 47.75, lon: 7.33 }, { name: "Épinal", lat: 48.17, lon: 6.45 }, { name: "Neufchâteau", lat: 48.35, lon: 5.69 }, { name: "Saint-Dié-des-Vosges", lat: 48.29, lon: 6.95 }] },
-            ara: { id: 'ara', name: "AUVERGNE-RHÔNE-ALPES", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/auvergne-rhone-alpes/region-auvergne-rhone-alpes.geojson', padding: [60, 20, 20, 20], center: [45.5, 4.5], zoom: 7.2, cities: [{ name: "Bourg-en-Bresse", lat: 46.20, lon: 5.22 }, { name: "Vichy", lat: 46.12, lon: 3.42 }, { name: "Montluçon", lat: 46.34, lon: 2.60 }, { name: "Moulins", lat: 46.56, lon: 3.33 }, { name: "Privas", lat: 44.73, lon: 4.59 }, { name: "Sablières", lat: 44.53, lon: 4.07 }, { name: "Aurillac", lat: 44.93, lon: 2.44 }, { name: "Saint-Flour", lat: 45.03, lon: 3.09 }, { name: "Dieulefit", lat: 44.52, lon: 5.06 }, { name: "Montélimar", lat: 44.56, lon: 4.75 }, { name: "Valence", lat: 44.93, lon: 4.89 }, { name: "Bourgoin-Jallieu", lat: 45.59, lon: 5.28 }, { name: "Grenoble", lat: 45.18, lon: 5.72 }, { name: "Lalley", lat: 44.76, lon: 5.67 }, { name: "Roanne", lat: 46.03, lon: 4.07 }, { name: "Saint-Étienne", lat: 45.43, lon: 4.39 }, { name: "Le Puy-en-Velay", lat: 45.04, lon: 3.88 }, { name: "Ambert", lat: 45.55, lon: 3.74 }, { name: "Clermont-Ferrand", lat: 45.78, lon: 3.08 }, { name: "Vodable", lat: 45.50, lon: 3.14 }, { name: "Lyon", lat: 45.76, lon: 4.83 }, { name: "Bonneval-sur-Arc", lat: 45.37, lon: 7.04 }, { name: "Chambéry", lat: 45.56, lon: 5.91 }, { name: "Moûtiers", lat: 45.48, lon: 6.53 }, { name: "Annecy", lat: 45.90, lon: 6.12 }, { name: "Chamonix", lat: 45.92, lon: 6.86 }, { name: "Thonon-les-Bains", lat: 46.37, lon: 6.48 }] },
-            naq: { id: 'naq', name: "NOUVELLE-AQUITAINE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/nouvelle-aquitaine/region-nouvelle-aquitaine.geojson', padding: [60, 20, 20, 20], center: [45.2, 0.4], zoom: 6.8, cities: [{ name: "Angoulême", lat: 45.65, lon: 0.15 }, { name: "La Rochelle", lat: 46.16, lon: -1.15 }, { name: "Pons", lat: 45.58, lon: -0.55 }, { name: "Brive-la-Gaillarde", lat: 45.15, lon: 1.53 }, { name: "Tulle", lat: 45.26, lon: 1.77 }, { name: "Guéret", lat: 46.17, lon: 1.87 }, { name: "Périgueux", lat: 45.18, lon: 0.72 }, { name: "Bordeaux", lat: 44.83, lon: -0.57 }, { name: "Mimizan", lat: 44.20, lon: -1.23 }, { name: "Mont-de-Marsan", lat: 43.89, lon: -0.50 }, { name: "Agen", lat: 44.20, lon: 0.61 }, { name: "Marmande", lat: 44.50, lon: 0.16 }, { name: "Bayonne", lat: 43.49, lon: -1.47 }, { name: "Oloron-Sainte-Marie", lat: 43.19, lon: -0.60 }, { name: "Pau", lat: 43.30, lon: -0.37 }, { name: "Saint-Jean-de-Luz", lat: 43.38, lon: -1.66 }, { name: "Niort", lat: 46.32, lon: -0.46 }, { name: "Poitiers", lat: 46.58, lon: 0.34 }, { name: "Limoges", lat: 45.83, lon: 1.26 }] },
-            occitanie: { id: 'occ', name: "OCCITANIE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/occitanie/region-occitanie.geojson', padding: [60, 20, 20, 20], center: [43.6, 2.3], zoom: 7, cities: [{ name: "Foix", lat: 42.96, lon: 1.60 }, { name: "Carcassonne", lat: 43.21, lon: 2.35 }, { name: "Salles-sur-l'Hers", lat: 43.29, lon: 1.78 }, { name: "Laguiole", lat: 44.68, lon: 2.85 }, { name: "Rodez", lat: 44.35, lon: 2.57 }, { name: "Saint-Affrique", lat: 43.96, lon: 2.88 }, { name: "Alès", lat: 44.12, lon: 4.08 }, { name: "Nîmes", lat: 43.83, lon: 4.36 }, { name: "Saint-Gaudens", lat: 43.10, lon: 0.72 }, { name: "Toulouse", lat: 43.60, lon: 1.44 }, { name: "Auch", lat: 43.64, lon: 0.58 }, { name: "Béziers", lat: 43.34, lon: 3.21 }, { name: "Montpellier", lat: 43.61, lon: 3.87 }, { name: "Cahors", lat: 44.44, lon: 1.44 }, { name: "Saint-Céré", lat: 44.86, lon: 1.89 }, { name: "Mende", lat: 44.51, lon: 3.50 }, { name: "Tarbes", lat: 43.23, lon: 0.07 }, { name: "Font-Romeu", lat: 42.50, lon: 2.04 }, { name: "Perpignan", lat: 42.69, lon: 2.89 }, { name: "Albi", lat: 43.92, lon: 2.14 }, { name: "Castres", lat: 43.60, lon: 2.24 }, { name: "Montauban", lat: 44.01, lon: 1.35 }] },
-            paca: { id: 'pac', name: "PACA", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/provence-alpes-cote-d-azur/region-provence-alpes-cote-d-azur.geojson', padding: [60, 20, 20, 20], center: [43.8, 6.2], zoom: 7.8, cities: [{ name: "Barcelonnette", lat: 44.38, lon: 6.65 }, { name: "Digne-les-Bains", lat: 44.09, lon: 6.23 }, { name: "Forcalquier", lat: 43.96, lon: 5.78 }, { name: "Briançon", lat: 44.89, lon: 6.64 }, { name: "Étoile-Saint-Cyrice", lat: 44.31, lon: 5.63 }, { name: "Gap", lat: 44.56, lon: 6.07 }, { name: "Vallouise", lat: 44.84, lon: 6.48 }, { name: "Cannes", lat: 43.55, lon: 7.01 }, { name: "Nice", lat: 43.71, lon: 7.26 }, { name: "Puget-Théniers", lat: 43.95, lon: 6.89 }, { name: "Tende", lat: 44.08, lon: 7.59 }, { name: "Aix-en-Provence", lat: 43.52, lon: 5.44 }, { name: "Istres", lat: 43.51, lon: 4.99 }, { name: "Marseille", lat: 43.29, lon: 5.36 }, { name: "Saintes-Maries-de-la-Mer", lat: 43.45, lon: 4.42 }, { name: "Castellet", lat: 43.20, lon: 5.77 }, { name: "Draguignan", lat: 43.53, lon: 6.46 }, { name: "Gonfaron", lat: 43.31, lon: 6.29 }, { name: "Saint-Maximin", lat: 43.45, lon: 5.86 }, { name: "Saint-Tropez", lat: 43.27, lon: 6.64 }, { name: "Toulon", lat: 43.12, lon: 5.93 }, { name: "Avignon", lat: 43.94, lon: 4.80 }, { name: "Carpentras", lat: 44.05, lon: 5.04 }] },
-            bfc: { id: 'bfc', name: "BOURGOGNE-F-COMTÉ", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/bourgogne-franche-comte/region-bourgogne-franche-comte.geojson', padding: [60, 20, 20, 20], center: [47.2, 5.0], zoom: 7.5, cities: [{ name: "Châtillon-sur-Seine", lat: 47.86, lon: 4.57 }, { name: "Dijon", lat: 47.32, lon: 5.04 }, { name: "Pouilly-en-Auxois", lat: 47.25, lon: 4.55 }, { name: "Besançon", lat: 47.23, lon: 6.02 }, { name: "Pontarlier", lat: 46.90, lon: 6.35 }, { name: "Sancey-le-Grand", lat: 47.29, lon: 6.58 }, { name: "Dole", lat: 47.09, lon: 5.49 }, { name: "Lons-le-Saunier", lat: 46.67, lon: 5.55 }, { name: "Morez", lat: 46.52, lon: 6.02 }, { name: "Thoirette", lat: 46.27, lon: 5.53 }, { name: "Cosne-Cours-sur-Loire", lat: 47.41, lon: 2.92 }, { name: "Nevers", lat: 46.99, lon: 3.15 }, { name: "Saint-Honoré-les-Bains", lat: 46.90, lon: 3.84 }, { name: "Varzy", lat: 47.35, lon: 3.39 }, { name: "Ainvelle", lat: 47.84, lon: 6.25 }, { name: "Nantilly", lat: 47.44, lon: 5.54 }, { name: "Vesoul", lat: 47.62, lon: 6.15 }, { name: "Autun", lat: 46.95, lon: 4.29 }, { name: "Chalon-sur-Saône", lat: 46.78, lon: 4.85 }, { name: "Charolles", lat: 46.43, lon: 4.27 }, { name: "Mâcon", lat: 46.30, lon: 4.83 }, { name: "Montceau-les-Mines", lat: 46.67, lon: 4.36 }, { name: "Auxerre", lat: 47.79, lon: 3.57 }, { name: "Sens", lat: 48.19, lon: 3.28 }, { name: "Belfort", lat: 47.63, lon: 6.86 }] },
-            bretagne: { id: 'bre', name: "BRETAGNE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/bretagne/region-bretagne.geojson', padding: [60, 20, 20, 20], center: [48.1, -2.8], zoom: 7.8, cities: [{ name: "Lannion", lat: 48.73, lon: -3.46 }, { name: "Merdrignac", lat: 48.19, lon: -2.41 }, { name: "Rostrenen", lat: 48.23, lon: -3.31 }, { name: "Saint-Brieuc", lat: 48.51, lon: -2.76 }, { name: "Brest", lat: 48.39, lon: -4.48 }, { name: "Île-de-Sein", lat: 48.03, lon: -4.85 }, { name: "Morlaix", lat: 48.57, lon: -3.82 }, { name: "Ouessant", lat: 48.45, lon: -5.09 }, { name: "Quimper", lat: 47.99, lon: -4.09 }, { name: "Fougères", lat: 48.35, lon: -1.20 }, { name: "Redon", lat: 47.65, lon: -2.08 }, { name: "Rennes", lat: 48.11, lon: -1.67 }, { name: "Saint-Malo", lat: 48.64, lon: -2.02 }, { name: "Lorient", lat: 47.74, lon: -3.36 }, { name: "Pontivy", lat: 48.06, lon: -2.96 }, { name: "Vannes", lat: 47.65, lon: -2.76 }] },
-            pdl: { id: 'pdl', name: "PAYS DE LA LOIRE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/pays-de-la-loire/region-pays-de-la-loire.geojson', padding: [60, 20, 20, 20], center: [47.5, -0.6], zoom: 7.8, cities: [{ name: "Blain", lat: 47.47, lon: -1.76 }, { name: "Châteaubriant", lat: 47.71, lon: -1.37 }, { name: "NANTES", lat: 47.21, lon: -1.55 }, { name: "Saint-Nazaire", lat: 47.27, lon: -2.21 }, { name: "Angers", lat: 47.47, lon: -0.55 }, { name: "Cholet", lat: 47.06, lon: -0.87 }, { name: "Nyoiseau", lat: 47.71, lon: -0.91 }, { name: "Saumur", lat: 47.26, lon: -0.07 }, { name: "Ernée", lat: 48.30, lon: -0.93 }, { name: "Javron-les-Chapelles", lat: 48.41, lon: -0.34 }, { name: "Laval", lat: 48.07, lon: -0.77 }, { name: "La Ferté-Bernard", lat: 48.18, lon: 0.65 }, { name: "La Flèche", lat: 47.70, lon: -0.07 }, { name: "Le Mans", lat: 48.00, lon: 0.19 }, { name: "Mamers", lat: 48.35, lon: 0.37 }, { name: "Saint-Denis-d'Orques", lat: 48.02, lon: -0.27 }, { name: "Challans", lat: 46.84, lon: -1.88 }, { name: "Fontenay-le-Comte", lat: 46.46, lon: -0.80 }, { name: "L'Île-d'Yeu", lat: 46.72, lon: -2.34 }, { name: "La Roche-sur-Yon", lat: 46.67, lon: -1.42 }, { name: "La Tranche-sur-Mer", lat: 46.34, lon: -1.43 }] },
-            cvl: { id: 'cvl', name: "CENTRE-VAL DE LOIRE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/centre-val-de-loire/region-centre-val-de-loire.geojson', padding: [60, 20, 20, 20], center: [47.5, 1.8], zoom: 7.8, cities: [{ name: "Argent-sur-Sauldre", lat: 47.56, lon: 2.45 }, { name: "Bourges", lat: 47.08, lon: 2.39 }, { name: "Saint-Amand-Montrond", lat: 46.72, lon: 2.50 }, { name: "Sancerre", lat: 47.33, lon: 2.84 }, { name: "Chartres", lat: 48.44, lon: 1.48 }, { name: "Châteaudun", lat: 48.07, lon: 1.33 }, { name: "Dreux", lat: 48.73, lon: 1.36 }, { name: "Nogent-le-Rotrou", lat: 48.32, lon: 0.82 }, { name: "Châteauroux", lat: 46.81, lon: 1.69 }, { name: "Écueillé", lat: 47.08, lon: 1.34 }, { name: "Éguzon-Chantôme", lat: 46.44, lon: 1.58 }, { name: "Le Blanc", lat: 46.63, lon: 1.06 }, { name: "Chinon", lat: 47.16, lon: 0.24 }, { name: "Le Grand-Pressigny", lat: 46.92, lon: 0.80 }, { name: "Tours", lat: 47.39, lon: 0.68 }, { name: "Blois", lat: 47.58, lon: 1.33 }, { name: "Romorantin-Lanthenay", lat: 47.35, lon: 1.74 }, { name: "Vendôme", lat: 47.79, lon: 1.06 }, { name: "Montargis", lat: 47.99, lon: 2.73 }, { name: "Orléans", lat: 47.90, lon: 1.90 }, { name: "Pithiviers", lat: 48.17, lon: 2.25 }] },
-            corse: { id: 'cor', name: "CORSE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/corse/region-corse.geojson', padding: [60, 20, 20, 20], center: [42.1, 9.1], zoom: 8.5, cities: [{ name: "Ajaccio", lat: 41.92, lon: 8.73 }, { name: "Figari", lat: 41.48, lon: 9.09 }, { name: "Porto-Vecchio", lat: 41.59, lon: 9.27 }, { name: "Sartène", lat: 41.62, lon: 8.97 }, { name: "Zévaco", lat: 41.89, lon: 9.05 }, { name: "Bastia", lat: 42.69, lon: 9.45 }, { name: "Calvi", lat: 42.56, lon: 8.75 }, { name: "Cervione", lat: 42.33, lon: 9.49 }, { name: "Corte", lat: 42.30, lon: 9.15 }, { name: "Pietralba", lat: 42.54, lon: 9.18 }, { name: "Prunelli-di-Fiumorbo", lat: 42.01, lon: 9.32 }, { name: "Rogliano", lat: 42.95, lon: 9.41 }, { name: "Vico", lat: 42.16, lon: 8.80 }] },
+            france: { id: 'fra', name: "FRANCE ENTI├êRE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/france.geojson', padding: [15, 15, 15, 15], center: [46.5, 2.5], zoom: 6, cities: [{ name: "BREST", lat: 48.39, lon: -4.48 }, { name: "RENNES", lat: 48.11, lon: -1.67 }, { name: "CHERBOURG", lat: 49.63, lon: -1.62 }, { name: "ROUEN", lat: 49.44, lon: 1.10 }, { name: "PARIS", lat: 48.85, lon: 2.35 }, { name: "AMIENS", lat: 49.89, lon: 2.29 }, { name: "LILLE", lat: 50.62, lon: 3.05 }, { name: "REIMS", lat: 49.25, lon: 4.03 }, { name: "METZ", lat: 49.11, lon: 6.17 }, { name: "NANTES", lat: 47.21, lon: -1.55 }, { name: "TOURS", lat: 47.39, lon: 0.68 }, { name: "AUXERRE", lat: 47.79, lon: 3.57 }, { name: "CHAUMONT", lat: 48.11, lon: 5.14 }, { name: "STRASBOURG", lat: 48.57, lon: 7.75 }, { name: "BOURGES", lat: 47.08, lon: 2.39 }, { name: "BELFORT", lat: 47.63, lon: 6.86 }, { name: "LIMOGES", lat: 45.83, lon: 1.26 }, { name: "VICHY", lat: 46.12, lon: 3.42 }, { name: "CHALON/S.", lat: 46.78, lon: 4.85 }, { name: "LYON", lat: 45.76, lon: 4.83 }, { name: "PONTARLIER", lat: 46.90, lon: 6.35 }, { name: "LA ROCHELLE", lat: 46.16, lon: -1.15 }, { name: "BORDEAUX", lat: 44.83, lon: -0.57 }, { name: "BIARRITZ", lat: 43.48, lon: -1.56 }, { name: "TARBES", lat: 43.23, lon: 0.07 }, { name: "TOULOUSE", lat: 43.60, lon: 1.44 }, { name: "AURILLAC", lat: 44.92, lon: 2.44 }, { name: "MONT├ëLIMAR", lat: 44.55, lon: 4.75 }, { name: "GAP", lat: 44.55, lon: 6.07 }, { name: "PERPIGNAN", lat: 42.69, lon: 2.89 }, { name: "MONTPELLIER", lat: 43.61, lon: 3.87 }, { name: "MARSEILLE", lat: 43.29, lon: 5.36 }, { name: "NICE", lat: 43.71, lon: 7.26 }, { name: "AJACCIO", lat: 41.92, lon: 8.73 }, { name: "BASTIA", lat: 42.69, lon: 9.45 }, { name: "ALEN├çON", lat: 48.43, lon: 0.09 }, { name: "BOURG-ST-M.", lat: 45.62, lon: 6.77 }] },
+            hdf: { id: 'hdf', name: "HAUTS-DE-FRANCE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/hauts-de-france/region-hauts-de-france.geojson', padding: [60, 20, 20, 20], center: [49.9, 2.8], zoom: 8, cities: [{ name: "Ch├óteau-Thierry", lat: 49.046, lon: 3.403 }, { name: "Laon", lat: 49.56, lon: 3.62 }, { name: "Saint-Quentin", lat: 49.85, lon: 3.29 }, { name: "Soissons", lat: 49.38, lon: 3.32 }, { name: "Vervins", lat: 49.83, lon: 3.91 }, { name: "Avesnes-sur-Helpe", lat: 50.12, lon: 3.93 }, { name: "Cambrai", lat: 50.17, lon: 3.23 }, { name: "Dunkerque", lat: 51.03, lon: 2.37 }, { name: "Hazebrouck", lat: 50.72, lon: 2.53 }, { name: "Lille", lat: 50.63, lon: 3.06 }, { name: "Valenciennes", lat: 50.36, lon: 3.52 }, { name: "Beauvais", lat: 49.43, lon: 2.08 }, { name: "Compi├¿gne", lat: 49.41, lon: 2.82 }, { name: "Senlis", lat: 49.207, lon: 2.585 }, { name: "Feuqui├¿res", lat: 49.64, lon: 1.85 }, { name: "Rosoy-en-Multien", lat: 49.098, lon: 2.995 }, { name: "Arras", lat: 50.29, lon: 2.78 }, { name: "Berck", lat: 50.40, lon: 1.57 }, { name: "Calais", lat: 50.95, lon: 1.85 }, { name: "Renty", lat: 50.58, lon: 2.06 }, { name: "Saint-Pol-sur-Ternoise", lat: 50.38, lon: 2.33 }, { name: "Abbeville", lat: 50.11, lon: 1.83 }, { name: "Amiens", lat: 49.89, lon: 2.30 }, { name: "Estr├®es-Deni├®court", lat: 49.87, lon: 2.82 }, { name: "Montdidier", lat: 49.65, lon: 2.57 }] },
+            normandie: { id: 'nor', name: "NORMANDIE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/normandie/region-normandie.geojson', padding: [60, 20, 20, 20], center: [49.1, 0.4], zoom: 8, cities: [{ name: "Bayeux", lat: 49.28, lon: -0.70 }, { name: "Caen", lat: 49.18, lon: -0.37 }, { name: "Cl├®cy", lat: 48.91, lon: -0.48 }, { name: "Lisieux", lat: 49.14, lon: 0.22 }, { name: "Vire", lat: 48.84, lon: -0.89 }, { name: "Brionne", lat: 49.19, lon: 0.72 }, { name: "├ëtr├®pagny", lat: 49.30, lon: 1.61 }, { name: "├ëvreux", lat: 49.02, lon: 1.15 }, { name: "Giverny", lat: 49.07, lon: 1.53 }, { name: "Vesly", lat: 49.24, lon: 1.65 }, { name: "Verneuil-sur-Avre", lat: 48.74, lon: 0.93 }, { name: "Avranches", lat: 48.68, lon: -1.36 }, { name: "Cherbourg-Octeville", lat: 49.63, lon: -1.62 }, { name: "Coutances", lat: 49.05, lon: -1.44 }, { name: "Saint-L├┤", lat: 49.11, lon: -1.09 }, { name: "Alen├ºon", lat: 48.43, lon: 0.09 }, { name: "Argentan", lat: 48.74, lon: -0.02 }, { name: "Domfront", lat: 48.59, lon: -0.65 }, { name: "Mortagne-au-Perche", lat: 48.52, lon: 0.54 }, { name: "Villers-en-Ouche", lat: 48.86, lon: 0.57 }, { name: "Dieppe", lat: 49.92, lon: 1.07 }, { name: "F├®camp", lat: 49.75, lon: 0.37 }, { name: "Le Havre", lat: 49.49, lon: 0.10 }, { name: "Neufch├ótel-en-Bray", lat: 49.73, lon: 1.44 }, { name: "Rouen", lat: 49.44, lon: 1.09 }, { name: "Le Tr├®port", lat: 50.06, lon: 1.37 }] },
+            "ile-de-france": { id: 'idf', name: "├ÄLE-DE-FRANCE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/ile-de-france/region-ile-de-france.geojson', padding: [60, 20, 20, 20], center: [48.8, 2.3], zoom: 9, cities: [{ name: "Paris", lat: 48.85, lon: 2.35 }, { name: "Chelles", lat: 48.88, lon: 2.59 }, { name: "Coulommiers", lat: 48.81, lon: 3.08 }, { name: "Fontainebleau", lat: 48.41, lon: 2.70 }, { name: "La Fert├®-Gaucher", lat: 48.78, lon: 3.30 }, { name: "Meaux", lat: 48.96, lon: 2.89 }, { name: "Melun", lat: 48.54, lon: 2.66 }, { name: "Montereau-Fault-Yonne", lat: 48.38, lon: 2.95 }, { name: "Nangis", lat: 48.56, lon: 3.02 }, { name: "Nemours", lat: 48.27, lon: 2.69 }, { name: "Provins", lat: 48.56, lon: 3.30 }, { name: "Tournan-en-Brie", lat: 48.74, lon: 2.77 }, { name: "Houdan", lat: 48.79, lon: 1.60 }, { name: "Mantes-la-Jolie", lat: 48.99, lon: 1.72 }, { name: "Orgeval", lat: 48.92, lon: 1.98 }, { name: "Rambouillet", lat: 48.64, lon: 1.83 }, { name: "Versailles", lat: 48.80, lon: 2.13 }, { name: "Arpajon", lat: 48.59, lon: 2.25 }, { name: "├ëtampes", lat: 48.43, lon: 2.16 }, { name: "├ëvry", lat: 48.62, lon: 2.44 }, { name: "Milly-la-For├¬t", lat: 48.40, lon: 2.47 }, { name: "Nanterre", lat: 48.89, lon: 2.20 }, { name: "Aulnay-sous-Bois", lat: 48.93, lon: 2.50 }, { name: "Bobigny", lat: 48.91, lon: 2.44 }, { name: "Cr├®teil", lat: 48.79, lon: 2.46 }, { name: "Cergy", lat: 49.04, lon: 2.08 }, { name: "Magny-en-Vexin", lat: 49.16, lon: 1.79 }, { name: "Marly-la-Ville", lat: 49.08, lon: 2.50 }, { name: "Pontoise", lat: 49.05, lon: 2.10 }] },
+            "grand-est": { id: 'ges', name: "GRAND EST", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/grand-est/region-grand-est.geojson', padding: [60, 20, 20, 20], center: [48.6, 5.8], zoom: 7.2, cities: [{ name: "Charleville-M├®zi├¿res", lat: 49.76, lon: 4.71 }, { name: "Rethel", lat: 49.51, lon: 4.36 }, { name: "Nogent-sur-Seine", lat: 48.49, lon: 3.50 }, { name: "Troyes", lat: 48.30, lon: 4.07 }, { name: "Vitry-le-Crois├®", lat: 48.15, lon: 4.65 }, { name: "Ch├ólons-en-Champagne", lat: 48.95, lon: 4.36 }, { name: "├ëpernay", lat: 49.04, lon: 3.95 }, { name: "Reims", lat: 49.25, lon: 4.03 }, { name: "Vitry-le-Fran├ºois", lat: 48.72, lon: 4.58 }, { name: "Chaumont", lat: 48.11, lon: 5.14 }, { name: "Langres", lat: 47.86, lon: 5.33 }, { name: "Saint-Dizier", lat: 48.63, lon: 4.95 }, { name: "Longwy", lat: 49.52, lon: 5.76 }, { name: "Lun├®ville", lat: 48.59, lon: 6.49 }, { name: "Nancy", lat: 48.69, lon: 6.18 }, { name: "Bar-le-Duc", lat: 48.77, lon: 5.16 }, { name: "Commercy", lat: 48.76, lon: 5.59 }, { name: "Verdun", lat: 49.16, lon: 5.38 }, { name: "Metz", lat: 49.11, lon: 6.17 }, { name: "Sarrebourg", lat: 48.73, lon: 7.05 }, { name: "Sarreguemines", lat: 49.11, lon: 7.06 }, { name: "Strasbourg", lat: 48.57, lon: 7.75 }, { name: "Wissembourg", lat: 49.03, lon: 7.94 }, { name: "Colmar", lat: 48.08, lon: 7.35 }, { name: "Mulhouse", lat: 47.75, lon: 7.33 }, { name: "├ëpinal", lat: 48.17, lon: 6.45 }, { name: "Neufch├óteau", lat: 48.35, lon: 5.69 }, { name: "Saint-Di├®-des-Vosges", lat: 48.29, lon: 6.95 }] },
+            ara: { id: 'ara', name: "AUVERGNE-RH├öNE-ALPES", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/auvergne-rhone-alpes/region-auvergne-rhone-alpes.geojson', padding: [60, 20, 20, 20], center: [45.5, 4.5], zoom: 7.2, cities: [{ name: "Bourg-en-Bresse", lat: 46.20, lon: 5.22 }, { name: "Vichy", lat: 46.12, lon: 3.42 }, { name: "Montlu├ºon", lat: 46.34, lon: 2.60 }, { name: "Moulins", lat: 46.56, lon: 3.33 }, { name: "Privas", lat: 44.73, lon: 4.59 }, { name: "Sabli├¿res", lat: 44.53, lon: 4.07 }, { name: "Aurillac", lat: 44.93, lon: 2.44 }, { name: "Saint-Flour", lat: 45.03, lon: 3.09 }, { name: "Dieulefit", lat: 44.52, lon: 5.06 }, { name: "Mont├®limar", lat: 44.56, lon: 4.75 }, { name: "Valence", lat: 44.93, lon: 4.89 }, { name: "Bourgoin-Jallieu", lat: 45.59, lon: 5.28 }, { name: "Grenoble", lat: 45.18, lon: 5.72 }, { name: "Lalley", lat: 44.76, lon: 5.67 }, { name: "Roanne", lat: 46.03, lon: 4.07 }, { name: "Saint-├ëtienne", lat: 45.43, lon: 4.39 }, { name: "Le Puy-en-Velay", lat: 45.04, lon: 3.88 }, { name: "Ambert", lat: 45.55, lon: 3.74 }, { name: "Clermont-Ferrand", lat: 45.78, lon: 3.08 }, { name: "Vodable", lat: 45.50, lon: 3.14 }, { name: "Lyon", lat: 45.76, lon: 4.83 }, { name: "Bonneval-sur-Arc", lat: 45.37, lon: 7.04 }, { name: "Chamb├®ry", lat: 45.56, lon: 5.91 }, { name: "Mo├╗tiers", lat: 45.48, lon: 6.53 }, { name: "Annecy", lat: 45.90, lon: 6.12 }, { name: "Chamonix", lat: 45.92, lon: 6.86 }, { name: "Thonon-les-Bains", lat: 46.37, lon: 6.48 }] },
+            naq: { id: 'naq', name: "NOUVELLE-AQUITAINE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/nouvelle-aquitaine/region-nouvelle-aquitaine.geojson', padding: [60, 20, 20, 20], center: [45.2, 0.4], zoom: 6.8, cities: [{ name: "Angoul├¬me", lat: 45.65, lon: 0.15 }, { name: "La Rochelle", lat: 46.16, lon: -1.15 }, { name: "Pons", lat: 45.58, lon: -0.55 }, { name: "Brive-la-Gaillarde", lat: 45.15, lon: 1.53 }, { name: "Tulle", lat: 45.26, lon: 1.77 }, { name: "Gu├®ret", lat: 46.17, lon: 1.87 }, { name: "P├®rigueux", lat: 45.18, lon: 0.72 }, { name: "Bordeaux", lat: 44.83, lon: -0.57 }, { name: "Mimizan", lat: 44.20, lon: -1.23 }, { name: "Mont-de-Marsan", lat: 43.89, lon: -0.50 }, { name: "Agen", lat: 44.20, lon: 0.61 }, { name: "Marmande", lat: 44.50, lon: 0.16 }, { name: "Bayonne", lat: 43.49, lon: -1.47 }, { name: "Oloron-Sainte-Marie", lat: 43.19, lon: -0.60 }, { name: "Pau", lat: 43.30, lon: -0.37 }, { name: "Saint-Jean-de-Luz", lat: 43.38, lon: -1.66 }, { name: "Niort", lat: 46.32, lon: -0.46 }, { name: "Poitiers", lat: 46.58, lon: 0.34 }, { name: "Limoges", lat: 45.83, lon: 1.26 }] },
+            occitanie: { id: 'occ', name: "OCCITANIE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/occitanie/region-occitanie.geojson', padding: [60, 20, 20, 20], center: [43.6, 2.3], zoom: 7, cities: [{ name: "Foix", lat: 42.96, lon: 1.60 }, { name: "Carcassonne", lat: 43.21, lon: 2.35 }, { name: "Salles-sur-l'Hers", lat: 43.29, lon: 1.78 }, { name: "Laguiole", lat: 44.68, lon: 2.85 }, { name: "Rodez", lat: 44.35, lon: 2.57 }, { name: "Saint-Affrique", lat: 43.96, lon: 2.88 }, { name: "Al├¿s", lat: 44.12, lon: 4.08 }, { name: "N├«mes", lat: 43.83, lon: 4.36 }, { name: "Saint-Gaudens", lat: 43.10, lon: 0.72 }, { name: "Toulouse", lat: 43.60, lon: 1.44 }, { name: "Auch", lat: 43.64, lon: 0.58 }, { name: "B├®ziers", lat: 43.34, lon: 3.21 }, { name: "Montpellier", lat: 43.61, lon: 3.87 }, { name: "Cahors", lat: 44.44, lon: 1.44 }, { name: "Saint-C├®r├®", lat: 44.86, lon: 1.89 }, { name: "Mende", lat: 44.51, lon: 3.50 }, { name: "Tarbes", lat: 43.23, lon: 0.07 }, { name: "Font-Romeu", lat: 42.50, lon: 2.04 }, { name: "Perpignan", lat: 42.69, lon: 2.89 }, { name: "Albi", lat: 43.92, lon: 2.14 }, { name: "Castres", lat: 43.60, lon: 2.24 }, { name: "Montauban", lat: 44.01, lon: 1.35 }] },
+            paca: { id: 'pac', name: "PACA", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/provence-alpes-cote-d-azur/region-provence-alpes-cote-d-azur.geojson', padding: [60, 20, 20, 20], center: [43.8, 6.2], zoom: 7.8, cities: [{ name: "Barcelonnette", lat: 44.38, lon: 6.65 }, { name: "Digne-les-Bains", lat: 44.09, lon: 6.23 }, { name: "Forcalquier", lat: 43.96, lon: 5.78 }, { name: "Brian├ºon", lat: 44.89, lon: 6.64 }, { name: "├ëtoile-Saint-Cyrice", lat: 44.31, lon: 5.63 }, { name: "Gap", lat: 44.56, lon: 6.07 }, { name: "Vallouise", lat: 44.84, lon: 6.48 }, { name: "Cannes", lat: 43.55, lon: 7.01 }, { name: "Nice", lat: 43.71, lon: 7.26 }, { name: "Puget-Th├®niers", lat: 43.95, lon: 6.89 }, { name: "Tende", lat: 44.08, lon: 7.59 }, { name: "Aix-en-Provence", lat: 43.52, lon: 5.44 }, { name: "Istres", lat: 43.51, lon: 4.99 }, { name: "Marseille", lat: 43.29, lon: 5.36 }, { name: "Saintes-Maries-de-la-Mer", lat: 43.45, lon: 4.42 }, { name: "Castellet", lat: 43.20, lon: 5.77 }, { name: "Draguignan", lat: 43.53, lon: 6.46 }, { name: "Gonfaron", lat: 43.31, lon: 6.29 }, { name: "Saint-Maximin", lat: 43.45, lon: 5.86 }, { name: "Saint-Tropez", lat: 43.27, lon: 6.64 }, { name: "Toulon", lat: 43.12, lon: 5.93 }, { name: "Avignon", lat: 43.94, lon: 4.80 }, { name: "Carpentras", lat: 44.05, lon: 5.04 }] },
+            bfc: { id: 'bfc', name: "BOURGOGNE-F-COMT├ë", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/bourgogne-franche-comte/region-bourgogne-franche-comte.geojson', padding: [60, 20, 20, 20], center: [47.2, 5.0], zoom: 7.5, cities: [{ name: "Ch├ótillon-sur-Seine", lat: 47.86, lon: 4.57 }, { name: "Dijon", lat: 47.32, lon: 5.04 }, { name: "Pouilly-en-Auxois", lat: 47.25, lon: 4.55 }, { name: "Besan├ºon", lat: 47.23, lon: 6.02 }, { name: "Pontarlier", lat: 46.90, lon: 6.35 }, { name: "Sancey-le-Grand", lat: 47.29, lon: 6.58 }, { name: "Dole", lat: 47.09, lon: 5.49 }, { name: "Lons-le-Saunier", lat: 46.67, lon: 5.55 }, { name: "Morez", lat: 46.52, lon: 6.02 }, { name: "Thoirette", lat: 46.27, lon: 5.53 }, { name: "Cosne-Cours-sur-Loire", lat: 47.41, lon: 2.92 }, { name: "Nevers", lat: 46.99, lon: 3.15 }, { name: "Saint-Honor├®-les-Bains", lat: 46.90, lon: 3.84 }, { name: "Varzy", lat: 47.35, lon: 3.39 }, { name: "Ainvelle", lat: 47.84, lon: 6.25 }, { name: "Nantilly", lat: 47.44, lon: 5.54 }, { name: "Vesoul", lat: 47.62, lon: 6.15 }, { name: "Autun", lat: 46.95, lon: 4.29 }, { name: "Chalon-sur-Sa├┤ne", lat: 46.78, lon: 4.85 }, { name: "Charolles", lat: 46.43, lon: 4.27 }, { name: "M├ócon", lat: 46.30, lon: 4.83 }, { name: "Montceau-les-Mines", lat: 46.67, lon: 4.36 }, { name: "Auxerre", lat: 47.79, lon: 3.57 }, { name: "Sens", lat: 48.19, lon: 3.28 }, { name: "Belfort", lat: 47.63, lon: 6.86 }] },
+            bretagne: { id: 'bre', name: "BRETAGNE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/bretagne/region-bretagne.geojson', padding: [60, 20, 20, 20], center: [48.1, -2.8], zoom: 7.8, cities: [{ name: "Lannion", lat: 48.73, lon: -3.46 }, { name: "Merdrignac", lat: 48.19, lon: -2.41 }, { name: "Rostrenen", lat: 48.23, lon: -3.31 }, { name: "Saint-Brieuc", lat: 48.51, lon: -2.76 }, { name: "Brest", lat: 48.39, lon: -4.48 }, { name: "├Äle-de-Sein", lat: 48.03, lon: -4.85 }, { name: "Morlaix", lat: 48.57, lon: -3.82 }, { name: "Ouessant", lat: 48.45, lon: -5.09 }, { name: "Quimper", lat: 47.99, lon: -4.09 }, { name: "Foug├¿res", lat: 48.35, lon: -1.20 }, { name: "Redon", lat: 47.65, lon: -2.08 }, { name: "Rennes", lat: 48.11, lon: -1.67 }, { name: "Saint-Malo", lat: 48.64, lon: -2.02 }, { name: "Lorient", lat: 47.74, lon: -3.36 }, { name: "Pontivy", lat: 48.06, lon: -2.96 }, { name: "Vannes", lat: 47.65, lon: -2.76 }] },
+            pdl: { id: 'pdl', name: "PAYS DE LA LOIRE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/pays-de-la-loire/region-pays-de-la-loire.geojson', padding: [60, 20, 20, 20], center: [47.5, -0.6], zoom: 7.8, cities: [{ name: "Blain", lat: 47.47, lon: -1.76 }, { name: "Ch├óteaubriant", lat: 47.71, lon: -1.37 }, { name: "NANTES", lat: 47.21, lon: -1.55 }, { name: "Saint-Nazaire", lat: 47.27, lon: -2.21 }, { name: "Angers", lat: 47.47, lon: -0.55 }, { name: "Cholet", lat: 47.06, lon: -0.87 }, { name: "Nyoiseau", lat: 47.71, lon: -0.91 }, { name: "Saumur", lat: 47.26, lon: -0.07 }, { name: "Ern├®e", lat: 48.30, lon: -0.93 }, { name: "Javron-les-Chapelles", lat: 48.41, lon: -0.34 }, { name: "Laval", lat: 48.07, lon: -0.77 }, { name: "La Fert├®-Bernard", lat: 48.18, lon: 0.65 }, { name: "La Fl├¿che", lat: 47.70, lon: -0.07 }, { name: "Le Mans", lat: 48.00, lon: 0.19 }, { name: "Mamers", lat: 48.35, lon: 0.37 }, { name: "Saint-Denis-d'Orques", lat: 48.02, lon: -0.27 }, { name: "Challans", lat: 46.84, lon: -1.88 }, { name: "Fontenay-le-Comte", lat: 46.46, lon: -0.80 }, { name: "L'├Äle-d'Yeu", lat: 46.72, lon: -2.34 }, { name: "La Roche-sur-Yon", lat: 46.67, lon: -1.42 }, { name: "La Tranche-sur-Mer", lat: 46.34, lon: -1.43 }] },
+            cvl: { id: 'cvl', name: "CENTRE-VAL DE LOIRE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/centre-val-de-loire/region-centre-val-de-loire.geojson', padding: [60, 20, 20, 20], center: [47.5, 1.8], zoom: 7.8, cities: [{ name: "Argent-sur-Sauldre", lat: 47.56, lon: 2.45 }, { name: "Bourges", lat: 47.08, lon: 2.39 }, { name: "Saint-Amand-Montrond", lat: 46.72, lon: 2.50 }, { name: "Sancerre", lat: 47.33, lon: 2.84 }, { name: "Chartres", lat: 48.44, lon: 1.48 }, { name: "Ch├óteaudun", lat: 48.07, lon: 1.33 }, { name: "Dreux", lat: 48.73, lon: 1.36 }, { name: "Nogent-le-Rotrou", lat: 48.32, lon: 0.82 }, { name: "Ch├óteauroux", lat: 46.81, lon: 1.69 }, { name: "├ëcueill├®", lat: 47.08, lon: 1.34 }, { name: "├ëguzon-Chant├┤me", lat: 46.44, lon: 1.58 }, { name: "Le Blanc", lat: 46.63, lon: 1.06 }, { name: "Chinon", lat: 47.16, lon: 0.24 }, { name: "Le Grand-Pressigny", lat: 46.92, lon: 0.80 }, { name: "Tours", lat: 47.39, lon: 0.68 }, { name: "Blois", lat: 47.58, lon: 1.33 }, { name: "Romorantin-Lanthenay", lat: 47.35, lon: 1.74 }, { name: "Vend├┤me", lat: 47.79, lon: 1.06 }, { name: "Montargis", lat: 47.99, lon: 2.73 }, { name: "Orl├®ans", lat: 47.90, lon: 1.90 }, { name: "Pithiviers", lat: 48.17, lon: 2.25 }] },
+            corse: { id: 'cor', name: "CORSE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/corse/region-corse.geojson', padding: [60, 20, 20, 20], center: [42.1, 9.1], zoom: 8.5, cities: [{ name: "Ajaccio", lat: 41.92, lon: 8.73 }, { name: "Figari", lat: 41.48, lon: 9.09 }, { name: "Porto-Vecchio", lat: 41.59, lon: 9.27 }, { name: "Sart├¿ne", lat: 41.62, lon: 8.97 }, { name: "Z├®vaco", lat: 41.89, lon: 9.05 }, { name: "Bastia", lat: 42.69, lon: 9.45 }, { name: "Calvi", lat: 42.56, lon: 8.75 }, { name: "Cervione", lat: 42.33, lon: 9.49 }, { name: "Corte", lat: 42.30, lon: 9.15 }, { name: "Pietralba", lat: 42.54, lon: 9.18 }, { name: "Prunelli-di-Fiumorbo", lat: 42.01, lon: 9.32 }, { name: "Rogliano", lat: 42.95, lon: 9.41 }, { name: "Vico", lat: 42.16, lon: 8.80 }] },
             cnews: {
                 id: 'cnews', name: "CNEWS", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/france.geojson', padding: [15, 15, 15, 15], center: [46.5, 2.5], zoom: 6, cities: [
                     { name: "LILLE", lat: 50.62, lon: 3.05 },
@@ -1789,7 +1717,7 @@
                     { name: "AJACCIO", lat: 41.92, lon: 8.73 },
                     { name: "METZ", lat: 49.11, lon: 6.17 },
                     { name: "STRASBOURG", lat: 48.57, lon: 7.75 },
-                    { name: "BESANÇON", lat: 47.23, lon: 6.02 },
+                    { name: "BESAN├çON", lat: 47.23, lon: 6.02 },
                     { name: "DIJON", lat: 47.32, lon: 5.04 },
                     { name: "LYON", lat: 45.76, lon: 4.83 },
                     { name: "GRENOBLE", lat: 45.18, lon: 5.72 },
@@ -1802,7 +1730,7 @@
         };
 
 
-        // MAPPING WMO OPEN-METEO VERS NOS 12 PICTOGRAMMES (P1 à P12)
+        // MAPPING WMO OPEN-METEO VERS NOS 12 PICTOGRAMMES (P1 ├á P12)
         const wmoMapping = {
             0: 0,   // P1 (Soleil)
             1: 1,   // P2 (Peu Nuageux)
@@ -1812,43 +1740,41 @@
             48: 71, // P6 (Givrant -> Couvert)
             53: 51, 55: 51, // P7 (Bruine -> Pluie Faible)
             56: 51, 57: 51, // P7 (Bruine Verg -> Pluie Faible)
-            61: 51, 63: 51, // P7 (Pluie / Pluie Modérée)
+            61: 51, 63: 51, // P7 (Pluie / Pluie Mod├®r├®e)
             65: 61, // P8 (Pluie Forte)
             66: 61, 67: 61, // P8 (Pluie Verg -> Pluie Forte)
-            71: 95, 73: 95, 75: 95, 77: 95, // P12 (Neige) - Code arbitraire 95 utilisé comme ID interne P12
-            80: 45, // P5 (Averses) - Code 45 utilisé comme ID P5
+            71: 95, 73: 95, 75: 95, 77: 95, // P12 (Neige) - Code arbitraire 95 utilis├® comme ID interne P12
+            80: 45, // P5 (Averses) - Code 45 utilis├® comme ID P5
             81: 45, 82: 45, // P5 (Averses)
-            85: 81, 86: 81, // P11 (Averses Neige) - Code 81 utilisé comme ID P11
-            95: 65, // P9 (Orages) - Code 65 utilisé comme ID P9
-            96: 80, 99: 80  // P10 (Orages Grêle) - Code 80 utilisé comme ID P10
+            85: 81, 86: 81, // P11 (Averses Neige) - Code 81 utilis├® comme ID P11
+            95: 65, // P9 (Orages) - Code 65 utilis├® comme ID P9
+            96: 80, 99: 80  // P10 (Orages Gr├¬le) - Code 80 utilis├® comme ID P10
         };
 
-        // LES 12 CATÉGORIES UNIQUES POUR LE PICKER (P1 à P12)
+        // LES 12 CAT├ëGORIES UNIQUES POUR LE PICKER (P1 ├á P12)
         // Les 'code' ici servent d'identifiants internes pour la logique de mapping ci-dessus.
         // P1=0, P2=1, P3=2, P4=3, P5=45, P6=71, P7=51, P8=61, P9=65, P10=80, P11=81, P12=95
         const weatherCodes = [
-            { code: 0, label: "P1", icon: "fa-sun", color: "#ff4d4d", emoji: "☀️", img: "P1.png" },       // P1 -> Rouge (Beau temps)
-            { code: 13, label: "P13", icon: "fa-cloud-sun", color: "#333333", emoji: "🌤️", img: "P13.png" }, // P13 -> Noir
-            { code: 1, label: "P2", icon: "fa-cloud-sun", color: "#333333", emoji: "🌤️", img: "P2.png" }, // P2 -> Noir
-            { code: 2, label: "P3", icon: "fa-cloud-sun", color: "#FFD700", emoji: "⛅", img: "P3.png" },     // P3 -> Jaune
-            { code: 3, label: "P4", icon: "fa-cloud", color: "#bf55ec", emoji: "☁️", img: "P4.png" },    // P4 -> Violet
-            { code: 45, label: "P5", icon: "fa-cloud-sun-rain", color: "#bf55ec", emoji: "🌦️", img: "P5.png" }, // P5 -> Violet
-            { code: 71, label: "P6", icon: "fa-cloud", color: "#bf55ec", emoji: "☁️", img: "P6.png" },        // P6 -> Violet
-            { code: 51, label: "P7", icon: "fa-cloud-rain", color: "#3498db", emoji: "🌧️", img: "P7.png" }, // P7 -> Bleu
-            { code: 61, label: "P8", icon: "fa-cloud-showers-heavy", color: "#3498db", emoji: "🌧️", img: "P8.png" }, // P8 -> Bleu
-            { code: 65, label: "P9", icon: "fa-bolt", color: "#e67e22", emoji: "⚡", img: "P9.png" },       // P9 -> Orange (Orages)
-            { code: 80, label: "P10", icon: "fa-cloud-meatball", color: "#e67e22", emoji: "⛈️", img: "P10.png" }, // P10 -> Orange
-            { code: 81, label: "P11", icon: "fa-snowflake", color: "#bdc3c7", emoji: "🌨️", img: "P11.png" }, // P11 -> Neige/Gris
-            { code: 95, label: "P12", icon: "fa-snowflake", color: "#bdc3c7", emoji: "❄️", img: "P12.png" },      // P12 -> Neige/Gris
-            { code: 14, label: "P14", icon: "fa-smog", color: "#ccc", emoji: "🌫️", img: "P14.png" }      // P14 -> Brouillard
+            { code: 0, label: "P1", icon: "fa-sun", color: "#66ff66", emoji: "ÔÿÇ´©Å", img: "P1.png" },       // P1 -> Vert (Beau temps)
+            { code: 13, label: "P13", icon: "fa-cloud-sun", color: "#66ff66", emoji: "­ƒîñ´©Å", img: "P13.png" }, // P13 -> Vert
+            { code: 1, label: "P2", icon: "fa-cloud-sun", color: "#66ff66", emoji: "­ƒîñ´©Å", img: "P2.png" }, // P2 -> Vert
+            { code: 2, label: "P3", icon: "fa-cloud-sun", color: "#66ff66", emoji: "Ôøà", img: "P3.png" },     // P3 -> Vert
+            { code: 3, label: "P4", icon: "fa-cloud", color: "#FFD700", emoji: "Ôÿü´©Å", img: "P4.png" },    // P4 -> Jaune (Instable/Variable)
+            { code: 45, label: "P5", icon: "fa-cloud-sun-rain", color: "#FFD700", emoji: "­ƒîª´©Å", img: "P5.png" }, // P5 -> Jaune
+            { code: 71, label: "P6", icon: "fa-cloud", color: "#FFD700", emoji: "Ôÿü´©Å", img: "P6.png" },        // P6 -> Jaune
+            { code: 51, label: "P7", icon: "fa-cloud-rain", color: "#ff4d4d", emoji: "­ƒîº´©Å", img: "P7.png" }, // P7 -> Rouge (Pluie/D├®grad├®)
+            { code: 61, label: "P8", icon: "fa-cloud-showers-heavy", color: "#ff4d4d", emoji: "­ƒîº´©Å", img: "P8.png" }, // P8 -> Rouge
+            { code: 65, label: "P9", icon: "fa-bolt", color: "#ff4d4d", emoji: "ÔÜí", img: "P9.png" },       // P9 -> Rouge
+            { code: 80, label: "P10", icon: "fa-cloud-meatball", color: "#ff4d4d", emoji: "Ôøê´©Å", img: "P10.png" }, // P10 -> Rouge
+            { code: 81, label: "P11", icon: "fa-snowflake", color: "#ff4d4d", emoji: "­ƒî¿´©Å", img: "P11.png" }, // P11 -> Rouge
+            { code: 95, label: "P12", icon: "fa-snowflake", color: "#ff4d4d", emoji: "ÔØä´©Å", img: "P12.png" }      // P12 -> Rouge
         ];
 
-        let map, markersGroup, drawingGroup, autoZoningGroup, geoLayer = null, maskLayer = null, globalWeatherData = null, currentConfig = zoneConfigs.france, globalGeoBoundary = null, globalBoundaryPolygon = null;
-        let lastZoningMarkers = [], lastZoningGusts = [];
+        let map, markersGroup, drawingGroup, autoZoningGroup, geoLayer = null, maskLayer = null, globalWeatherData = null, currentConfig = zoneConfigs.france;
         let manualWeatherOverrides = {}; let manualTempOverrides = {}; let hiddenMarkers = new Set();
         let suppressedAutoZones = new Set();
         let currentPickingCityIndex = null;
-        let isDrawingMode = false, isFogMode = false, curvePoints = [], tempLine = null, tempMarkers = [], currentDrawColor = '#ff4d4d', manualFogMarkers = [];
+        let isDrawingMode = false, curvePoints = [], tempLine = null, tempMarkers = [], currentDrawColor = '#ff4d4d';
 
         async function initLeafletMap() {
             if (map) return;
@@ -1867,77 +1793,46 @@
             }).setView(currentConfig.center, currentConfig.zoom);
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}?v=3', { crossOrigin: true }).addTo(map);
 
+            // Cr├®ation d'un panneau sp├®cial pour les labels de zones afin qu'ils soient TOUJOURS au-dessus des picto
             map.createPane('zoneLabelPane');
             map.getPane('zoneLabelPane').style.zIndex = 650;
             map.getPane('zoneLabelPane').style.pointerEvents = 'none';
 
-            map.createPane('manualMarkersPane');
-            map.getPane('manualMarkersPane').style.zIndex = 700;
-
-            map.createPane('pictogramLabelPane');
-            map.getPane('pictogramLabelPane').style.zIndex = 950; // Passé de 850 à 950 pour être bien au-dessus du brouillard (700)
-            map.getPane('pictogramLabelPane').style.pointerEvents = 'none';
-
             // Appliquer le style initial
             setTimeout(() => {
                 updateMapStyle();
-                toggleMapFreeze(); // Applique le figer par défaut
+                toggleMapFreeze(); // Applique le figer par d├®faut
             }, 100);
 
             markersGroup = L.layerGroup().addTo(map);
             drawingGroup = L.layerGroup().addTo(map);
             autoZoningGroup = L.layerGroup().addTo(map);
 
-            // LOGIQUE CLIC CARTE (DESSIN OU BROUILLARD)
+            // LOGIQUE COURBE MULTIPOINTS ILLIMIT├ëE (POLYLINE)
             map.on('click', (e) => {
-                if (isFogMode) {
-                    const fogData = { lat: e.latlng.lat, lon: e.latlng.lng, id: Date.now() };
-                    manualFogMarkers.push(fogData);
-
-                    const marker = L.marker(e.latlng, {
-                        icon: L.divIcon({
-                            className: 'fog-manual-marker',
-                            html: `<div class="weather-icon-large">${getWeatherIcon(14, 'custom')}</div>`,
-                            iconSize: [80, 80],
-                            iconAnchor: [40, 40]
-                        }),
-                        interactive: true,
-                        pane: 'manualMarkersPane'
-                    }).addTo(autoZoningGroup); // On l'ajoute directement au groupe auto
-
-                    marker.manualFogId = fogData.id;
-
-                    // Permettre la suppression au clic
-                    marker.on('click', function (ev) {
-                        L.DomEvent.stopPropagation(ev);
-                        openDeleteZoneModal(this, null);
-                    });
-                    return;
-                }
-
                 if (!isDrawingMode) return;
 
                 curvePoints.push(e.latlng);
 
-                // Marqueur visuel pour les points de contrôle
+                // Marqueur visuel pour les points de contr├┤le
                 const marker = L.circleMarker(e.latlng, {
                     color: currentDrawColor, fillColor: '#fff', fillOpacity: 1, radius: 4, weight: 2
                 }).addTo(drawingGroup);
                 tempMarkers.push(marker);
 
-                // Mettre à jour la ligne temporaire qui relie tous les points validés
+                // Mettre ├á jour la ligne temporaire qui relie tous les points valid├®s
                 if (curvePoints.length > 1) {
                     if (tempLine) drawingGroup.removeLayer(tempLine);
                     tempLine = L.polyline(curvePoints, { color: currentDrawColor, weight: 3, opacity: 0.9, lineCap: 'round', lineJoin: 'round', smoothFactor: 1 }).addTo(drawingGroup);
                 }
             });
 
-            // Prévisualisation dynamique ("élastique") vers la souris
+            // Pr├®visualisation dynamique ("├®lastique") vers la souris
             map.on('mousemove', (e) => {
                 if (!isDrawingMode || curvePoints.length === 0) return;
 
-                // Crée une ligne temporaire entre le dernier point validé et la souris
-                // On utilise un ID spécifique pour ne pas supprimer la ligne principale 'tempLine'
+                // Cr├®e une ligne temporaire entre le dernier point valid├® et la souris
+                // On utilise un ID sp├®cifique pour ne pas supprimer la ligne principale 'tempLine'
                 if (window.rubberLine) drawingGroup.removeLayer(window.rubberLine);
 
                 window.rubberLine = L.polyline([curvePoints[curvePoints.length - 1], e.latlng], {
@@ -1945,10 +1840,10 @@
                 }).addTo(drawingGroup);
             });
 
-            // FIN DU DESSIN (DOUBLE-CLIC ou clic droit ?) -> Leaflet gère le double clic par défaut
+            // FIN DU DESSIN (DOUBLE-CLIC ou clic droit ?) -> Leaflet g├¿re le double clic par d├®faut
             map.on('dblclick', (e) => {
                 if (!isDrawingMode || curvePoints.length < 2) return;
-                L.DomEvent.stopPropagation(e); // Empêche le zoom
+                L.DomEvent.stopPropagation(e); // Emp├¬che le zoom
 
                 // Finir la forme
                 let poly = L.polyline(curvePoints, {
@@ -1975,8 +1870,8 @@
 
         let pendingZoneCenter = null;
         let pendingZonePolyline = null;
-        let elementToDelete = null; // Stocke l'élément (poly ou marker) à supprimer
-        let linkedElementToDelete = null; // Stocke l'élément lié
+        let elementToDelete = null; // Stocke l'├®l├®ment (poly ou marker) ├á supprimer
+        let linkedElementToDelete = null; // Stocke l'├®l├®ment li├®
 
         function setZoneName(name) {
             document.getElementById('zone-name-input').value = name;
@@ -1996,11 +1891,11 @@
                 let marker = L.marker(pendingZoneCenter, {
                     icon: L.divIcon({
                         className: 'zone-label',
-                        html: `<div style="background:#000; color:#fff; border:3px solid ${currentDrawColor}; padding:3px 10px; border-radius:6px; font-size:18px; font-weight:900; box-shadow: 0 0 15px rgba(0,0,0,0.8); text-shadow: 1px 1px 2px #000;">${name}</div>`,
-                        iconSize: [60, 30],
-                        iconAnchor: [30, 15]
+                        html: `<div style="color:${currentDrawColor}; border-color:${currentDrawColor}">${name}</div>`,
+                        iconSize: [60, 20],
+                        iconAnchor: [30, 10]
                     }),
-                    draggable: true // Permet de déplacer l'étiquette et la zone
+                    draggable: true // Permet de d├®placer l'├®tiquette et la zone
                 }).addTo(drawingGroup);
 
                 // Lier le marker et la polyline
@@ -2008,7 +1903,7 @@
                     marker.relatedPolyline = pendingZonePolyline;
                     pendingZonePolyline.relatedMarker = marker;
 
-                    // Déplacement groupé
+                    // D├®placement group├®
                     marker.on('drag', function (e) {
                         const latLng = e.target.getLatLng();
                         const offsetLat = latLng.lat - pendingZoneCenter.lat;
@@ -2055,9 +1950,6 @@
                 if (elementToDelete.isAutoZone) {
                     suppressedAutoZones.add(elementToDelete.autoZoneSig);
                     updateDisplay();
-                } else if (elementToDelete.manualFogId) {
-                    manualFogMarkers = manualFogMarkers.filter(m => m.id !== elementToDelete.manualFogId);
-                    autoZoningGroup.removeLayer(elementToDelete);
                 } else {
                     drawingGroup.removeLayer(elementToDelete);
                 }
@@ -2097,43 +1989,23 @@
                 map.boxZoom.disable();
                 map.keyboard.disable();
                 palette.style.display = 'flex';
-
-                // Désactiver le mode brouillard si actif
-                if (isFogMode) toggleFogMode();
             } else {
                 btn.classList.remove('draw-active');
                 document.getElementById('map').classList.remove('cursor-draw');
 
-                // On réactive le drag seulement si la case "Figer" n'est pas cochée
+                // On r├®active le drag seulement si la case "Figer" n'est pas coch├®e
                 if (!document.getElementById('freeze-map-check').checked) {
                     map.dragging.enable();
                     map.keyboard.enable();
                 }
 
+                // D├®sactivation du zoom pour la s├®lection R├®gion/France
+                // map.touchZoom.enable();
+                // map.doubleClickZoom.enable();
+                // map.scrollWheelZoom.enable();
+                // map.boxZoom.enable();
+                // map.keyboard.enable();
                 palette.style.display = 'none';
-            }
-        }
-
-        function toggleFogMode() {
-            isFogMode = !isFogMode;
-            const btn = document.getElementById('btn-toggle-fog');
-
-            if (isFogMode) {
-                btn.style.background = '#FFD700';
-                btn.style.color = '#000';
-                document.getElementById('map').classList.add('cursor-draw');
-                map.dragging.disable();
-
-                // Désactiver le mode dessin si actif
-                if (isDrawingMode) toggleDrawingMode();
-            } else {
-                btn.style.background = '#444';
-                btn.style.color = '#fff';
-                document.getElementById('map').classList.remove('cursor-draw');
-
-                if (!document.getElementById('freeze-map-check').checked) {
-                    map.dragging.enable();
-                }
             }
         }
 
@@ -2143,7 +2015,7 @@
                 map.dragging.disable();
                 map.keyboard.disable();
             } else {
-                // On ne réactive que si on n'est pas en mode dessin
+                // On ne r├®active que si on n'est pas en mode dessin
                 if (!isDrawingMode) {
                     map.dragging.enable();
                     map.keyboard.enable();
@@ -2163,7 +2035,6 @@
             curvePoints = [];
             tempMarkers = [];
             tempLine = null;
-            manualFogMarkers = []; // Reset complet des brouillards manuels
         }
 
         // ALGORITHME CONVEX HULL (Monotone Chain)
@@ -2200,7 +2071,7 @@
                     let A = current[j];
                     let B = current[(j + 1) % current.length];
 
-                    // Points à 1/4 et 3/4 de l'arête
+                    // Points ├á 1/4 et 3/4 de l'ar├¬te
                     next.push({
                         lat: A.lat * 0.75 + B.lat * 0.25,
                         lng: A.lng * 0.75 + B.lng * 0.25
@@ -2215,61 +2086,34 @@
             return current;
         }
 
-        function updateAutoZoning(markerData, gustsOverlay = []) {
+        function updateAutoZoning(markerData) {
             autoZoningGroup.clearLayers();
-
-            // --- PERSISTANCE DES BROUILLARDS MANUELS (P14) ---
-            // On les dessine en premier pour qu'ils soient toujours visibles, 
-            // même si le zonage automatique (polygones) est désactivé (ex: export Pictos).
-            manualFogMarkers.forEach(fog => {
-                const marker = L.marker([fog.lat, fog.lon], {
-                    icon: L.divIcon({
-                        className: 'fog-manual-marker',
-                        html: `<div class="weather-icon-large">${getWeatherIcon(14, 'custom')}</div>`,
-                        iconSize: [80, 80],
-                        iconAnchor: [40, 40]
-                    }),
-                    interactive: true,
-                    pane: 'manualMarkersPane'
-                }).addTo(autoZoningGroup);
-                marker.manualFogId = fog.id;
-                marker.on('click', function (ev) {
-                    L.DomEvent.stopPropagation(ev);
-                    openDeleteZoneModal(this, null);
-                });
-            });
-
             const check = document.getElementById('auto-zoning-check');
             if (!check || !check.checked) return;
 
-            // Remapping P13 -> P2 dans le zonage automatique (P2 et P13 partagent la même zone)
-            const autoZoneLabel = (label) => label === 'P13' ? 'P2' : label;
-
-            // 1. Groupement par LABEL (Chaque icône a maintenant sa propre zone, sauf exception P13/P2)
-            const labelGroups = {};
+            // 1. Groupement par COULEUR
+            const colorGroups = {};
             markerData.forEach(d => {
                 const wConfig = weatherCodes.find(wc => wc.code == d.code) || weatherCodes[0];
-                const zLabel = autoZoneLabel(wConfig.label);
                 const col = wConfig.color;
-                if (!labelGroups[zLabel]) {
-                    labelGroups[zLabel] = { points: [], color: col, label: zLabel };
+                if (!colorGroups[col]) {
+                    colorGroups[col] = { points: [], label: wConfig.label };
                 }
-                labelGroups[zLabel].points.push(L.latLng(d.lat, d.lon));
+                colorGroups[col].points.push(L.latLng(d.lat, d.lon));
             });
 
-            const priorityColors = ['#ff4d4d', '#bf55ec', '#FFD700', '#3498db', '#e67e22', '#333333']; // Rouge > Violet > Jaune > Bleu > Orange > Noir
+            const priorityColors = ['#ff4d4d', '#FFD700', '#66ff66']; // Rouge > Jaune > Vert
             const rawPolygonsByColor = {};
 
-            // 2. Génération des enveloppes par cluster individuel
-            const allClusters = [];
-            Object.values(labelGroups).forEach(group => {
-                const col = group.color;
-                if (!priorityColors.includes(col)) return;
+            // 2. G├®n├®ration des enveloppes convexes par couleur
+            priorityColors.forEach(col => {
+                const group = colorGroups[col];
+                if (!group || group.points.length === 0) return;
 
                 const points = group.points;
                 const clusters = [];
                 const visited = new Set();
-                const threshold = 400000;
+                const threshold = 250000;
 
                 for (let i = 0; i < points.length; i++) {
                     if (visited.has(i)) continue;
@@ -2293,9 +2137,10 @@
                     clusters.push(currentCluster);
                 }
 
+                const hulls = [];
                 clusters.forEach(cluster => {
                     const spreadPoints = [];
-                    const offset = 1.0; // Réduit pour plus de précision (look angulaire précis)
+                    const offset = 2.0; // Offset large pour couvrir tout le territoire (Nord, Corse, etc.)
                     cluster.forEach(p => {
                         spreadPoints.push([p.lng, p.lat + offset]);
                         spreadPoints.push([p.lng, p.lat - offset]);
@@ -2303,68 +2148,63 @@
                         spreadPoints.push([p.lng - offset, p.lat]);
                         spreadPoints.push([p.lng + offset * 0.7, p.lat + offset * 0.7]);
                         spreadPoints.push([p.lng - offset * 0.7, p.lat - offset * 0.7]);
-                        spreadPoints.push([p.lng + offset * 0.7, p.lat - offset * 0.7]);
-                        spreadPoints.push([p.lng - offset * 0.7, p.lat + offset * 0.7]);
                     });
 
                     try {
                         const hull = turf.convex(turf.featureCollection(spreadPoints.map(p => turf.point(p))));
-                        if (hull) {
-                            let polyToUse = hull;
-
-                            // CLIP SUR LA CARTE (FRANCE OU RÉGION)
-                            if (globalBoundaryPolygon) {
-                                try {
-                                    const clipped = turf.intersect(hull, globalBoundaryPolygon);
-                                    if (clipped) {
-                                        polyToUse = clipped;
-                                    } else {
-                                        // Si pas d'intersection, on n'affiche rien (hors carte)
-                                        return;
-                                    }
-                                } catch (err) {
-                                    console.warn("Clipping error:", err);
-                                }
-                            }
-
-                            allClusters.push({
-                                poly: polyToUse,
-                                color: col,
-                                label: group.label,
-                                area: turf.area(polyToUse)
-                            });
-                        }
+                        if (hull) hulls.push(hull);
                     } catch (e) { }
                 });
+
+                if (hulls.length > 0) {
+                    let union = hulls[0];
+                    for (let i = 1; i < hulls.length; i++) {
+                        union = turf.union(union, hulls[i]);
+                    }
+                    rawPolygonsByColor[col] = union;
+                }
             });
 
-            // 3. Logique de Nichage (Islands) : Le plus petit "perce" un trou dans le plus grand
-            // On trie par surface croissante
-            allClusters.sort((a, b) => a.area - b.area);
+            // 3. Soustraction (Priority: Red > Jaune > Green) pour ├®viter les chevauchements
+            const finalPolygonsByColor = {};
+            priorityColors.forEach((col, i) => {
+                let poly = rawPolygonsByColor[col];
+                if (!poly) return;
 
-            for (let i = 0; i < allClusters.length; i++) {
-                for (let j = i + 1; j < allClusters.length; j++) {
-                    try {
-                        const diff = turf.difference(allClusters[j].poly, allClusters[i].poly);
-                        if (diff) {
-                            allClusters[j].poly = diff;
-                        }
-                    } catch (e) { }
+                // On soustrait tous les polygones de priorit├® sup├®rieure
+                for (let j = 0; j < i; j++) {
+                    const higherPoly = rawPolygonsByColor[priorityColors[j]];
+                    if (higherPoly) {
+                        try {
+                            const diff = turf.difference(poly, higherPoly);
+                            if (diff) poly = diff;
+                            else { poly = null; break; }
+                        } catch (e) { console.error("Turf Error:", e); }
+                    }
                 }
-            }
+                if (poly) finalPolygonsByColor[col] = poly;
+            });
 
-            // 4. Dessin final avec lissage
-            allClusters.forEach(item => {
-                const geojson = item.poly;
-                const col = item.color;
-                const labelText = item.label;
+            // 4. Affichage final avec Labels intelligents
+            for (let col in finalPolygonsByColor) {
+                const geojson = finalPolygonsByColor[col];
+                const labelText = colorGroups[col].label;
 
                 L.geoJSON(geojson, {
-                    style: { color: col, weight: 4, fillColor: col, fillOpacity: 0.3, smoothFactor: 0.5 },
+                    style: { color: col, weight: 3, fillColor: col, fillOpacity: 0.15, smoothFactor: 3 },
                     onEachFeature: (feature, layer) => {
                         layer.isAutoZone = true;
 
-                        // Look angulaire précis (pas de lissage)
+                        // Application du lissage Chaikin pour un rendu organique (courbes)
+                        if (layer.getLatLngs) {
+                            const processRing = (ring) => {
+                                if (Array.isArray(ring[0])) return ring.map(r => processRing(r));
+                                const pts = ring.map(ll => ({ lat: ll.lat, lng: ll.lng }));
+                                const smoothed = smoothPolygonPoints(pts, 3);
+                                return smoothed.map(p => [p.lat, p.lng]);
+                            };
+                            layer.setLatLngs(processRing(layer.getLatLngs()));
+                        }
 
                         const center = layer.getBounds().getCenter();
                         const sig = col + "_" + center.lat.toFixed(3) + "_" + center.lng.toFixed(3);
@@ -2373,111 +2213,32 @@
 
                         layer.on('click', () => openDeleteZoneModal(layer, layer.relatedMarker));
 
-                        // Labels aux centres de masse avec évitement global pour l'homogénéité
-                        const placedLabelPoints = [];
-                        const minDistanceBetweenLabels = 80000; // 80km en mètres
-
-                        // On aplatit toutes les parties pour les trier par taille (plus gros d'abord pour priorité de placement)
-                        const allParts = (feature.geometry.type === 'MultiPolygon'
+                        // Placement intelligent des labels (un par morceau de zone)
+                        const parts = feature.geometry.type === 'MultiPolygon'
                             ? feature.geometry.coordinates.map(c => turf.polygon(c))
-                            : [feature])
-                            .map(p => ({ poly: p, area: turf.area(p) }))
-                            .filter(p => p.area > 800 * 1000000) // Seuil porté à 800km2
-                            .sort((a, b) => b.area - a.area);
+                            : [feature];
 
-                        allParts.forEach(partItem => {
-                            const part = partItem.poly;
-                            const areaKm2 = partItem.area / 1000000;
-
-                            // Candidat 1 : Centre de masse (plus beau visuellement)
-                            let candidates = [];
+                        parts.forEach(part => {
                             try {
-                                const com = turf.centerOfMass(part).geometry.coordinates;
-                                if (turf.booleanPointInPolygon(turf.point(com), part)) {
-                                    candidates.push(com);
-                                } else {
-                                    candidates.push(turf.pointOnFeature(part).geometry.coordinates);
-                                }
-                            } catch (e) {
-                                candidates.push(turf.pointOnFeature(part).geometry.coordinates);
-                            }
-
-                            // Candidats supplémentaires si la zone est immense (France entière par ex)
-                            if (areaKm2 > 50000) {
-                                const bbox = turf.bbox(part);
-                                const hSplit = (bbox[3] - bbox[1]) * 0.3;
-                                const wSplit = (bbox[2] - bbox[0]) * 0.3;
-                                const extras = [
-                                    [bbox[0] + wSplit, bbox[1] + hSplit], // Sud Ouest
-                                    [bbox[2] - wSplit, bbox[3] - hSplit]  // Nord Est
-                                ];
-                                extras.forEach(pt => {
-                                    if (turf.booleanPointInPolygon(turf.point(pt), part)) candidates.push(pt);
-                                });
-                            }
-
-                            candidates.forEach(coord => {
-                                const currentLatLng = L.latLng(coord[1], coord[0]);
-
-                                // Vérification de l'évitement (global à l'application)
-                                // On vérifie si un label (de n'importe quelle zone) est déjà trop près
-                                const isTooClose = autoZoningGroup.getLayers().some(layer => {
-                                    if (layer instanceof L.Marker && layer.options.icon.options.className === 'zone-label') {
-                                        return layer.getLatLng().distanceTo(currentLatLng) < minDistanceBetweenLabels;
-                                    }
-                                    return false;
-                                });
-
-                                if (isTooClose) return;
-
-                                const labelBorder = (col === '#333333' || col === '#000000') ? '#ffffff' : col;
-                                const labelMarker = L.marker([coord[1], coord[0]], {
+                                const coord = turf.centerOfMass(part).geometry.coordinates;
+                                const marker = L.marker([coord[1], coord[0]], {
                                     icon: L.divIcon({
                                         className: 'zone-label',
-                                        html: `<div style="background:#000; color:#fff; border:3px solid ${labelBorder}; padding:3px 10px; border-radius:6px; font-size:18px; font-weight:900; box-shadow: 0 0 15px rgba(0,0,0,0.8); text-shadow: 1px 1px 2px #000;">${labelText}</div>`,
-                                        iconSize: [50, 30],
-                                        iconAnchor: [25, 15]
+                                        html: `<div style="color:${col}; border-color:${col}">${labelText}</div>`,
+                                        iconSize: [40, 20],
+                                        iconAnchor: [20, 10]
                                     }),
                                     interactive: true,
-                                    pane: 'pictogramLabelPane'
+                                    pane: 'zoneLabelPane'
                                 }).addTo(autoZoningGroup);
-
-                                labelMarker.isAutoZone = true;
-                                labelMarker.autoZoneSig = item.color + "_" + coord[1].toFixed(3) + "_" + coord[0].toFixed(3);
-                                labelMarker.on('click', (ev) => {
-                                    L.DomEvent.stopPropagation(ev);
-                                    openDeleteZoneModal(labelMarker, null);
-                                });
-                            });
+                                marker.isAutoZone = true;
+                                marker.autoZoneSig = sig;
+                                marker.on('click', () => openDeleteZoneModal(layer, marker));
+                            } catch (e) { }
                         });
                     }
                 }).addTo(autoZoningGroup);
-            });
-
-            // --- OVERLAY RAFALES >= 60 km/h (même design que RAFALES MAXIMALES) ---
-            gustsOverlay.forEach(g => {
-                const color = g.color;
-                const html = `
-                    <div class="wind-box is-auto-gust" style="display:flex; flex-direction:column; align-items:center;">
-                        <div class="wind-values" style="font-size:32px; font-weight:900; color:${color}; text-shadow:2px 2px 0 #000;">
-                            ${g.val}
-                        </div>
-                        <div class="wind-arrow" style="transform: rotate(${g.dir + 135}deg); color:${color}; font-size:26px; filter:drop-shadow(2px 2px 0 #000); margin-top:-5px">
-                            <i class="fas fa-location-arrow"></i>
-                        </div>
-                    </div>
-                `;
-                L.marker([g.lat, g.lon], {
-                    icon: L.divIcon({
-                        className: 'weather-marker is-small type-gusts bank-classic',
-                        html: `<span class="city-label">${g.city || ''}</span><div class="marker-content-wrapper">${html}</div>`,
-                        iconSize: [80, 90],
-                        iconAnchor: [40, 70]
-                    }),
-                    interactive: false,
-                    pane: 'pictogramLabelPane' // On utilise le même pane que les labels P pour être bien au-dessus
-                }).addTo(autoZoningGroup);
-            });
+            }
         }
 
         function getLayerStyle(styleMode, isDept = false) {
@@ -2519,12 +2280,12 @@
             tilePane.style.filter = cfg.filter;
             mapContainer.style.background = cfg.bg;
 
-            // Mise à jour de la couleur du masque si présent
+            // Mise ├á jour de la couleur du masque si pr├®sent
             if (maskLayer) {
                 maskLayer.setStyle({ fillColor: cfg.bg });
             }
 
-            // Pour la France entière, on doit parfois recharger le GeoJSON (silhouette vs régions)
+            // Pour la France enti├¿re, on doit parfois recharger le GeoJSON (silhouette vs r├®gions)
             const isFrance = currentConfig.id === 'fra' || currentConfig.id === 'cnews';
             const showsSilhouette = geoLayer && geoLayer.isClassicSilhouette;
             const needsReload = isFrance && ((styleMode === 'classic') !== showsSilhouette);
@@ -2538,7 +2299,7 @@
 
         function toggleDepts() {
             const check = document.getElementById('show-depts-check');
-            // check.checked = !check.checked; // Ne pas forcer ici car le clic label + checkbox peut double-déclencher
+            // check.checked = !check.checked; // Ne pas forcer ici car le clic label + checkbox peut double-d├®clencher
             // Le onchange du checkbox suffira
         }
 
@@ -2560,7 +2321,7 @@
             };
             const maskBgColor = configs[styleMode] || '#000';
 
-            // Codes INSEE des régions pour le filtrage
+            // Codes INSEE des r├®gions pour le filtrage
             const regionCodes = {
                 'hdf': '32', 'nor': '28', 'idf': '11', 'ges': '44', 'ara': '84',
                 'naq': '75', 'occ': '76', 'pac': '93', 'bfc': '27', 'bre': '53',
@@ -2574,18 +2335,18 @@
                 filterDept = regionCodes[currentConfig.id];
             }
 
-            // Logique de sélection de la source GeoJSON
+            // Logique de s├®lection de la source GeoJSON
             if (showDepts) {
-                // Pour voir les départements : fichier global des départements (sera filtré après)
+                // Pour voir les d├®partements : fichier global des d├®partements (sera filtr├® apr├¿s)
                 url = 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements-version-simplifiee.geojson';
             } else if (isFrance) {
-                // France entière : Silhouette (Classic) ou Régions (Autres styles)
+                // France enti├¿re : Silhouette (Classic) ou R├®gions (Autres styles)
                 url = (styleMode === 'classic')
                     ? 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/france.geojson'
                     : 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions-version-simplifiee.geojson';
             } else {
-                // RÉSION SEULE : On utilise directement le lien unique de la région
-                // C'est la méthode la plus fiable pour ne jamais avoir les voisines.
+                // R├ëSION SEULE : On utilise directement le lien unique de la r├®gion
+                // C'est la m├®thode la plus fiable pour ne jamais avoir les voisines.
                 url = currentConfig.geoUrl;
             }
 
@@ -2593,32 +2354,17 @@
                 const res = await fetch(url);
                 if (!res.ok) throw new Error("Fetch failed");
                 let data = await res.json();
-                globalGeoBoundary = data;
-
-                // Pré-calcul de la frontière unique (Union de tous les polygones du GeoJSON)
-                try {
-                    if (data.features.length > 0) {
-                        globalBoundaryPolygon = data.features.reduce((acc, feat) => {
-                            try { return acc ? turf.union(acc, feat) : feat; } catch (ex) { return acc; }
-                        }, null);
-                    } else {
-                        globalBoundaryPolygon = null;
-                    }
-                } catch (e) {
-                    console.error("Boundary calculation error:", e);
-                    globalBoundaryPolygon = null;
-                }
 
                 // Normalisation : s'assurer que data est toujours une FeatureCollection
-                // Certains fichiers régionaux ne contiennent qu'une seule "Feature" brute.
+                // Certains fichiers r├®gionaux ne contiennent qu'une seule "Feature" brute.
                 if (data.type === 'Feature') {
                     data = { type: 'FeatureCollection', features: [data] };
                 }
 
-                // Filtrage de précision 
+                // Filtrage de pr├®cision 
                 if (!isFrance) {
                     if (showDepts) {
-                        // On ne garde que les départements appartenant à la région sélectionnée
+                        // On ne garde que les d├®partements appartenant ├á la r├®gion s├®lectionn├®e
                         const deptsByRegion = {
                             'hdf': ['02', '59', '60', '62', '80'], 'idf': ['75', '77', '78', '91', '92', '93', '94', '95'],
                             'nor': ['14', '27', '50', '61', '76'], 'ges': ['08', '10', '51', '52', '54', '55', '57', '67', '68', '88'],
@@ -2632,8 +2378,8 @@
                         const list = deptsByRegion[currentConfig.id];
                         data.features = data.features.filter(f => list.includes(f.properties.code));
                     } else if (filterDept) {
-                        // Filtrage DE SÉCURITÉ : même avec un fichier spécifique, on force l'extraction de la seule région voulue
-                        // Cela garantit que d'éventuels tracés limitrophes présents dans le fichier sont supprimés.
+                        // Filtrage DE S├ëCURIT├ë : m├¬me avec un fichier sp├®cifique, on force l'extraction de la seule r├®gion voulue
+                        // Cela garantit que d'├®ventuels trac├®s limitrophes pr├®sents dans le fichier sont supprim├®s.
                         data.features = data.features.filter(f => f.properties.code === filterDept || (f.properties.code && String(f.properties.code) === String(filterDept)));
                     }
                 }
@@ -2670,12 +2416,6 @@
                 }).addTo(map);
 
                 geoLayer.isClassicSilhouette = (isFrance && styleMode === 'classic' && !showDepts);
-
-                // Rafraîchir le zonage automatique avec la nouvelle frontière
-                if (lastZoningMarkers.length > 0) {
-                    updateAutoZoning(lastZoningMarkers, lastZoningGusts);
-                }
-
                 fitMapToZone();
             } catch (e) {
                 console.error("GeoJSON Error:", e);
@@ -2689,8 +2429,8 @@
             if (!map) return;
             map.invalidateSize();
 
-            // Utiliser le padding de la config ou une valeur par défaut, en forçant l'espace pour le titre
-            // On écrase le padding-top à 120px minimum pour éviter que le titre n'écrive sur la carte
+            // Utiliser le padding de la config ou une valeur par d├®faut, en for├ºant l'espace pour le titre
+            // On ├®crase le padding-top ├á 120px minimum pour ├®viter que le titre n'├®crive sur la carte
             let pad = currentConfig.padding ? [...currentConfig.padding] : [50, 20, 20, 20];
             if (pad[0] < 50) pad[0] = 50;
 
@@ -2714,7 +2454,7 @@
             const select = document.getElementById('day-select');
             select.innerHTML = '';
             const today = new Date();
-            for (let i = 0; i < 16; i++) { // 16 jours de prévisions
+            for (let i = 0; i < 16; i++) { // 16 jours de pr├®visions
                 const d = new Date(today); d.setDate(today.getDate() + i);
                 const dayLabel = i === 0 ? "AUJ" : i === 1 ? "DEM" : d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' }).toUpperCase();
                 const opt = document.createElement('option'); opt.value = i; opt.text = dayLabel; select.appendChild(opt);
@@ -2724,33 +2464,19 @@
         function clearManualOverrides() {
             manualWeatherOverrides = {};
             manualTempOverrides = {};
-            hiddenMarkers.clear(); // Réinitialise les villes masquées
-            suppressedAutoZones.clear(); // Réinitialise les zones supprimées
-            clearDrawings(); // Efface dessins et brouillards manuels
-
-            // Désactivation forcée des modes d'édition
-            if (isFogMode) toggleFogMode();
-            if (isDrawingMode) toggleDrawingMode();
+            // hiddenMarkers n'est pas r├®initialis├® ici pour permettre de garder les villes masqu├®es si voulu
+            // mais l'utilisateur parlait sp├®cifiquement des pictos/modif. On reste sur picto/temp.
         }
 
         async function handleDayChange() {
             clearManualOverrides();
-
-            // Auto-activation des moyennes Nord/Sud à partir de J+3 quand le zonage auto est actif
-            const dayIdx = parseInt(document.getElementById('day-select').value);
-            const autoZoningActive = document.getElementById('auto-zoning-check').checked;
-            const avgCheck = document.getElementById('show-averages-check');
-            if (autoZoningActive) {
-                avgCheck.checked = (dayIdx >= 3);
-            }
-
             await fetchWeatherData('arome_france');
         }
 
-        let lastFetchKey = ""; // Pour le cache des données
+        let lastFetchKey = ""; // Pour le cache des donn├®es
 
-        const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes de validité
-        const CACHE_VERSION = "v2"; // Incrémenter pour forcer le rafraîchissement
+        const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes de validit├®
+        const CACHE_VERSION = "v2"; // Incr├®menter pour forcer le rafra├«chissement
 
         async function fetchWeatherData(model) {
             const lats = currentConfig.cities.map(c => c.lat).join(',');
@@ -2760,21 +2486,21 @@
 
             const loading = document.getElementById('loading');
 
-            // 1. Cache en mémoirevive (Session en cours rapide)
+            // 1. Cache en m├®moirevive (Session en cours rapide)
             if (globalWeatherData && fetchKey === lastFetchKey && globalWeatherData[0].hourly && globalWeatherData[0].hourly.temperature_2m) {
                 if (loading) loading.style.display = 'none';
                 updateDisplay();
                 return;
             }
 
-            // 2. Cache LocalStorage (Survécu au rafraîchissement)
+            // 2. Cache LocalStorage (Surv├®cu au rafra├«chissement)
             const cached = localStorage.getItem(storageKey);
             if (cached) {
                 try {
                     const cacheData = JSON.parse(cached);
                     const now = Date.now();
                     if (now - cacheData.timestamp < CACHE_DURATION) {
-                        console.log("Données chargées depuis le cache local (valide).");
+                        console.log("Donn├®es charg├®es depuis le cache local (valide).");
                         globalWeatherData = cacheData.data;
                         lastFetchKey = fetchKey;
                         if (loading) loading.style.display = 'none';
@@ -2787,7 +2513,7 @@
             }
 
             if (loading) {
-                document.getElementById('loading-text').innerText = "CHARGEMENT DES DONNÉES...";
+                document.getElementById('loading-text').innerText = "CHARGEMENT DES DONN├ëES...";
                 loading.style.display = 'flex';
                 loading.style.backgroundColor = 'rgba(0,0,0,0.8)';
             }
@@ -2855,7 +2581,7 @@
                         data: globalWeatherData
                     }));
                 } catch (e) {
-                    console.warn("LocalStorage saturé, suppression des anciens caches...");
+                    console.warn("LocalStorage satur├®, suppression des anciens caches...");
                     for (let i = 0; i < localStorage.length; i++) {
                         const key = localStorage.key(i);
                         if (key.startsWith('weather_cache_')) localStorage.removeItem(key);
@@ -2868,7 +2594,7 @@
             } catch (e) {
                 console.error("Fetch Error:", e);
 
-                // Fallback de secours : si l'API est bloquée (429), on tente d'utiliser le cache même expiré
+                // Fallback de secours : si l'API est bloqu├®e (429), on tente d'utiliser le cache m├¬me expir├®
                 if (cached && e.message.includes('429')) {
                     const cacheData = JSON.parse(cached);
                     globalWeatherData = cacheData.data;
@@ -2879,7 +2605,7 @@
                     return;
                 }
 
-                const statusText = e.message.includes('429') ? "ERREUR 429 : TROP DE REQUÊTES (ATTENDEZ 1 MIN)" : "ERREUR DE RÉSEAU";
+                const statusText = e.message.includes('429') ? "ERREUR 429 : TROP DE REQU├èTES (ATTENDEZ 1 MIN)" : "ERREUR DE R├ëSEAU";
                 document.getElementById('loading-text').innerText = statusText;
                 setTimeout(() => { loading.style.display = 'none'; }, 3000);
             }
@@ -2910,11 +2636,10 @@
             container.innerHTML = '';
             weatherCodes.forEach(item => {
                 const div = document.createElement('div'); div.className = 'picker-item';
-                const iconHtml = getWeatherIcon(item.code, bank);
-                div.innerHTML = `<div class="weather-icon-large">${iconHtml}</div><span style="font-size:12px; font-weight:bold; color:#FFD700; margin-top:5px;">${item.label}</span>`;
+                div.innerHTML = `<div class="weather-icon-large">${getWeatherIcon(item.code, bank)}</div><span>${item.label}</span>`;
                 div.onclick = () => {
                     manualWeatherOverrides[cityIdx] = item.code;
-                    // Mise à jour locale uniquement, sans rechargement
+                    // Mise ├á jour locale uniquement, sans rechargement
                     updateDisplay();
                     closePickers();
                 };
@@ -2962,7 +2687,7 @@
             if (bank === 'custom') {
                 const codeData = weatherCodes.find(c => c.code === code);
                 if (codeData && codeData.img) {
-                    // Suppression du cacheBuster pour utiliser le cache navigateur et gagner en fluidité
+                    // Suppression du cacheBuster pour utiliser le cache navigateur et gagner en fluidit├®
                     return `<img src="pictogramme/${codeData.img}" alt="${codeData.label}" style="background-color:transparent;" onerror="this.onerror=null;this.src='';this.alt='ERR';">`;
                 }
             }
@@ -2972,8 +2697,8 @@
 
             // Emoji Fallback
             if (bank === 'emoji') {
-                const map = { 0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️', 45: '🌫️', 48: '❄️', 51: '🌦️', 61: '🌧️', 65: '🌧️', 80: '🌦️', 81: '🌧️', 95: '⚡' };
-                return `<span style="font-size:38px;">${map[code] || '❓'}</span>`;
+                const map = { 0: 'ÔÿÇ´©Å', 1: '­ƒîñ´©Å', 2: 'Ôøà', 3: 'Ôÿü´©Å', 45: '­ƒî½´©Å', 48: 'ÔØä´©Å', 51: '­ƒîª´©Å', 61: '­ƒîº´©Å', 65: '­ƒîº´©Å', 80: '­ƒîª´©Å', 81: '­ƒîº´©Å', 95: 'ÔÜí' };
+                return `<span style="font-size:38px;">${map[code] || 'ÔØô'}</span>`;
             }
 
             // AVERSES SOLEIL (Code 80) -> Superposition CSS Stable (Test 2/7)
@@ -2981,13 +2706,13 @@
                 return `<div class="icon-stack-expert"><span class="sun-wrap"><i class="fas fa-sun" style="color:${sunCol}"></i></span><span class="cloud-wrap"><i class="fas fa-cloud-showers-heavy" style="color:${rainCol}"></i></span></div>`;
             }
 
-            // MAPPING STANDARD RESTAURÉ
+            // MAPPING STANDARD RESTAUR├ë
             let icon = 'fa-cloud';
             let col = "#aaa"; // Default grey for overcast
 
             if (code === 0) { icon = 'fa-sun'; col = sunCol; } // Soleil
             else if (code === 1) { icon = 'fa-cloud-sun'; col = sunCol; } // Peu Nuageux
-            else if (code === 2) { icon = 'fa-cloud-sun'; col = "#ddd"; } // Voilé (Gris clair/Blanc)
+            else if (code === 2) { icon = 'fa-cloud-sun'; col = "#ddd"; } // Voil├® (Gris clair/Blanc)
             else if (code === 3) { icon = 'fa-cloud'; col = "#aaa"; } // Couvert
             else if (code === 45) { icon = 'fa-smog'; col = "#ccc"; } // Brouillard
             else if (code === 48) { icon = 'fa-snowflake'; col = "#80d4ff"; } // Givrant
@@ -2996,8 +2721,6 @@
             else if (code === 65) { icon = 'fa-cloud-showers-heavy'; col = rainCol; } // Pluie Forte
             else if (code === 81) { icon = 'fa-cloud-showers-heavy'; col = "#0099ff"; } // Averses (Darker Blue)
             else if (code === 95) { icon = 'fa-bolt'; col = sunCol; } // Orage
-
-
 
             // Flat override
             if (bank === 'flat') col = "#fff";
@@ -3008,7 +2731,7 @@
         function getDynamicColor(val, min, max) {
             if (min === max) return '#ff0000';
             const t = (val - min) / (max - min);
-            // Interpolation plus saturée (Bleu vif -> Rouge pur)
+            // Interpolation plus satur├®e (Bleu vif -> Rouge pur)
             const r1 = 0, g1 = 140, b1 = 255;  // Bleu vif
             const r2 = 255, g2 = 0, b2 = 0;    // Rouge pur
             const r = Math.round(r1 + t * (r2 - r1));
@@ -3043,32 +2766,6 @@
             updateDisplay(); // Redessiner les marqueurs pour appliquer le nouvel ancrage et le nouveau layout
         }
 
-        function toggleHourlySlider() {
-            const period = document.getElementById('period-select').value;
-            const controls = document.getElementById('hourly-controls');
-            const daySelect = document.getElementById('day-select');
-            if (period === 'hourly') {
-                controls.style.display = 'block';
-                daySelect.disabled = true;
-                daySelect.style.opacity = '0.5';
-            } else {
-                controls.style.display = 'none';
-                daySelect.disabled = false;
-                daySelect.style.opacity = '1';
-            }
-        }
-
-        function updateHourLabel() {
-            const hOffset = parseInt(document.getElementById('hour-slider').value);
-            const now = new Date();
-            const targetDate = new Date(now.getTime() + (hOffset * 3600000));
-
-            const dayName = targetDate.toLocaleDateString('fr-FR', { weekday: 'short' }).toUpperCase();
-            const hourStr = targetDate.getHours() + "h";
-
-            document.getElementById('hour-label').innerText = `${dayName} ${hourStr} (+${hOffset}h)`;
-        }
-
         function updateDisplay() {
             if (!globalWeatherData) return;
             markersGroup.clearLayers();
@@ -3078,40 +2775,42 @@
             const period = periodSelect ? periodSelect.value : 'day';
             const bank = document.getElementById('icon-bank-select').value;
 
-            // Gestion de l'affichage du sélecteur de période
-            // Toutes les périodes sont disponibles pour tous les paramètres
-            // (Le code de calcul gère déjà correctement matin/après-midi/soirée pour gusts et precip)
+            // Gestion de l'affichage du s├®lecteur de p├®riode (Version Robuste)
             const periodGroup = document.getElementById('period-select').parentElement;
+            const isCumulative = (param === 'gusts' || param === 'precip');
+
+            // On filtre les options visibles
+            let validFound = false;
             Array.from(periodSelect.options).forEach(opt => {
-                opt.hidden = false;
-                opt.disabled = false;
-                opt.style.display = 'block';
+                const isDay = (opt.value === 'day');
+                const shouldShow = isCumulative ? isDay : !isDay;
+
+                opt.hidden = !shouldShow;
+                opt.disabled = !shouldShow;
+
+                // Chrome/Safari fix: remove from view if hidden
+                if (!shouldShow) {
+                    opt.style.display = 'none';
+                } else {
+                    opt.style.display = 'block';
+                    if (periodSelect.value === opt.value) validFound = true;
+                }
             });
+
+            // Si la p├®riode actuelle n'est plus valide/visible, on bascule
+            if (!validFound) {
+                periodSelect.value = isCumulative ? 'day' : 'afternoon';
+                updateDisplay();
+                return;
+            }
 
             periodGroup.style.opacity = '1';
             periodGroup.style.pointerEvents = 'auto';
 
-            let hourOffset = null;
-            if (period === 'hourly') {
-                hourOffset = parseInt(document.getElementById('hour-slider').value);
-            }
-
-            updateAutoTitles(param, dayIdx, period, hourOffset);
+            updateAutoTitles(param, dayIdx, period);
 
             let minV = Infinity, maxV = -Infinity;
             const values = [];
-
-            // Calcul de l'index horaire global si on est en mode horaire
-            let hGlobal = null;
-            if (period === 'hourly') {
-                const now = new Date();
-                const baseTime = new Date(globalWeatherData[0].hourly.time[0]);
-                const diffMs = now - baseTime;
-                const currentHIdx = Math.floor(diffMs / 3600000);
-                hGlobal = currentHIdx + hourOffset;
-                // Sécurité : ne pas dépasser la taille des données (16 jours = 384h)
-                if (hGlobal >= globalWeatherData[0].hourly.time.length) hGlobal = globalWeatherData[0].hourly.time.length - 1;
-            }
 
             globalWeatherData.forEach((loc, idx) => {
                 if (hiddenMarkers.has(idx)) {
@@ -3119,26 +2818,11 @@
                     return;
                 }
 
+
                 let v = manualTempOverrides[idx] !== undefined ? manualTempOverrides[idx] : null;
                 let windData = null;
 
-                if (period === 'hourly') {
-                    const h = hGlobal;
-                    if (param.startsWith('gusts')) {
-                        v = Math.round(loc.hourly.wind_gusts_10m[h] / 5) * 5;
-                        windData = {
-                            mean: Math.round(loc.hourly.windspeed_10m[h] / 5) * 5,
-                            dir: loc.hourly.winddirection_10m[h]
-                        };
-                    } else if (param.startsWith('precip')) {
-                        const rawVal = loc.hourly.precipitation[h];
-                        if (rawVal === 0) v = 0;
-                        else if (rawVal < 2.5) v = 1;
-                        else v = Math.round(rawVal / 5) * 5;
-                    } else {
-                        v = Math.round(loc.hourly.temperature_2m[h]);
-                    }
-                } else if (param.startsWith('gusts')) {
+                if (param.startsWith('gusts')) {
                     const is24h = (period === 'day');
                     const hStart = dayIdx * 24 + (is24h ? 0 : (period === 'morning' ? 0 : period === 'afternoon' ? 11 : period === 'evening' ? 17 : 0));
                     const hEnd = dayIdx * 24 + (is24h ? 24 : (period === 'morning' ? 11 : period === 'afternoon' ? 18 : period === 'evening' ? 23 : 24));
@@ -3157,7 +2841,7 @@
                         dir: loc.hourly.winddirection_10m[absoluteIdx]
                     };
 
-                    // Priorité à la donnée daily pour le 24h si dispo, sinon calcul hourly
+                    // Priorit├® ├á la donn├®e daily pour le 24h si dispo, sinon calcul hourly
                     if (v === null) {
                         if (is24h && loc.daily && loc.daily.wind_gusts_10m_max && loc.daily.wind_gusts_10m_max[dayIdx] !== null) {
                             v = Math.round(loc.daily.wind_gusts_10m_max[dayIdx] / 5) * 5;
@@ -3181,7 +2865,7 @@
                             rawVal = chunk.reduce((a, b) => a + b, 0);
                         }
 
-                        // Règle d'arrondi précise
+                        // R├¿gle d'arrondi pr├®cise
                         if (rawVal === 0) v = 0;
                         else if (rawVal < 2.5) v = 1;
                         else v = Math.round(rawVal / 5) * 5;
@@ -3197,7 +2881,7 @@
                 if (v < minV) minV = v; if (v > maxV) maxV = v;
             });
 
-            // Déterminer le type précis pour la couleur et la légende
+            // D├®terminer le type pr├®cis pour la couleur et la l├®gende
             const isMin = (period === 'morning');
             let colorType = param;
             if (param === 'temp' || param === 'weather_temp') colorType = isMin ? 'temp_min' : 'temp_max';
@@ -3211,22 +2895,21 @@
             const allMarkerData = [];
             globalWeatherData.forEach((loc, idx) => {
                 if (hiddenMarkers.has(idx)) return;
-                if (!values[idx]) return; // Ville non retenue (non côtière en mode plage, etc.)
+                if (!values[idx]) return; // Ville non retenue (non c├┤ti├¿re en mode plage, etc.)
 
-                let hIdx = dayIdx * 24 + (period === 'morning' ? 9 : period === 'afternoon' ? 15 : period === 'evening' ? 20 : 12);
-                if (period === 'hourly') hIdx = hGlobal;
+                const hour = period === 'morning' ? 9 : period === 'afternoon' ? 15 : period === 'evening' ? 20 : 12;
 
-                const rawCode = loc.hourly.weathercode[hIdx];
-                const highCloud = loc.hourly.cloud_cover_high[hIdx];
-                const lowCloud = loc.hourly.cloud_cover_low[hIdx];
-                const midCloud = loc.hourly.cloud_cover_mid[hIdx];
+                const rawCode = loc.hourly.weathercode[dayIdx * 24 + hour];
+                const highCloud = loc.hourly.cloud_cover_high[dayIdx * 24 + hour];
+                const lowCloud = loc.hourly.cloud_cover_low[dayIdx * 24 + hour];
+                const midCloud = loc.hourly.cloud_cover_mid[dayIdx * 24 + hour];
 
-                // Mapping vers nos 12 catégories
+                // Mapping vers nos 12 cat├®gories
                 let mappedCode = wmoMapping[rawCode] !== undefined ? wmoMapping[rawCode] : rawCode;
 
-                // Logique dynamique Soleil Voilé (P13) :
-                // On l'active si on a bcp de nuages hauts (>30%) ET que les nuages bas/moyens sont peu présents (<40%)
-                // Même si le code brut est 3 (Couvert), s'il n'y a que des nuages hauts, c'est un voile.
+                // Logique dynamique Soleil Voil├® (P13) :
+                // On l'active si on a bcp de nuages hauts (>30%) ET que les nuages bas/moyens sont peu pr├®sents (<40%)
+                // M├¬me si le code brut est 3 (Couvert), s'il n'y a que des nuages hauts, c'est un voile.
                 if (rawCode <= 3 && highCloud > 30 && lowCloud < 40 && midCloud < 40) {
                     mappedCode = 13;
                 }
@@ -3235,68 +2918,11 @@
                 const wCode = manualWeatherOverrides[idx] !== undefined ? manualWeatherOverrides[idx] : mappedCode;
 
                 const isSmall = (currentConfig.id === 'fra' || !currentConfig.id.includes('world'));
-                const autoZoningActive = document.getElementById('auto-zoning-check')?.checked;
-
-                if (!autoZoningActive) {
-                    createMarker(currentConfig.cities[idx], values[idx].val, param, wCode, bank, idx, isSmall, values[idx].wind, colorType, minV, maxV);
-                }
-
+                createMarker(currentConfig.cities[idx], values[idx].val, param, wCode, bank, idx, isSmall, values[idx].wind, colorType, minV, maxV);
                 allMarkerData.push({ city: currentConfig.cities[idx], val: values[idx].val, code: wCode, lat: currentConfig.cities[idx].lat, lon: currentConfig.cities[idx].lon });
             });
 
-            // Collecte des données de rafales pour l'overlay du zonage auto
-            const gustsData = [];
-            if (document.getElementById('auto-zoning-check').checked) {
-                const is24h = (period === 'day');
-                const isHourly = (period === 'hourly');
-
-                const ghStart = dayIdx * 24 + (is24h ? 0 : (period === 'morning' ? 0 : period === 'afternoon' ? 11 : period === 'evening' ? 17 : 0));
-                const ghEnd = dayIdx * 24 + (is24h ? 24 : (period === 'morning' ? 11 : period === 'afternoon' ? 18 : period === 'evening' ? 23 : 24));
-
-                globalWeatherData.forEach((loc, idx) => {
-                    if (hiddenMarkers.has(idx)) return;
-                    const city = currentConfig.cities[idx];
-                    if (!city) return;
-
-                    let maxGust;
-                    let currentH = hGlobal;
-
-                    if (isHourly) {
-                        maxGust = Math.round(loc.hourly.wind_gusts_10m[currentH] / 5) * 5;
-                    } else if (is24h && loc.daily && loc.daily.wind_gusts_10m_max && loc.daily.wind_gusts_10m_max[dayIdx] !== null) {
-                        maxGust = Math.round(loc.daily.wind_gusts_10m_max[dayIdx] / 5) * 5;
-                    } else {
-                        const chunk = loc.hourly.wind_gusts_10m.slice(ghStart, ghEnd);
-                        const validChunk = chunk.filter(x => x !== null);
-                        maxGust = validChunk.length > 0 ? Math.round(Math.max(...validChunk) / 5) * 5 : 0;
-                    }
-
-                    if (maxGust >= 60) {
-                        let hIdxForDir = currentH;
-                        let roundedMean = 0;
-
-                        if (isHourly) {
-                            roundedMean = Math.round(loc.hourly.windspeed_10m[currentH] / 5) * 5;
-                        } else {
-                            const meanChunk = loc.hourly.windspeed_10m.slice(ghStart, ghEnd);
-                            const maxRawMean = Math.max(...meanChunk);
-                            roundedMean = Math.round(maxRawMean / 5) * 5;
-                            const gustChunk = loc.hourly.wind_gusts_10m.slice(ghStart, ghEnd);
-                            const maxIdxInChunk = gustChunk.indexOf(Math.max(...gustChunk));
-                            hIdxForDir = ghStart + maxIdxInChunk;
-                        }
-                        if (roundedMean === 0) roundedMean = 5;
-
-                        const dir = loc.hourly.winddirection_10m[hIdxForDir];
-                        const col = getGradientColor(maxGust, 'gusts');
-                        gustsData.push({ lat: city.lat, lon: city.lon, val: maxGust, mean: roundedMean, dir: dir, color: col, city: city.name });
-                    }
-                });
-            }
-
-            lastZoningMarkers = allMarkerData;
-            lastZoningGusts = gustsData;
-            updateAutoZoning(allMarkerData, gustsData);
+            updateAutoZoning(allMarkerData);
 
             // GESTION DES MOYENNES NORD/SUD
             const showAvg = document.getElementById('show-averages-check').checked;
@@ -3308,12 +2934,12 @@
                 let sumNorth = 0, countNorth = 0, sumSouth = 0, countSouth = 0;
 
                 globalWeatherData.forEach((loc, idx) => {
-                    // On prend toutes les villes de la config actuelle qui ne sont pas masquées
+                    // On prend toutes les villes de la config actuelle qui ne sont pas masqu├®es
                     if (hiddenMarkers.has(idx)) return;
                     const city = currentConfig.cities[idx];
                     if (!city) return;
 
-                    // Calcul de la température MAX réelle de la journée (indépendamment de la période affichée)
+                    // Calcul de la temp├®rature MAX r├®elle de la journ├®e (ind├®pendamment de la p├®riode affich├®e)
                     const hStart = dayIdx * 24;
                     const hEnd = hStart + 24;
                     const dayTemps = loc.hourly.temperature_2m.slice(hStart, hEnd);
@@ -3326,46 +2952,39 @@
                     }
                 });
 
-                if (countNorth > 0) document.getElementById('avg-north-val').innerText = Math.round(sumNorth / countNorth) + '°';
-                if (countSouth > 0) document.getElementById('avg-south-val').innerText = Math.round(sumSouth / countSouth) + '°';
+                if (countNorth > 0) document.getElementById('avg-north-val').innerText = Math.round(sumNorth / countNorth) + '┬░';
+                if (countSouth > 0) document.getElementById('avg-south-val').innerText = Math.round(sumSouth / countSouth) + '┬░';
             } else {
                 avgContainer.style.display = 'none';
             }
         }
 
-        function updateAutoTitles(param, dayIdx, period, hourOffset = null) {
-            let dateObj = new Date();
-            let periodLabel = "";
-
-            if (period === 'hourly' && hourOffset !== null) {
-                // Mode horaire : Date et période basées sur l'offset
-                dateObj.setTime(dateObj.getTime() + (hourOffset * 3600000));
-                const h = dateObj.getHours();
-
-                if (h >= 6 && h <= 12) periodLabel = " - MATIN";
-                else if (h >= 13 && h <= 18) periodLabel = " - APRÈS-MIDI";
-                else if (h >= 19 && h <= 23) periodLabel = " - SOIRÉE";
-                else periodLabel = " - NUIT"; // Hors plages spécifiées
-            } else {
-                // Mode standard basé sur dayIdx
-                dateObj.setDate(dateObj.getDate() + dayIdx);
-                if (period === 'day') periodLabel = " - JOURNÉE";
-                else if (period === 'morning') periodLabel = " - MATIN";
-                else if (period === 'afternoon') periodLabel = " - APRÈS-MIDI";
-                else if (period === 'evening') periodLabel = " - SOIRÉE";
-            }
-
+        function updateAutoTitles(param, dayIdx, period) {
+            const dateObj = new Date(); dateObj.setDate(dateObj.getDate() + dayIdx);
             const dateStr = dateObj.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+            // Traduction des p├®riodes
+            let periodLabel = "";
+            if (period === 'day') {
+                periodLabel = " - JOURN├ëE";
+            } else if (period === 'morning') {
+                periodLabel = " - MATIN";
+            } else if (period === 'afternoon') {
+                periodLabel = " - APR├êS-MIDI";
+            } else if (period === 'evening') {
+                periodLabel = " - SOIR├ëE";
+            }
 
             const titles = {
                 weather: dateStr.toUpperCase(),
                 weather_temp: dateStr.toUpperCase(),
-                temp: period === 'morning' ? "TEMPÉRATURES MINIMALES" : "TEMPÉRATURES MAXIMALES",
+                temp: period === 'morning' ? "TEMP├ëRATURES MINIMALES" : "TEMP├ëRATURES MAXIMALES",
                 gusts: "RAFALES MAXIMALES",
-                precip: "CUMULS DE PRÉCIPITATIONS"
+                precip: "CUMULS DE PR├ëCIPITATIONS"
             };
 
-            document.getElementById('main-auto-title').innerHTML = (titles[param] || "MÉTÉO EXPERT");
+
+            document.getElementById('main-auto-title').innerHTML = (titles[param] || "M├ëT├ëO EXPERT");
 
             if (param === 'weather' || param === 'weather_temp') {
                 document.getElementById('sub-auto-title').innerText = periodLabel.replace(' - ', '').toUpperCase();
@@ -3379,14 +2998,14 @@
             const titleContainer = document.getElementById('auto-title-container');
             const logo = document.getElementById('logo-on-map');
 
-            // Reset par défaut
+            // Reset par d├®faut
             logo.style.top = '25px';
             logo.style.bottom = 'auto';
 
             const bottomRightRegions = ['nor', 'idf', 'ara', 'bfc', 'pdl'];
 
             if (bottomRightRegions.includes(currentConfig.id)) {
-                // Logo en BAS à DROITE
+                // Logo en BAS ├á DROITE
                 logo.style.top = 'auto';
                 logo.style.bottom = '30px';
                 logo.style.left = 'auto';
@@ -3433,7 +3052,7 @@
             const useDynamic = document.getElementById('temp-dynamic-check').checked;
             const isTempField = (type === 'temp' || type === 'weather_temp');
 
-            // Logique de coloration spécifique pour les températures (Option demandée)
+            // Logique de coloration sp├®cifique pour les temp├®ratures (Option demand├®e)
             if (isTempField) {
                 if (useHighlight) {
                     if (val === minV && val !== maxV) {
@@ -3449,7 +3068,7 @@
                     // Double contour pour faire "poper" la couleur (contour blanc fin + ombre noire)
                     extraStyle = 'text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 5px rgba(255,255,255,0.8);';
                 } else {
-                    // Design classique : ombre portée noire pour lisibilité
+                    // Design classique : ombre port├®e noire pour lisibilit├®
                     extraStyle = 'text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;';
                 }
             }
@@ -3492,8 +3111,8 @@
                 <div class="marker-content-wrapper">${content}</div>
             </div>`;
 
-            // CALCUL ANCRAGE DYNAMIQUE (Ultra-Précision)
-            let iconH = isSmall ? 65 : 100; // Augmenté pour éviter le décalage (était 90)
+            // CALCUL ANCRAGE DYNAMIQUE (Ultra-Pr├®cision)
+            let iconH = isSmall ? 65 : 100; // Augment├® pour ├®viter le d├®calage (├®tait 90)
             if (type === 'weather' || type === 'temp' || type.startsWith('precip')) {
                 iconH = isSmall ? 80 : 120; // Massive pour tous les modes solos
             }
@@ -3540,51 +3159,47 @@
             const titles = {
                 gusts: 'RAFALES (km/h)',
                 precip: 'PLUIE (mm)',
-                temp_max: 'T° MAX (°C)',
-                temp_min: 'T° MIN (°C)',
-                temp: 'T° (°C)',
-                weather_temp: 'T° (°C)'
+                temp_max: 'T┬░ MAX (┬░C)',
+                temp_min: 'T┬░ MIN (┬░C)',
+                temp: 'T┬░ (┬░C)',
+                weather_temp: 'T┬░ (┬░C)'
             };
 
             if (isTemp && useHighlight) {
                 legend.innerHTML = `
-                    <h3>${titles[type] || 'LÉGENDE'}</h3>
+                    <h3>${titles[type] || 'L├ëGENDE'}</h3>
                     <div style="display: flex; flex-direction: column; gap: 5px; margin-top: 5px;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <div style="width: 12px; height: 12px; background: #ff4d4d; border-radius: 3px;"></div>
-                            <span style="font-size: 11px; color: #fff;">MAX: ${max}°</span>
+                            <span style="font-size: 11px; color: #fff;">MAX: ${max}┬░</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <div style="width: 12px; height: 12px; background: #4db8ff; border-radius: 3px;"></div>
-                            <span style="font-size: 11px; color: #fff;">MIN: ${min}°</span>
+                            <span style="font-size: 11px; color: #fff;">MIN: ${min}┬░</span>
                         </div>
                     </div>
                 `;
             } else if (isTemp && useDynamic) {
                 const gradient = `linear-gradient(to right, #4db8ff, #ff4d4d)`;
-                legend.innerHTML = `<h3>${titles[type] || 'LÉGENDE'}</h3><div class="legend-gradient-bar" style="background:${gradient}"></div><div class="legend-labels"><span>${min}</span><span>${Math.round(min + (max - min) / 2)}</span><span>${max}</span></div>`;
+                legend.innerHTML = `<h3>${titles[type] || 'L├ëGENDE'}</h3><div class="legend-gradient-bar" style="background:${gradient}"></div><div class="legend-labels"><span>${min}</span><span>${Math.round(min + (max - min) / 2)}</span><span>${max}</span></div>`;
             } else {
                 const gradient = `linear-gradient(to right, ${getGradientColor(min, type)}, ${getGradientColor(max, type)})`;
-                legend.innerHTML = `<h3>${titles[type] || 'LÉGENDE'}</h3><div class="legend-gradient-bar" style="background:${gradient}"></div><div class="legend-labels"><span>${min}</span><span>${Math.round(min + (max - min) / 2)}</span><span>${max}</span></div>`;
+                legend.innerHTML = `<h3>${titles[type] || 'L├ëGENDE'}</h3><div class="legend-gradient-bar" style="background:${gradient}"></div><div class="legend-labels"><span>${min}</span><span>${Math.round(min + (max - min) / 2)}</span><span>${max}</span></div>`;
             }
         }
 
-        /* --- FONCTIONS MÉTÉO COMMUNE --- */
+        /* --- FONCTIONS M├ëT├ëO COMMUNE --- */
         function switchTab(view) {
             const tabMap = document.getElementById('tab-map');
             const tabCommune = document.getElementById('tab-commune');
-            const tabManual = document.getElementById('tab-manual');
-
             const mapArea = document.getElementById('capture-area');
             const communeArea = document.getElementById('commune-forecast-area');
             const mapControls = document.getElementById('map-controls-group');
             const searchSection = document.getElementById('commune-search-section');
-            const manualCitySection = document.getElementById('manual-city-section');
 
             // Robust reset
             if (tabMap) tabMap.classList.remove('active');
             if (tabCommune) tabCommune.classList.remove('active');
-            if (tabManual) tabManual.classList.remove('active');
 
             if (view === 'map') {
                 if (tabMap) tabMap.classList.add('active');
@@ -3592,187 +3207,17 @@
                 if (communeArea) communeArea.style.display = 'none';
                 if (mapControls) mapControls.style.display = 'block';
                 if (searchSection) searchSection.style.display = 'none';
-                if (manualCitySection) manualCitySection.style.display = 'none';
                 if (map) {
                     map.invalidateSize();
                     handleZoneChange();
                 }
-            } else if (view === 'manual') {
-                if (tabManual) tabManual.classList.add('active');
-                if (mapArea) mapArea.style.display = 'flex';
-                if (communeArea) communeArea.style.display = 'none';
-                if (mapControls) mapControls.style.display = 'block'; /* Toujours montrer les régiones pour placer les villes */
-                if (searchSection) searchSection.style.display = 'none';
-                if (manualCitySection) manualCitySection.style.display = 'block';
-                if (map) map.invalidateSize();
             } else {
                 if (tabCommune) tabCommune.classList.add('active');
                 if (mapArea) mapArea.style.display = 'none';
                 if (communeArea) communeArea.style.display = 'block';
                 if (mapControls) mapControls.style.display = 'none';
                 if (searchSection) searchSection.style.display = 'block';
-                if (manualCitySection) manualCitySection.style.display = 'none';
             }
-        }
-
-        function updateManualTitles() {
-            const main = document.getElementById('manual-title-main').value;
-            const sub = document.getElementById('manual-title-sub').value;
-            if (main) document.getElementById('main-auto-title').innerText = main;
-            if (sub) document.getElementById('sub-auto-title').innerText = sub;
-        }
-
-        let manualCityMapGroup = null;
-        let addedManualCities = [];
-
-        async function searchManualCity() {
-            const code = document.getElementById('manual-city-search').value.trim();
-            const resDiv = document.getElementById('manual-city-results');
-            if (!code || code.length < 3) { resDiv.innerText = "Saisissez un nom ou code postal."; return; }
-            resDiv.innerText = "Recherche en cours...";
-            try {
-                const url = isNaN(code)
-                    ? `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(code)}&fields=nom,centre,code,population&boost=population&limit=5&format=json`
-                    : `https://geo.api.gouv.fr/communes?codePostal=${code}&fields=nom,centre,code,population&format=json`;
-                const res = await fetch(url);
-                const data = await res.json();
-                if (data.length === 0) { resDiv.innerText = "Aucune commune trouvée."; return; }
-
-                // Remove duplicates with exactly same name
-                const uniqueData = [];
-                const seenNames = new Set();
-                data.forEach(c => {
-                    const n = c.nom.toUpperCase();
-                    if (!seenNames.has(n)) {
-                        seenNames.add(n);
-                        uniqueData.push(c);
-                    }
-                });
-
-                resDiv.innerHTML = "";
-                uniqueData.forEach(c => {
-                    const b = document.createElement('div');
-                    b.innerText = "+ " + c.nom.toUpperCase();
-                    b.style.cursor = "pointer";
-                    b.style.padding = "6px";
-                    b.style.background = "rgba(255,255,255,0.1)";
-                    b.style.borderRadius = "3px";
-                    b.style.marginBottom = "4px";
-                    b.onclick = () => {
-                        const val = document.getElementById('manual-city-val').value;
-                        if (!val) { resDiv.innerText = "Veuillez d'abord taper une valeur libre."; return; }
-                        addManualCityToState(c.nom.toUpperCase(), c.centre.coordinates[1], c.centre.coordinates[0], val);
-                        resDiv.innerHTML = "<span style='color:#2ecc71'>Point ajouté sur la carte !</span>";
-                    };
-                    resDiv.appendChild(b);
-                });
-            } catch (e) {
-                resDiv.innerText = "Erreur de recherche.";
-            }
-        }
-
-        function extractNumberForMinMax(valStr) {
-            const match = String(valStr).match(/^([-+]?[0-9.]+)/);
-            if (match) return parseFloat(match[1]);
-            return null;
-        }
-
-        function addManualCityToState(name, lat, lon, val) {
-            addedManualCities.push({ id: Date.now() + Math.random(), name, lat, lon, val });
-            renderManualCities();
-        }
-
-        function renderManualCities() {
-            if (!manualCityMapGroup && map) {
-                manualCityMapGroup = L.layerGroup().addTo(map);
-            }
-            manualCityMapGroup.clearLayers();
-
-            const highlightOn = document.getElementById('manual-highlight-check') && document.getElementById('manual-highlight-check').checked;
-
-            let currentMin = Infinity;
-            let currentMax = -Infinity;
-
-            if (highlightOn) {
-                addedManualCities.forEach(city => {
-                    const num = extractNumberForMinMax(city.val);
-                    if (num !== null) {
-                        if (num < currentMin) currentMin = num;
-                        if (num > currentMax) currentMax = num;
-                    }
-                });
-            }
-
-            addedManualCities.forEach(city => {
-                let colorCode = '#ffffff';
-
-                if (highlightOn) {
-                    const num = extractNumberForMinMax(city.val);
-                    if (num !== null) {
-                        if (num === currentMin && num !== currentMax) colorCode = '#4db8ff'; // Bleu
-                        else if (num === currentMax && num !== currentMin) colorCode = '#ff4d4d'; // Rouge
-                    }
-                }
-
-                // Taille de base des variables
-                let valStr = city.val.toString().trim();
-                valStr = valStr.replace(/^([-+]?[0-9.$,]+)\s*([^0-9.,\s].*)$/i, '$1<span style="font-size:0.7em; margin-left:3px; vertical-align:5%;">$2</span>');
-
-                // Si la couleur min/max de la case est activée, on maintient l'usage de colorCode. Sinon on force l'affichage en blanc standard.
-                const valColor = colorCode === '#ffffff' ? '#ffffff' : colorCode;
-                const squareBorder = colorCode === '#ffffff' ? '#ffffff' : colorCode;
-                const outlineShadow = '2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 3px 6px rgba(0,0,0,0.6)';
-
-                // Taille adaptée si on est sur la carte de France entière
-                const isSmall = (currentConfig && (currentConfig.id === 'fra' || !currentConfig.id.includes('world')));
-                const fontSizeNum = isSmall ? 25 : 40;
-                const nameSizeNum = isSmall ? 13 : 20;
-                const squareSizeNum = isSmall ? 10 : 14;
-
-                const html = `
-                <div class="weather-marker tv-pro-mode" style="position:relative; width:400px; height:60px; display:flex; align-items:center; justify-content:center; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); cursor:pointer;">
-                    <!-- Valeur à GAUCHE -->
-                    <div style="flex:1; text-align:right; padding-right:8px;">
-                        <span style="font-family:'Roboto Condensed', sans-serif; font-size:${fontSizeNum}px; font-weight:900; color:${valColor}; text-shadow:${outlineShadow}; line-height:1; white-space:nowrap;">${valStr}</span>
-                    </div>
-
-                    <!-- CARRE NOIR AU CENTRE PARFAIT -->
-                    <div style="width:${squareSizeNum}px; height:${squareSizeNum}px; background:#000; border:2px solid ${squareBorder}; box-shadow: 0 0 5px rgba(0,0,0,0.8); flex-shrink:0; border-radius:1px; z-index:10;"></div>
-                    
-                    <!-- Ville à DROITE -->
-                    <div style="flex:1; text-align:left; padding-left:8px;">
-                        <span style="font-family:'Roboto Condensed', sans-serif; font-size:${nameSizeNum}px; font-weight:900; color:#ffffff; text-shadow:${outlineShadow}; letter-spacing:0px; white-space:nowrap; text-transform:uppercase; margin:0; display:inline-block; vertical-align:middle;">${city.name}</span>
-                    </div>
-                </div>
-                `;
-                const m = L.marker([city.lat, city.lon], {
-                    icon: L.divIcon({
-                        className: '',
-                        html: html,
-                        iconSize: [400, 60],
-                        iconAnchor: [200, 30]
-                    }),
-                    interactive: true
-                }).addTo(manualCityMapGroup);
-
-                // Allow deletion by clicking on it
-                m.on('click', () => {
-                    addedManualCities = addedManualCities.filter(c => c.id !== city.id);
-                    renderManualCities();
-                });
-            });
-        }
-
-        function updateManualTitles() {
-            const main = document.getElementById('manual-title-main').value.trim();
-            const sub = document.getElementById('manual-title-sub').value.trim();
-            if (main) document.getElementById('main-auto-title').innerText = main.toUpperCase();
-            if (sub) document.getElementById('sub-auto-title').innerText = sub.toUpperCase();
-        }
-
-        function clearManualAddedCities() {
-            addedManualCities = [];
-            renderManualCities();
         }
 
         async function searchCommune() {
@@ -3787,7 +3232,7 @@
                 const data = await res.json();
 
                 if (data.length === 0) {
-                    resultsDiv.innerHTML = "Aucune commune trouvée.";
+                    resultsDiv.innerHTML = "Aucune commune trouv├®e.";
                     return;
                 }
 
@@ -3864,7 +3309,7 @@
                 renderCommuneForecast(merged, city);
             } catch (e) {
                 console.error(e);
-                alert("Erreur lors de la récupération des prévisions.");
+                alert("Erreur lors de la r├®cup├®ration des pr├®visions.");
             } finally {
                 document.getElementById('loading').style.display = 'none';
             }
@@ -3890,16 +3335,16 @@
                         </div>
                     </div>
                     <div style="display: table-cell; vertical-align: middle; padding-left: 20px;">
-                        <h1 class="forecast-title" style="font-weight: 900; color: #1a2a3a; font-size: 26px; margin: 0;">MÉTÉO ${city.nom.toUpperCase()}</h1>
+                        <h1 class="forecast-title" style="font-weight: 900; color: #1a2a3a; font-size: 26px; margin: 0;">M├ëT├ëO ${city.nom.toUpperCase()}</h1>
                         <p style="margin: 5px 0 0 0; color: #3498db; font-weight: bold; font-family: 'Roboto Condensed'; text-transform: uppercase; font-size: 14px;">
-                            ${dateStr} - Bulletin détaillé pour ${city.nom}
+                            ${dateStr} - Bulletin d├®taill├® pour ${city.nom}
                         </p>
                     </div>
                     <div style="display: table-cell; vertical-align: middle; text-align: right; width: 220px;">
                         <div class="forecast-astro" style="display: inline-block; font-family: 'Roboto Condensed'; background: #f8f9fa; border: 2px solid #3498db; padding: 10px; border-radius: 8px; text-align: left; font-size: 13px; color: #333;">
-                            <span style="color: #444;">☀️ Lever :</span> <b style="color:#2c3e50">${sunrise}</b><br>
-                            <span style="color: #444;">🌙 Coucher :</span> <b style="color:#2c3e50">${sunset}</b><br>
-                            <span style="color: #444;">🕒 Durée :</span> <b style="color:#2c3e50">${h}h ${m}min</b>
+                            <span style="color: #444;">ÔÿÇ´©Å Lever :</span> <b style="color:#2c3e50">${sunrise}</b><br>
+                            <span style="color: #444;">­ƒîÖ Coucher :</span> <b style="color:#2c3e50">${sunset}</b><br>
+                            <span style="color: #444;">­ƒòÆ Dur├®e :</span> <b style="color:#2c3e50">${h}h ${m}min</b>
                         </div>
                     </div>
                 </div>
@@ -3913,7 +3358,7 @@
                                 <th>Temp.</th>
                                 <th>Vent (dir|moy|raf)</th>
                                 <th>Pluie</th>
-                                <th>Humidité</th>
+                                <th>Humidit├®</th>
                                 <th>Pression</th>
                                 <th>Temps</th>
                             </tr>
@@ -3924,10 +3369,10 @@
             const hourly = data.hourly;
             let lastDay = "";
 
-            // Routine : 72 premières heures (3 jours) par pas de 1h (AROME)
-            // Puis jusqu'à 15 jours par pas de 3h (ARPEGE / GFS)
+            // Routine : 72 premi├¿res heures (3 jours) par pas de 1h (AROME)
+            // Puis jusqu'├á 15 jours par pas de 3h (ARPEGE / GFS)
             for (let i = 0; i < hourly.time.length; i++) {
-                // Pas de 1h pour les 72 premières heures, puis pas de 3h
+                // Pas de 1h pour les 72 premi├¿res heures, puis pas de 3h
                 if (i > 72 && i % 3 !== 0) continue;
 
                 const date = new Date(hourly.time[i]);
@@ -3935,8 +3380,8 @@
                 const hour = date.getHours() + ":00";
 
                 if (dayName !== lastDay) {
-                    const modelName = i <= 72 ? 'MODÈLE HAUTE RÉSOLUTION (AROME)' : 'MODÈLE MOYENNE ÉCHÉANCE (ARPEGE / GFS)';
-                    // On ajoute une classe pour forcer un saut de page si on est à J+4 ou J+8 pour éviter les coupes moches
+                    const modelName = i <= 72 ? 'MOD├êLE HAUTE R├ëSOLUTION (AROME)' : 'MOD├êLE MOYENNE ├ëCH├ëANCE (ARPEGE / GFS)';
+                    // On ajoute une classe pour forcer un saut de page si on est ├á J+4 ou J+8 pour ├®viter les coupes moches
                     const isPageBreak = (lastDay !== "" && (i === 114 || i === 240));
                     html += `<tr class="row-day ${isPageBreak ? 'pdf-page-break' : ''}">
                         <td colspan="8" style="background: #1a2a3a; color: #fff; text-align: left; padding: 8px 15px; position: relative;">
@@ -3960,9 +3405,9 @@
                     <tr>
                         <td style="font-weight: bold; color: #555;">${dayName}</td>
                         <td style="font-weight: 900; font-size: 1.2em; color: #333 !important;">${hour}</td>
-                        <td><span class="cell-temp" style="padding: 6px 10px; display: inline-block; min-width: 45px; background: #FFD700; border-radius: 4px; font-weight: bold; color: #000;">${temp}°C</span></td>
+                        <td><span class="cell-temp" style="padding: 6px 10px; display: inline-block; min-width: 45px; background: #FFD700; border-radius: 4px; font-weight: bold; color: #000;">${temp}┬░C</span></td>
                         <td class="cell-wind" style="white-space: nowrap;">
-                            <span style="display: inline-block; transform: rotate(${windDir + 135}deg); font-size: 1.2em; color: #2ecc71; line-height: 1;">➤</span>
+                            <span style="display: inline-block; transform: rotate(${windDir + 135}deg); font-size: 1.2em; color: #2ecc71; line-height: 1;">Ô×ñ</span>
                             <span style="font-weight: 900; margin-left: 5px; color: #2c3e50;">${windSpeed}</span>
                             <span style="color: #e67e22; font-weight: 700; margin-left: 3px;">| ${windGust}</span>
                         </td>
@@ -3980,7 +3425,7 @@
                 </div>
 
                 <div style="margin-top: 20px; text-align: center; color: #7f8c8d; font-size: 0.8em; border-top: 1px solid #eee; padding-top: 10px;">
-                    Données collectées via Open-Meteo (Intégration AROME/ARPEGE Météo-France) • © MÉTÉO-CLIMAT PRO
+                    Donn├®es collect├®es via Open-Meteo (Int├®gration AROME/ARPEGE M├®t├®o-France) ÔÇó ┬® M├ëT├ëO-CLIMAT PRO
                 </div>
             `;
 
@@ -4000,7 +3445,7 @@
             const content = document.getElementById('forecast-content');
 
             document.getElementById('loading').style.display = 'flex';
-            document.getElementById('loading-text').innerText = "GÉNÉRATION JPG...";
+            document.getElementById('loading-text').innerText = "G├ëN├ëRATION JPG...";
 
             try {
                 const canvas = await html2canvas(content, {
@@ -4018,7 +3463,7 @@
                 alert("Erreur lors de l'exportation JPG.");
             } finally {
                 document.getElementById('loading').style.display = 'none';
-                document.getElementById('loading-text').innerText = "CHARGEMENT DES DONNÉES...";
+                document.getElementById('loading-text').innerText = "CHARGEMENT DES DONN├ëES...";
             }
         }
 
@@ -4028,10 +3473,10 @@
             const originalContent = document.getElementById('forecast-content');
 
             document.getElementById('loading').style.display = 'flex';
-            document.getElementById('loading-text').innerText = "PRÉPARATION DU PDF...";
+            document.getElementById('loading-text').innerText = "PR├ëPARATION DU PDF...";
 
-            // TECHNIQUE PRO : On clone l'élément pour travailler sur une largeur fixe (A4)
-            // Cela évite que le rendu dépende de la taille de la fenêtre du navigateur
+            // TECHNIQUE PRO : On clone l'├®l├®ment pour travailler sur une largeur fixe (A4)
+            // Cela ├®vite que le rendu d├®pende de la taille de la fen├¬tre du navigateur
             const tempContainer = document.createElement('div');
             tempContainer.style.position = 'absolute';
             tempContainer.style.left = '-9999px';
@@ -4042,7 +3487,7 @@
             tempContainer.appendChild(clone);
             document.body.appendChild(tempContainer);
 
-            // On s'assure que les canvas (graphiques) sont copiés correctement car cloneNode ne copie pas le contenu des canvas
+            // On s'assure que les canvas (graphiques) sont copi├®s correctement car cloneNode ne copie pas le contenu des canvas
             const originalCanvases = originalContent.querySelectorAll('canvas');
             const clonedCanvases = clone.querySelectorAll('canvas');
             originalCanvases.forEach((canvas, index) => {
@@ -4066,8 +3511,8 @@
             };
 
             try {
-                document.getElementById('loading-text').innerText = "GÉNÉRATION PDF...";
-                // On attend que les polices et images soient bien dessinées sur le clone
+                document.getElementById('loading-text').innerText = "G├ëN├ëRATION PDF...";
+                // On attend que les polices et images soient bien dessin├®es sur le clone
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 await html2pdf().set(opt).from(clone).save();
             } catch (e) {
@@ -4076,12 +3521,12 @@
             } finally {
                 document.body.removeChild(tempContainer);
                 document.getElementById('loading').style.display = 'none';
-                document.getElementById('loading-text').innerText = "CHARGEMENT DES DONNÉES...";
+                document.getElementById('loading-text').innerText = "CHARGEMENT DES DONN├ëES...";
             }
         }
 
         function getPictoFile(code, idx = null, hourlyData = null) {
-            // Logique dynamique Soleil Voilé (P13)
+            // Logique dynamique Soleil Voil├® (P13)
             if (idx !== null && hourlyData && hourlyData.cloud_cover_high) {
                 const rawCode = hourlyData.weathercode[idx];
                 const highCloud = hourlyData.cloud_cover_high[idx];
@@ -4186,30 +3631,35 @@
             const captureArea = document.getElementById('capture-area');
             const palette = document.getElementById('draw-palette');
             const wasPaletteVisible = palette.style.display !== 'none';
-            const autoZoningCheck = document.getElementById('auto-zoning-check');
-            const isAutoZoningActive = autoZoningCheck && autoZoningCheck.checked;
-
             palette.style.display = 'none';
+
             document.getElementById('loading').style.display = 'flex';
-            document.getElementById('loading-text').innerText = "PRÉPARATION DU RENDU HD...";
+            document.getElementById('loading-text').innerText = "PR├ëPARATION DU RENDU HD (1920x1080)...";
 
             // Sauvegarde des styles originaux
             const originalStyle = {
-                width: captureArea.style.width, height: captureArea.style.height,
-                minWidth: captureArea.style.minWidth, minHeight: captureArea.style.minHeight,
-                position: captureArea.style.position, top: captureArea.style.top,
-                left: captureArea.style.left, zIndex: captureArea.style.zIndex,
-                flexShrink: captureArea.style.flexShrink, aspectRatio: captureArea.style.aspectRatio,
+                width: captureArea.style.width,
+                height: captureArea.style.height,
+                minWidth: captureArea.style.minWidth,
+                minHeight: captureArea.style.minHeight,
+                position: captureArea.style.position,
+                top: captureArea.style.top,
+                left: captureArea.style.left,
+                zIndex: captureArea.style.zIndex,
+                flexShrink: captureArea.style.flexShrink,
+                aspectRatio: captureArea.style.aspectRatio,
                 overflow: captureArea.style.overflow
             };
+
+            // Mode Export (Optimis├® 16:9) : Base logique 1280x720
+            // Position absolue 0,0 sans transform pour ├®viter les d├®calages d'html2canvas
+            document.getElementById('loading').style.zIndex = '100000';
+            document.getElementById('loading').style.backgroundColor = 'rgba(0,0,0,1)';
 
             const originalScrollX = window.scrollX;
             const originalScrollY = window.scrollY;
             window.scrollTo(0, 0);
 
-            // Préparation de l'espace de capture
-            document.getElementById('loading').style.zIndex = '100000';
-            document.getElementById('loading').style.backgroundColor = 'rgba(0,0,0,1)';
             captureArea.style.width = '1280px';
             captureArea.style.height = '720px';
             captureArea.style.minWidth = '1280px';
@@ -4223,87 +3673,94 @@
             captureArea.style.aspectRatio = 'auto';
             captureArea.style.overflow = 'visible';
 
-            const performCapture = async (suffix = "") => {
-                map.invalidateSize({ animate: false });
-                fitMapToZone();
-                await new Promise(r => setTimeout(r, 2500)); // Attente rendu
+            // Signaler ├á Leaflet le changement de taille pour recalculer le rendu
+            map.invalidateSize({ animate: false });
+            fitMapToZone();
 
+            // D├®lai plus long pour ├¬tre certain que tout est charg├® et positionn├® (3s pour la carte Nationale)
+            await new Promise(r => setTimeout(r, 3000));
+
+            // V├®rification de s├®curit├® : y a-t-il des marqueurs ├á capturer ?
+            const markerCount = document.querySelectorAll('.weather-marker').length;
+            if (markerCount === 0) {
+                console.warn("Aucun marqueur d├®tect├® sur la carte avant capture.");
+            }
+
+            document.getElementById('loading-text').innerText = "CALCUL DU RENDU HD (1920x1080)...";
+
+            try {
                 const cvs = await html2canvas(captureArea, {
-                    useCORS: true, allowTaint: true, backgroundColor: '#111',
-                    scale: 1.5, width: 1280, height: 720, logging: false,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#111',
+                    scale: 1.5,
+                    width: 1280,
+                    height: 720,
+                    logging: false,
                     onclone: (clonedDoc) => {
+                        // Forcer la visibilit├® de tout ce qui concerne Leaflet et les pictos
                         const clonedArea = clonedDoc.getElementById('capture-area');
-                        if (clonedArea) clonedArea.style.display = 'flex';
+                        if (clonedArea) {
+                            clonedArea.style.display = 'flex';
+                            clonedArea.style.visibility = 'visible';
+                            clonedArea.style.opacity = '1';
+                        }
+
+                        // Forcer l'affichage des panneaux Leaflet (important pour les marqueurs)
                         clonedDoc.querySelectorAll('.leaflet-pane, .leaflet-marker-pane, .leaflet-icon-pane, .leaflet-tile-container').forEach(p => {
-                            p.style.visibility = 'visible'; p.style.opacity = '1';
+                            p.style.visibility = 'visible';
+                            p.style.opacity = '1';
                         });
+
                         // Forcer l'affichage des images (pictogrammes locaux)
                         // On retire le setAttribute('crossorigin') qui peut bloquer les images locales
                         clonedDoc.querySelectorAll('img').forEach(img => {
                             img.style.visibility = 'visible';
                             img.style.opacity = '1';
                         });
+
+                        // Forcer Absolument tout ce qui est dans un marqueur
+                        // SAUF les villes si l'option "Masquer les villes" est coch├®e
                         const isCitiesHidden = document.getElementById('hide-cities-check').checked;
                         clonedDoc.querySelectorAll('.weather-marker *').forEach(el => {
-                            if (isCitiesHidden && el.classList.contains('city-label')) el.style.visibility = 'hidden';
-                            else { el.style.visibility = 'visible'; el.style.opacity = '1'; }
+                            if (isCitiesHidden && el.classList.contains('city-label')) {
+                                el.style.visibility = 'hidden';
+                            } else {
+                                el.style.visibility = 'visible';
+                                el.style.opacity = '1';
+                            }
                         });
+
+                        // Forcer le layout flex pour les conteneurs d'ic├┤nes
                         clonedDoc.querySelectorAll('.marker-content-wrapper, .icon-center-anchor, .weather-temp-hybrid').forEach(el => {
                             el.style.display = 'flex';
                         });
                     }
                 });
 
-                const baseName = `${document.getElementById('main-auto-title').innerText}_${document.getElementById('sub-auto-title').innerText}`
+                const fileName = `${document.getElementById('main-auto-title').innerText}_${document.getElementById('sub-auto-title').innerText}`
                     .replace(/[\/\\?%*:|"<>]/g, '-').replace(/\s+/g, '_');
 
                 const link = document.createElement('a');
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.download = `${baseName}${suffix}.jpg`;
+                link.download = `${fileName}.jpg`;
                 link.href = cvs.toDataURL('image/jpeg', 0.95);
                 link.click();
-                setTimeout(() => document.body.removeChild(link), 100);
-            };
-
-            try {
-                // 1. CAPTURE DE LA VUE ACTUELLE
-                const currentSuffix = isAutoZoningActive ? "_ZONAGE" : "";
-                await performCapture(currentSuffix);
-
-                // 2. SI ZONAGE ACTIF, ON CAPTURE AUSSI LES PICTOS/T°
-                if (isAutoZoningActive) {
-                    document.getElementById('loading-text').innerText = "GÉNÉRATION DE LA CARTE PICTOS/T°...";
-
-                    // On bascule temporairement vers la vue classique
-                    const hideMarkersCheck = document.getElementById('hide-markers-check');
-                    const wasAutoZoningChecked = autoZoningCheck.checked;
-                    const wasHideMarkersChecked = hideMarkersCheck.checked;
-
-                    autoZoningCheck.checked = false;
-                    hideMarkersCheck.checked = false;
-
-                    toggleMarkers(); // Force Leaflet à rajouter la couche de marqueurs
-                    await updateDisplay(); // Rafraîchit les données des marqueurs
-                    await performCapture("_PICTOS_T");
-
-                    // Restauration des réglages d'affichage
-                    autoZoningCheck.checked = wasAutoZoningChecked;
-                    hideMarkersCheck.checked = wasHideMarkersChecked;
-                    toggleMarkers();
-                    await updateDisplay();
-                }
             } catch (err) {
                 console.error("Export Error:", err);
                 alert("Erreur lors de l'export.");
             } finally {
+                // Restauration compl├¿te des styles originaux
                 Object.assign(captureArea.style, originalStyle);
                 captureArea.style.transform = '';
                 if (typeof originalScrollX !== 'undefined') window.scrollTo(originalScrollX, originalScrollY);
+
+                // Reset style overlay chargement
                 document.getElementById('loading').style.zIndex = '';
                 document.getElementById('loading').style.backgroundColor = '';
+
                 map.invalidateSize({ animate: false });
                 fitMapToZone();
+
                 if (wasPaletteVisible) palette.style.display = 'flex';
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('loading-text').innerText = "CHARGEMENT...";
@@ -4360,7 +3817,7 @@
             function fmt(v, forceSign) {
                 if (v === null || v === undefined) return 'N/D';
                 const s = (forceSign && v > 0) ? '+' : '';
-                return s + v.toFixed(1) + '°C';
+                return s + v.toFixed(1) + '┬░C';
             }
             function yr(v) { return v ? '(' + v + ')' : ''; }
 
@@ -4382,7 +3839,7 @@
             panel.style.display = 'block';
         }
 
-        // Appeler updateLillePanel à chaque updateDisplay (changement de jour/région)
+        // Appeler updateLillePanel ├á chaque updateDisplay (changement de jour/r├®gion)
         const _origUpdateDisplay = updateDisplay;
         updateDisplay = function () {
             _origUpdateDisplay.apply(this, arguments);
