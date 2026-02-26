@@ -3524,19 +3524,31 @@
         let manualCityMapGroup = null;
 
         async function searchManualCity() {
-            const code = document.getElementById('manual-city-search').value;
+            const code = document.getElementById('manual-city-search').value.trim();
             const resDiv = document.getElementById('manual-city-results');
             if (!code || code.length < 3) { resDiv.innerText = "Saisissez un nom ou code postal."; return; }
             resDiv.innerText = "Recherche en cours...";
             try {
                 const url = isNaN(code)
-                    ? `https://geo.api.gouv.fr/communes?nom=${code}&fields=nom,centre,code,population&boost=population&limit=5&format=json`
+                    ? `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(code)}&fields=nom,centre,code,population&boost=population&limit=5&format=json`
                     : `https://geo.api.gouv.fr/communes?codePostal=${code}&fields=nom,centre,code,population&format=json`;
                 const res = await fetch(url);
                 const data = await res.json();
                 if (data.length === 0) { resDiv.innerText = "Aucune commune trouvée."; return; }
-                resDiv.innerHTML = "";
+
+                // Remove duplicates with exactly same name
+                const uniqueData = [];
+                const seenNames = new Set();
                 data.forEach(c => {
+                    const n = c.nom.toUpperCase();
+                    if (!seenNames.has(n)) {
+                        seenNames.add(n);
+                        uniqueData.push(c);
+                    }
+                });
+
+                resDiv.innerHTML = "";
+                uniqueData.forEach(c => {
                     const b = document.createElement('div');
                     b.innerText = "+ " + c.nom.toUpperCase();
                     b.style.cursor = "pointer";
