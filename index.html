@@ -1341,7 +1341,9 @@
                     <button id="tab-map" class="tab-btn active" onclick="switchTab('map')"
                         style="border-radius: 8px 0 0 8px;">CARTE EXPERT</button>
                     <button id="tab-commune" class="tab-btn" onclick="switchTab('commune')"
-                        style="border-radius: 0 8px 8px 0;">MÉTÉO COMMUNE</button>
+                        style="border-radius: 0;">MÉTÉO COMMUNE</button>
+                    <button id="tab-manual" class="tab-btn" onclick="switchTab('manual')"
+                        style="border-radius: 0 8px 8px 0;">VILLES MANUELLES</button>
                 </div>
                 <div style="margin-top: 6px;">
                     <button onclick="toggleDrawingMode()"
@@ -1366,7 +1368,27 @@
                 <div id="search-results" style="margin-top: 10px; font-size: 12px; color: #FFD700;"></div>
             </div>
 
-            <!-- Groupe supprimé car on utilise désormais zone-select pour tout -->
+            <!-- Groupe supprimé ou remplacé pour l'onglet manuel -->
+            <div id="manual-city-section" class="sidebar-section" style="display:none;">
+                <h3>VILLES MANUELLES</h3>
+                <input type="text" id="manual-city-val" placeholder="Valeur (ex: 23°C, 15 mm, 65 km/h)"
+                    class="search-input" style="width:100%; margin-bottom:10px; box-sizing:border-box;">
+                <div class="search-container">
+                    <input type="text" id="manual-city-search" class="search-input" placeholder="Code postal ou nom">
+                    <button class="search-btn" onclick="searchManualCity()"><i class="fas fa-search"></i></button>
+                </div>
+                <div id="manual-city-results" style="margin-top: 10px; font-size: 12px; color: #FFD700;"></div>
+
+                <h3 style="margin-top:20px;">MODIFIER LES TITRES SUR CARTE</h3>
+                <input type="text" id="manual-title-main" placeholder="Forcer titre principal" class="search-input"
+                    style="width:100%; margin-bottom:5px; box-sizing:border-box;" oninput="updateManualTitles()">
+                <input type="text" id="manual-title-sub" placeholder="Forcer sous-titre" class="search-input"
+                    style="width:100%; margin-bottom:15px; box-sizing:border-box;" oninput="updateManualTitles()">
+
+                <button onclick="clearManualAddedCities()"
+                    style="width:100%; margin-top:5px; padding:10px; background:#e74c3c; color:#fff; border:none; border-radius:6px; cursor:pointer;"
+                    class="sidebar-btn">EFFACER LES VILLES PLACÉES</button>
+            </div>
 
             <div id="commune-actions" style="display:none; margin-top:15px; flex-direction:column; gap:8px;">
                 <label style="font-size:11px; color:#FFD700; cursor:pointer; display:flex; align-items:center; gap:5px">
@@ -3450,14 +3472,18 @@
         function switchTab(view) {
             const tabMap = document.getElementById('tab-map');
             const tabCommune = document.getElementById('tab-commune');
+            const tabManual = document.getElementById('tab-manual');
+
             const mapArea = document.getElementById('capture-area');
             const communeArea = document.getElementById('commune-forecast-area');
             const mapControls = document.getElementById('map-controls-group');
             const searchSection = document.getElementById('commune-search-section');
+            const manualCitySection = document.getElementById('manual-city-section');
 
             // Robust reset
             if (tabMap) tabMap.classList.remove('active');
             if (tabCommune) tabCommune.classList.remove('active');
+            if (tabManual) tabManual.classList.remove('active');
 
             if (view === 'map') {
                 if (tabMap) tabMap.classList.add('active');
@@ -3465,16 +3491,111 @@
                 if (communeArea) communeArea.style.display = 'none';
                 if (mapControls) mapControls.style.display = 'block';
                 if (searchSection) searchSection.style.display = 'none';
+                if (manualCitySection) manualCitySection.style.display = 'none';
                 if (map) {
                     map.invalidateSize();
                     handleZoneChange();
                 }
+            } else if (view === 'manual') {
+                if (tabManual) tabManual.classList.add('active');
+                if (mapArea) mapArea.style.display = 'flex';
+                if (communeArea) communeArea.style.display = 'none';
+                if (mapControls) mapControls.style.display = 'block'; /* Toujours montrer les régiones pour placer les villes */
+                if (searchSection) searchSection.style.display = 'none';
+                if (manualCitySection) manualCitySection.style.display = 'block';
+                if (map) map.invalidateSize();
             } else {
                 if (tabCommune) tabCommune.classList.add('active');
                 if (mapArea) mapArea.style.display = 'none';
                 if (communeArea) communeArea.style.display = 'block';
                 if (mapControls) mapControls.style.display = 'none';
                 if (searchSection) searchSection.style.display = 'block';
+                if (manualCitySection) manualCitySection.style.display = 'none';
+            }
+        }
+
+        function updateManualTitles() {
+            const main = document.getElementById('manual-title-main').value;
+            const sub = document.getElementById('manual-title-sub').value;
+            if (main) document.getElementById('main-auto-title').innerText = main;
+            if (sub) document.getElementById('sub-auto-title').innerText = sub;
+        }
+
+        let manualCityMapGroup = null;
+
+        async function searchManualCity() {
+            const code = document.getElementById('manual-city-search').value;
+            const resDiv = document.getElementById('manual-city-results');
+            if (!code || code.length < 3) { resDiv.innerText = "Saisissez un nom ou code postal."; return; }
+            resDiv.innerText = "Recherche en cours...";
+            try {
+                const url = isNaN(code)
+                    ? `https://geo.api.gouv.fr/communes?nom=${code}&fields=nom,centre,code,population&boost=population&limit=5&format=json`
+                    : `https://geo.api.gouv.fr/communes?codePostal=${code}&fields=nom,centre,code,population&format=json`;
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.length === 0) { resDiv.innerText = "Aucune commune trouvée."; return; }
+                resDiv.innerHTML = "";
+                data.forEach(c => {
+                    const b = document.createElement('div');
+                    b.innerText = "+ " + c.nom.toUpperCase();
+                    b.style.cursor = "pointer";
+                    b.style.padding = "6px";
+                    b.style.background = "rgba(255,255,255,0.1)";
+                    b.style.borderRadius = "3px";
+                    b.style.marginBottom = "4px";
+                    b.onclick = () => {
+                        const val = document.getElementById('manual-city-val').value;
+                        if (!val) { resDiv.innerText = "Veuillez d'abord taper une valeur libre."; return; }
+                        addManualCityPin(c.nom.toUpperCase(), c.centre.coordinates[1], c.centre.coordinates[0], val);
+                        resDiv.innerHTML = "<span style='color:#2ecc71'>Point ajouté sur la carte !</span>";
+                    };
+                    resDiv.appendChild(b);
+                });
+            } catch (e) {
+                resDiv.innerText = "Erreur de recherche.";
+            }
+        }
+
+        function addManualCityPin(name, lat, lon, val) {
+            if (!manualCityMapGroup && map) {
+                manualCityMapGroup = L.layerGroup().addTo(map);
+            }
+            const html = `
+            <div style="position:relative; width:400px; height:100px;">
+                <!-- Le carré noir parfaitement au centre ANCHOR: [200, 50] -->
+                <div style="position:absolute; left:191px; top:41px; width:18px; height:18px; background:#000; border:2px solid #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.4); z-index:10; border-radius: 2px;"></div>
+                
+                <!-- La valeur à gauche -->
+                <div style="position:absolute; right:220px; top:20px; text-align:right;">
+                    <span style="font-size:60px; font-weight:900; color:#000; text-shadow: 3px 3px 0 #fff, -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff; line-height:1; letter-spacing: -3px;">${val}</span>
+                </div>
+
+                <!-- Le nom de la ville en haut à droite -->
+                <div style="position:absolute; left:200px; top:12px; width:200px; text-align:left;">
+                    <span style="font-size:24px; font-weight:900; color:#000; text-shadow: 3px 3px 0 #fff, -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff; letter-spacing: -0.5px;">${name}</span>
+                </div>
+            </div>
+            `;
+            const m = L.marker([lat, lon], {
+                icon: L.divIcon({
+                    className: '',
+                    html: html,
+                    iconSize: [400, 100],
+                    iconAnchor: [200, 50]
+                }),
+                interactive: true
+            }).addTo(manualCityMapGroup);
+
+            // Allow deletion by clicking on it
+            m.on('click', () => {
+                manualCityMapGroup.removeLayer(m);
+            });
+        }
+
+        function clearManualAddedCities() {
+            if (manualCityMapGroup) {
+                manualCityMapGroup.clearLayers();
             }
         }
 
