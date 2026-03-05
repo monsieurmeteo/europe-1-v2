@@ -1412,6 +1412,21 @@
             </div>
 
             <div id="map-controls-group">
+                <!-- NOUVEL ENCART: CARTES SAUVEGARDÉES -->
+                <div class="sidebar-section">
+                    <h3>CARTES SAUVEGARDÉES</h3>
+                    <input type="text" id="save-map-name" placeholder="Nom de la carte..."
+                        style="width:100%; margin-bottom:5px; padding:8px; background:#222; border:1px solid #444; color:#fff; border-radius:6px; box-sizing:border-box; font-size:12px;"
+                        class="search-input">
+                    <button onclick="saveCurrentMap()"
+                        style="width:100%; margin-bottom:8px; padding:10px; background:linear-gradient(135deg,#27ae60,#2ecc71); color:#fff; font-weight:900; font-size:14px; border:none; border-radius:8px; cursor:pointer; letter-spacing:1px; box-shadow:0 2px 8px rgba(46,204,113,0.3);">
+                        <i class="fas fa-save"></i> SAUVEGARDER
+                    </button>
+                    <div id="saved-maps-list"
+                        style="display:flex; flex-direction:column; gap:5px; max-height:150px; overflow-y:auto; padding-right:5px;">
+                    </div>
+                </div>
+
                 <div class="sidebar-section">
                     <h3>RÉGION & VILLES</h3>
                     <button onclick="document.getElementById('zone-select').value='cnews'; handleZoneChange();"
@@ -4388,6 +4403,207 @@
             _origUpdateDisplay.apply(this, arguments);
             updateLillePanel();
         };
+
+        // ====== DASHBOARD: SAUVEGARDE ET CHARGEMENT DE CARTES ======
+        function saveCurrentMap() {
+            const name = document.getElementById('save-map-name').value.trim();
+            if (!name) {
+                alert("Veuillez donner un nom à la carte avant de sauvegarder.");
+                return;
+            }
+
+            const state = {
+                name,
+                zone: document.getElementById('zone-select').value,
+                day: document.getElementById('day-select').value,
+                period: document.getElementById('period-select').value,
+                hour: document.getElementById('hour-slider').value,
+                param: document.getElementById('param-select').value,
+                iconBank: document.getElementById('icon-bank-select').value,
+                mapStyle: document.getElementById('map-style-select').value,
+                checkboxes: {
+                    showDepts: document.getElementById('show-depts-check').checked,
+                    maskExterior: document.getElementById('mask-exterior-check').checked,
+                    simpleWind: document.getElementById('simple-wind-check').checked,
+                    hideCities: document.getElementById('hide-cities-check').checked,
+                    tempHighlight: document.getElementById('temp-highlight-check').checked,
+                    tempDynamic: document.getElementById('temp-dynamic-check').checked,
+                    showLilleRecords: document.getElementById('show-lille-records').checked,
+                    showLegend: document.getElementById('show-legend-check').checked,
+                    hideMarkers: document.getElementById('hide-markers-check').checked,
+                    showLogo: document.getElementById('show-logo-check').checked,
+                    showAverages: document.getElementById('show-averages-check').checked,
+                    autoZoning: document.getElementById('auto-zoning-check').checked,
+                    freezeMap: document.getElementById('freeze-map-check').checked
+                },
+                manualWeatherOverrides: manualWeatherOverrides,
+                manualTempOverrides: manualTempOverrides,
+                hiddenMarkers: Array.from(hiddenMarkers),
+                addedManualCities: addedManualCities,
+                manualFogMarkers: typeof manualFogMarkers !== 'undefined' ? manualFogMarkers : [],
+                titles: {
+                    main: document.getElementById('manual-title-main') ? document.getElementById('manual-title-main').value : '',
+                    sub: document.getElementById('manual-title-sub') ? document.getElementById('manual-title-sub').value : ''
+                }
+            };
+
+            let saved = JSON.parse(localStorage.getItem('mcp_saved_maps') || '[]');
+            const existingIndex = saved.findIndex(m => m.name === name);
+            if (existingIndex >= 0) {
+                if (confirm("Une carte avec ce nom existe déjà. Voulez-vous la remplacer ?")) {
+                    saved[existingIndex] = state;
+                } else {
+                    return;
+                }
+            } else {
+                saved.push(state);
+            }
+
+            localStorage.setItem('mcp_saved_maps', JSON.stringify(saved));
+            renderSavedMapsList();
+            document.getElementById('save-map-name').value = '';
+
+            alert("✅ Carte sauvegardée avec succès !");
+        }
+
+        function renderSavedMapsList() {
+            const list = document.getElementById('saved-maps-list');
+            if (!list) return;
+            const saved = JSON.parse(localStorage.getItem('mcp_saved_maps') || '[]');
+            list.innerHTML = '';
+
+            if (saved.length === 0) {
+                list.innerHTML = '<div style="color:#888; font-size:11px; font-style:italic; text-align:center; padding:5px;">Aucune carte sauvegardée.</div>';
+                return;
+            }
+
+            saved.forEach((mapData, i) => {
+                const item = document.createElement('div');
+                item.style.display = 'flex';
+                item.style.gap = '5px';
+                item.style.marginBottom = '4px';
+                item.innerHTML = `
+                    <button onclick="loadSavedMap(${i})" style="flex:1; padding:8px; background:rgba(52,152,219,0.2); color:#4db8ff; border:1px solid rgba(52,152,219,0.4); border-radius:4px; cursor:pointer; text-align:left; font-size:12px; font-weight:700; transition:all 0.2s;" onmouseover="this.style.background='rgba(52,152,219,0.4)'" onmouseout="this.style.background='rgba(52,152,219,0.2)'" title="Charger la carte">
+                        <i class="fas fa-map"></i> \${mapData.name}
+                    </button>
+                    <button onclick="deleteSavedMap(${i})" style="padding:8px 10px; background:rgba(231,76,60,0.2); color:#e74c3c; border:1px solid rgba(231,76,60,0.4); border-radius:4px; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='rgba(231,76,60,0.4)'" onmouseout="this.style.background='rgba(231,76,60,0.2)'" title="Supprimer">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        async function loadSavedMap(index) {
+            const saved = JSON.parse(localStorage.getItem('mcp_saved_maps') || '[]');
+            const state = saved[index];
+            if (!state) return;
+
+            document.getElementById('loading').style.display = 'flex';
+            document.getElementById('loading-text').innerText = "CHARGEMENT DE LA CARTE...";
+
+            try {
+                // Restauration des sélecteurs
+                document.getElementById('zone-select').value = state.zone;
+                document.getElementById('day-select').value = state.day;
+                document.getElementById('period-select').value = state.period;
+                document.getElementById('hour-slider').value = state.hour || 0;
+                document.getElementById('param-select').value = state.param;
+                document.getElementById('icon-bank-select').value = state.iconBank;
+                document.getElementById('map-style-select').value = state.mapStyle;
+
+                // Restauration des cases à cocher
+                if (state.checkboxes) {
+                    document.getElementById('show-depts-check').checked = !!state.checkboxes.showDepts;
+                    document.getElementById('mask-exterior-check').checked = !!state.checkboxes.maskExterior;
+
+                    const sw = document.getElementById('simple-wind-check');
+                    if (sw) sw.checked = !!state.checkboxes.simpleWind;
+
+                    document.getElementById('hide-cities-check').checked = !!state.checkboxes.hideCities;
+                    document.getElementById('temp-highlight-check').checked = !!state.checkboxes.tempHighlight;
+                    document.getElementById('temp-dynamic-check').checked = !!state.checkboxes.tempDynamic;
+                    document.getElementById('show-lille-records').checked = !!state.checkboxes.showLilleRecords;
+                    document.getElementById('show-legend-check').checked = !!state.checkboxes.showLegend;
+                    document.getElementById('hide-markers-check').checked = !!state.checkboxes.hideMarkers;
+                    document.getElementById('show-logo-check').checked = !!state.checkboxes.showLogo;
+                    document.getElementById('show-averages-check').checked = !!state.checkboxes.showAverages;
+                    document.getElementById('auto-zoning-check').checked = !!state.checkboxes.autoZoning;
+                    document.getElementById('freeze-map-check').checked = !!state.checkboxes.freezeMap;
+                }
+
+                // Restauration des titres
+                if (state.titles) {
+                    if (document.getElementById('manual-title-main')) document.getElementById('manual-title-main').value = state.titles.main || '';
+                    if (document.getElementById('manual-title-sub')) document.getElementById('manual-title-sub').value = state.titles.sub || '';
+                }
+
+                // Restauration des données utilisateur
+                currentConfig = zoneConfigs[state.zone] || zoneConfigs.france;
+                manualWeatherOverrides = state.manualWeatherOverrides || {};
+                manualTempOverrides = state.manualTempOverrides || {};
+                hiddenMarkers = new Set(state.hiddenMarkers || []);
+                addedManualCities = state.addedManualCities || [];
+
+                if (typeof manualFogMarkers !== 'undefined') {
+                    manualFogMarkers = state.manualFogMarkers || [];
+                }
+
+                // Application de l'UI
+                if (typeof updateMapStyle === 'function') updateMapStyle();
+                if (typeof toggleCities === 'function') toggleCities();
+                if (typeof toggleWindDisplay === 'function') toggleWindDisplay();
+                if (typeof toggleMarkers === 'function') toggleMarkers();
+                if (typeof toggleLogo === 'function') toggleLogo();
+                if (typeof toggleMapFreeze === 'function') toggleMapFreeze();
+
+                if (state.period === 'hourly') {
+                    document.getElementById('hourly-controls').style.display = 'block';
+                } else {
+                    document.getElementById('hourly-controls').style.display = 'none';
+                }
+                if (typeof updateHourLabel === 'function') updateHourLabel();
+
+                // Re-calculer map
+                await updateGeoJson();
+
+                // Attention on appelle fetchWeatherData directement sans passer par handleDayChange 
+                // pour ne pas déclencher clearManualOverrides() -> la carte reste customisée
+                const model = document.getElementById('param-select').value === 'weather' ? 'arome_france,meteofrance_arpege_world' : 'arome_france';
+                await fetchWeatherData(model);
+
+                // Restaurer les villes rajoutées sur la carte
+                if (typeof renderManualCities === 'function') renderManualCities();
+
+                // Forcer l'application des titres customs (qui s'écrasent sinon dans fetchWeatherData)
+                const mainTitle = state.titles.main || '';
+                const subTitle = state.titles.sub || '';
+                if (mainTitle) document.getElementById('main-auto-title').innerText = mainTitle.toUpperCase();
+                if (subTitle) document.getElementById('sub-auto-title').innerText = subTitle.toUpperCase();
+
+                // On met à jour le map.invalidateSize et fitBounds
+                map.invalidateSize();
+                fitMapToZone();
+            } catch (e) {
+                console.error(e);
+                alert("Erreur lors du chargement de la carte.");
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function deleteSavedMap(index) {
+            if (!confirm("Êtes-vous sûr de vouloir supprimer définitivement cette carte sauvegardée ?")) return;
+            let saved = JSON.parse(localStorage.getItem('mcp_saved_maps') || '[]');
+            saved.splice(index, 1);
+            localStorage.setItem('mcp_saved_maps', JSON.stringify(saved));
+            renderSavedMapsList();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            renderSavedMapsList();
+        });
+
     </script>
 </body>
 
