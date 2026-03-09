@@ -125,9 +125,17 @@
         }
         */
 
-        .hide-zone-labels .zone-label {
+        .hide-zone-labels .auto-zone-label {
             visibility: hidden;
             pointer-events: none;
+        }
+
+        /* MODE ZONAGE AUTO : masque logo, légende, titre ET cadre moyennes */
+        .auto-zoning-active #logo-on-map,
+        .auto-zoning-active #legend,
+        .auto-zoning-active #auto-title-container,
+        .auto-zoning-active #averages-container {
+            display: none !important;
         }
 
         #map-container {
@@ -1344,7 +1352,7 @@
                 <h3>VUE PRINCIPALE</h3>
                 <div style="display: flex; gap: 4px; align-items: center;">
                     <button id="tab-map" class="tab-btn active" onclick="switchTab('map')"
-                        style="border-radius: 8px 0 0 8px;">CARTE EXPERT</button>
+                        style="border-radius: 8px 0 0 4px;">CARTE EXPERT</button>
                     <button id="tab-commune" class="tab-btn" onclick="switchTab('commune')"
                         style="border-radius: 0;">MÉTÉO COMMUNE</button>
                     <button id="tab-manual" class="tab-btn" onclick="switchTab('manual')"
@@ -1357,7 +1365,8 @@
                     </button>
                     <label
                         style="margin-top:7px; font-size:11px; color:#ff9933; cursor:pointer; display:flex; align-items:center; gap:8px;">
-                        <input type="checkbox" id="hide-markers-check" onchange="toggleMarkers()"> MASQUER PICTOS &amp;
+                        <input type="checkbox" id="hide-markers-check" onchange="toggleMarkers();">
+                        MASQUER PICTOS &amp;
                         T°
                     </label>
                 </div>
@@ -1386,7 +1395,7 @@
 
                 <label
                     style="margin-top:10px; font-size:11px; color:#ff9933; cursor:pointer; display:flex; align-items:center; gap:8px;">
-                    <input type="checkbox" id="manual-highlight-check" onchange="renderManualCities()"> MISE EN AVANT
+                    <input type="checkbox" id="manual-highlight-check" onchange="renderManualCities();"> MISE EN AVANT
                     MIN/MAX
                 </label>
 
@@ -1423,7 +1432,7 @@
                         style="width:100%; margin-bottom:8px; padding:10px; background:linear-gradient(135deg,#e8a020,#c0392b); color:#fff; font-weight:900; font-size:15px; border:none; border-radius:8px; cursor:pointer; letter-spacing:2px; box-shadow:0 2px 8px rgba(230,100,0,0.5);">
                         📺 CNEWS
                     </button>
-                    <select id="zone-select" onchange="handleZoneChange()">
+                    <select id="zone-select" onchange="handleZoneChange();">
                         <option value="france">🌎 FRANCE ENTIÈRE</option>
                         <option value="hdf">🏘️ HAUTS-DE-FRANCE</option>
                         <option value="normandie">🍏 NORMANDIE</option>
@@ -1444,7 +1453,7 @@
 
                 <div class="sidebar-section">
                     <h3>DONNÉES</h3>
-                    <select id="icon-bank-select" onchange="updateDisplay()">
+                    <select id="icon-bank-select" onchange="updateDisplay();">
                         <option value="custom" selected>📸 PICTOGRAMMES</option>
                         <optgroup label="STANDARDS">
                             <option value="modern">💎 STYLE MODERNE</option>
@@ -1453,7 +1462,7 @@
                         </optgroup>
                     </select>
 
-                    <select id="param-select" onchange="clearManualOverrides(); updateDisplay()">
+                    <select id="param-select" onchange="clearManualOverrides(); updateDisplay();">
                         <option value="weather">🌦️ MÉTÉO</option>
                         <option value="weather_temp" selected>🌡️ MÉTÉO + T°</option>
                         <option value="temp">🌡️ TEMPÉRATURES</option>
@@ -1464,8 +1473,9 @@
 
                 <div class="sidebar-section">
                     <h3>PÉRIODE</h3>
-                    <select id="day-select" onchange="handleDayChange()"></select>
-                    <select id="period-select" onchange="toggleHourlySlider(); clearManualOverrides(); updateDisplay()">
+                    <select id="day-select" onchange="handleDayChange();"></select>
+                    <select id="period-select"
+                        onchange="toggleHourlySlider(); clearManualOverrides(); updateDisplay();">
                         <option value="day" selected>JOURNÉE (24H)</option>
                         <option value="morning">MATIN</option>
                         <option value="afternoon">APRÈS-MIDI</option>
@@ -1506,30 +1516,33 @@
                     <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px">
                         <label
                             style="font-size:11px; color:#fff; cursor:pointer; display:flex; align-items:center; gap:10px">
-                            <input type="checkbox" id="show-depts-check" onchange="updateGeoJson()"> DÉPARTEMENTS
+                            <input type="checkbox" id="show-depts-check" onchange="updateGeoJson();">
+                            DÉPARTEMENTS
                         </label>
                         <label
                             style="font-size:11px; color:#fff; cursor:pointer; display:flex; align-items:center; gap:10px">
-                            <input type="checkbox" id="mask-exterior-check" onchange="updateGeoJson()"> MODE SILHOUETTE
+                            <input type="checkbox" id="mask-exterior-check" onchange="updateGeoJson();"> MODE SILHOUETTE
                         </label>
                         <label
                             style="font-size:11px; color:#4db8ff; cursor:pointer; display:flex; align-items:center; gap:10px">
-                            <input type="checkbox" id="simple-wind-check" onchange="updateWindDisplay()" checked> MODE
+                            <input type="checkbox" id="simple-wind-check" onchange="updateWindDisplay();" checked> MODE
                             RAFALES (MAX)
                         </label>
                         <label
                             style="font-size:11px; color:#4db8ff; cursor:pointer; display:flex; align-items:center; gap:10px">
-                            <input type="checkbox" id="hide-cities-check" onchange="toggleCities()" checked> MASQUER LES
+                            <input type="checkbox" id="hide-cities-check" onchange="toggleCities();" checked> MASQUER
+                            LES
                             VILLES
                         </label>
                         <label
                             style="font-size:11px; color:#ff4d4d; cursor:pointer; display:flex; align-items:center; gap:10px">
-                            <input type="checkbox" id="temp-highlight-check" onchange="updateDisplay()"> MISE EN AVANT
+                            <input type="checkbox" id="temp-highlight-check" onchange="updateDisplay();"> MISE EN AVANT
                             MIN/MAX
                         </label>
                         <label
                             style="font-size:11px; color:#ff4d4d; cursor:pointer; display:flex; align-items:center; gap:10px">
-                            <input type="checkbox" id="temp-dynamic-check" onchange="updateDisplay()"> DÉGRADÉ DYNAMIQUE
+                            <input type="checkbox" id="temp-dynamic-check" onchange="updateDisplay();"> DÉGRADÉ
+                            DYNAMIQUE
                             (B/R)
                         </label>
                         <label
@@ -1539,41 +1552,39 @@
                         </label>
                         <label
                             style="font-size:11px; color:#ddd; cursor:pointer; display:flex; align-items:center; gap:10px">
-                            <input type="checkbox" id="show-legend-check" onchange="updateDisplay()" checked> AFFICHER
+                            <input type="checkbox" id="show-legend-check" onchange="updateDisplay();" checked> AFFICHER
                             LA LÉGENDE
                         </label>
-                        <label
-                            style="font-size:11px; color:#ff9933; cursor:pointer; display:flex; align-items:center; gap:10px">
-                            <input type="checkbox" id="hide-markers-check" onchange="toggleMarkers()"> MASQUER PICTOS
-                            &amp; T°
-                        </label>
+
                         <button id="btn-toggle-fog" onclick="toggleFogMode()"
                             style="padding:6px; font-size:0.75rem; margin-top:2px; background:#444; border-radius:4px; color:#fff; border:1px solid #666; width:fit-content;">
                             <i class="fas fa-smog"></i> PIC TO BROUILLARD
                         </button>
                         <label
                             style="font-size:11px; color:#FFD700; cursor:pointer; display:flex; align-items:center; gap:10px">
-                            <input type="checkbox" id="show-logo-check" onchange="toggleLogo()" checked> AFFICHER LE
+                            <input type="checkbox" id="show-logo-check" onchange="toggleLogo();" checked> AFFICHER LE
                             LOGO
                         </label>
                         <label
                             style="font-size:11px; color:#FFD700; cursor:pointer; display:flex; align-items:center; gap:10px">
-                            <input type="checkbox" id="show-averages-check" onchange="updateDisplay()"> MOYENNES
+                            <input type="checkbox" id="show-averages-check" onchange="updateDisplay();"> MOYENNES
                             NORD/SUD
                         </label>
                         <label
                             style="font-size:11px; color:#4db8ff; cursor:pointer; display:flex; align-items:center; gap:10px">
-                            <input type="checkbox" id="auto-zoning-check" onchange="updateDisplay()"> ZONAGE AUTO
+                            <input type="checkbox" id="auto-zoning-check"
+                                onchange="updateDisplay(); updateGeoJson(); toggleMarkers();"> ZONAGE
+                            AUTO
                             (PICTOS)
                         </label>
                         <label
                             style="font-size:11px; color:#ff9933; cursor:pointer; display:flex; align-items:center; gap:10px">
-                            <input type="checkbox" id="hide-zone-labels-check" onchange="toggleZoneLabels()" checked>
+                            <input type="checkbox" id="hide-zone-labels-check" onchange="toggleZoneLabels();" checked>
                             MASQUER LES "P"
                         </label>
                         <label
                             style="font-size:11px; color:#FFD700; cursor:pointer; display:flex; align-items:center; gap:10px">
-                            <input type="checkbox" id="freeze-map-check" onchange="toggleMapFreeze()" checked> 🔒 FIGER
+                            <input type="checkbox" id="freeze-map-check" onchange="toggleMapFreeze();" checked> 🔒 FIGER
                             (EXPORT)
                         </label>
                     </div>
@@ -1600,6 +1611,8 @@
                         <i class="fas fa-trash-alt"></i> TOUT EFFACER
                     </button>
                 </div>
+
+
 
             </div> <!-- Fermeture de map-controls-group -->
 
@@ -1853,12 +1866,12 @@
             { code: 14, label: "P14", icon: "fa-smog", color: "#ccc", emoji: "🌫️", img: "P14.png" }      // P14 -> Brouillard
         ];
 
-        let map, markersGroup, drawingGroup, autoZoningGroup, geoLayer = null, maskLayer = null, globalWeatherData = null, currentConfig = zoneConfigs.france, globalGeoBoundary = null, globalBoundaryPolygon = null;
+        let map, markersGroup, drawingGroup, autoZoningGroup, fogGroup, geoLayer = null, maskLayer = null, globalWeatherData = null, currentConfig = zoneConfigs.france, globalGeoBoundary = null, globalBoundaryPolygon = null;
         let lastZoningMarkers = [], lastZoningGusts = [];
         let manualWeatherOverrides = {}; let manualTempOverrides = {}; let hiddenMarkers = new Set();
         let suppressedAutoZones = new Set();
         let currentPickingCityIndex = null;
-        let isDrawingMode = false, isFogMode = false, curvePoints = [], tempLine = null, tempMarkers = [], currentDrawColor = '#ff4d4d', manualFogMarkers = [];
+        let isDrawingMode = false, isFogMode = false, curvePoints = [], tempLine = null, tempMarkers = [], currentDrawColor = '#ff4d4d', manualFogMarkers = [], forceShowOverlays = false, isExporting = false;
 
         async function initLeafletMap() {
             if (map) return;
@@ -1897,6 +1910,7 @@
             markersGroup = L.layerGroup().addTo(map);
             drawingGroup = L.layerGroup().addTo(map);
             autoZoningGroup = L.layerGroup().addTo(map);
+            fogGroup = L.layerGroup().addTo(map);
 
             // LOGIQUE CLIC CARTE (DESSIN OU BROUILLARD)
             map.on('click', (e) => {
@@ -1913,7 +1927,7 @@
                         }),
                         interactive: true,
                         pane: 'manualMarkersPane'
-                    }).addTo(autoZoningGroup); // On l'ajoute directement au groupe auto
+                    }).addTo(fogGroup); // Groupe dédié brouillard
 
                     marker.manualFogId = fogData.id;
 
@@ -1922,6 +1936,7 @@
                         L.DomEvent.stopPropagation(ev);
                         openDeleteZoneModal(this, null);
                     });
+
                     return;
                 }
 
@@ -2033,6 +2048,7 @@
                 marker.on('click', function () {
                     openDeleteZoneModal(this.relatedPolyline, this);
                 });
+
             } else {
                 if (pendingZonePolyline) {
                     pendingZonePolyline.off('click');
@@ -2067,10 +2083,11 @@
                     updateDisplay();
                 } else if (elementToDelete.manualFogId) {
                     manualFogMarkers = manualFogMarkers.filter(m => m.id !== elementToDelete.manualFogId);
-                    autoZoningGroup.removeLayer(elementToDelete);
+                    fogGroup.removeLayer(elementToDelete);
                 } else {
                     drawingGroup.removeLayer(elementToDelete);
                 }
+
             }
             if (linkedElementToDelete) {
                 if (linkedElementToDelete.isAutoZone) {
@@ -2170,6 +2187,7 @@
         function clearDrawings() {
             drawingGroup.clearLayers();
             autoZoningGroup.clearLayers();
+            if (fogGroup) fogGroup.clearLayers();
             curvePoints = [];
             tempMarkers = [];
             tempLine = null;
@@ -2225,29 +2243,58 @@
             return current;
         }
 
-        function updateAutoZoning(markerData, gustsOverlay = []) {
-            autoZoningGroup.clearLayers();
+        function updateAutoZoning(markerData, gustsOverlay = [], showOverlays = false) {
+            autoZoningGroup.clearLayers(); // Ne touche PAS fogGroup
 
-            // --- PERSISTANCE DES BROUILLARDS MANUELS (P14) ---
-            // On les dessine en premier pour qu'ils soient toujours visibles, 
-            // même si le zonage automatique (polygones) est désactivé (ex: export Pictos).
-            manualFogMarkers.forEach(fog => {
-                const marker = L.marker([fog.lat, fog.lon], {
-                    icon: L.divIcon({
-                        className: 'fog-manual-marker',
-                        html: `<div class="weather-icon-large">${getWeatherIcon(14, 'custom')}</div>`,
-                        iconSize: [80, 80],
-                        iconAnchor: [40, 40]
-                    }),
-                    interactive: true,
-                    pane: 'manualMarkersPane'
-                }).addTo(autoZoningGroup);
-                marker.manualFogId = fog.id;
-                marker.on('click', function (ev) {
-                    L.DomEvent.stopPropagation(ev);
-                    openDeleteZoneModal(this, null);
+            // --- BROUILLARDS (groupe dédié, toujours synchronisé) ---
+            // Rafraîchir fogGroup depuis manualFogMarkers
+            if (fogGroup) {
+                fogGroup.clearLayers();
+                manualFogMarkers.forEach(fog => {
+                    const marker = L.marker([fog.lat, fog.lon], {
+                        icon: L.divIcon({
+                            className: 'fog-manual-marker',
+                            html: `<div class="weather-icon-large">${getWeatherIcon(14, 'custom')}</div>`,
+                            iconSize: [80, 80],
+                            iconAnchor: [40, 40]
+                        }),
+                        interactive: true,
+                        pane: 'manualMarkersPane'
+                    }).addTo(fogGroup);
+                    marker.manualFogId = fog.id;
+                    marker.on('click', function (ev) {
+                        L.DomEvent.stopPropagation(ev);
+                        openDeleteZoneModal(this, null);
+                    });
                 });
-            });
+            }
+
+            // --- RAFALES SURCOUCHES (visible en UI ou sur Carte 3 export) ---
+            if (!isExporting || showOverlays) {
+                gustsOverlay.forEach(g => {
+                    const color = g.color;
+                    const html = `
+                        <div class="wind-box is-auto-gust" style="display:flex; flex-direction:column; align-items:center;">
+                            <div class="wind-values" style="font-size:32px; font-weight:900; color:${color}; text-shadow:2px 2px 0 #000;">
+                                ${g.val}
+                            </div>
+                            <div class="wind-arrow" style="transform: rotate(${g.dir + 135}deg); color:${color}; font-size:26px; filter:drop-shadow(2px 2px 0 #000); margin-top:-5px">
+                                <i class="fas fa-location-arrow"></i>
+                            </div>
+                        </div>
+                    `;
+                    L.marker([g.lat, g.lon], {
+                        icon: L.divIcon({
+                            className: 'weather-marker is-small type-gusts bank-classic',
+                            html: `<span class="city-label">${g.city || ''}</span><div class="marker-content-wrapper">${html}</div>`,
+                            iconSize: [80, 90],
+                            iconAnchor: [40, 70]
+                        }),
+                        interactive: false,
+                        pane: 'pictogramLabelPane'
+                    }).addTo(autoZoningGroup);
+                });
+            }
 
             const check = document.getElementById('auto-zoning-check');
             if (!check || !check.checked) return;
@@ -2370,7 +2417,7 @@
                 const labelText = item.label;
 
                 L.geoJSON(geojson, {
-                    style: { color: col, weight: 4, fillColor: col, fillOpacity: 0.3, smoothFactor: 0.5 },
+                    style: { color: '#ffffff', weight: 2, fillColor: col, fillOpacity: 0.72, smoothFactor: 0.5 },
                     onEachFeature: (feature, layer) => {
                         layer.isAutoZone = true;
 
@@ -2443,7 +2490,7 @@
                                 const labelBorder = (col === '#333333' || col === '#000000') ? '#ffffff' : col;
                                 const labelMarker = L.marker([coord[1], coord[0]], {
                                     icon: L.divIcon({
-                                        className: 'zone-label',
+                                        className: 'zone-label auto-zone-label',
                                         html: `<div style="background:#000; color:#fff; border:3px solid ${labelBorder}; padding:3px 10px; border-radius:6px; font-size:18px; font-weight:900; box-shadow: 0 0 15px rgba(0,0,0,0.8); text-shadow: 1px 1px 2px #000;">${labelText}</div>`,
                                         iconSize: [50, 30],
                                         iconAnchor: [25, 15]
@@ -2464,31 +2511,9 @@
                 }).addTo(autoZoningGroup);
             });
 
-            // --- OVERLAY RAFALES >= 60 km/h (même design que RAFALES MAXIMALES) ---
-            gustsOverlay.forEach(g => {
-                const color = g.color;
-                const html = `
-                    <div class="wind-box is-auto-gust" style="display:flex; flex-direction:column; align-items:center;">
-                        <div class="wind-values" style="font-size:32px; font-weight:900; color:${color}; text-shadow:2px 2px 0 #000;">
-                            ${g.val}
-                        </div>
-                        <div class="wind-arrow" style="transform: rotate(${g.dir + 135}deg); color:${color}; font-size:26px; filter:drop-shadow(2px 2px 0 #000); margin-top:-5px">
-                            <i class="fas fa-location-arrow"></i>
-                        </div>
-                    </div>
-                `;
-                L.marker([g.lat, g.lon], {
-                    icon: L.divIcon({
-                        className: 'weather-marker is-small type-gusts bank-classic',
-                        html: `<span class="city-label">${g.city || ''}</span><div class="marker-content-wrapper">${html}</div>`,
-                        iconSize: [80, 90],
-                        iconAnchor: [40, 70]
-                    }),
-                    interactive: false,
-                    pane: 'pictogramLabelPane' // On utilise le même pane que les labels P pour être bien au-dessus
-                }).addTo(autoZoningGroup);
-            });
+            // --- FIN ZONAGE AUTO ---
         }
+
 
         function getLayerStyle(styleMode, isDept = false) {
             const isSilhouette = document.getElementById('mask-exterior-check')?.checked;
@@ -2503,7 +2528,18 @@
                 'grey': { color: isDept ? "#000000" : "#555555", weight: isDept ? 1.5 : 1.2, opacity: 1, fillOpacity: opacity, fillColor: "#d9d9d9" },
                 'classic': { color: "#FFD700", weight: isDept ? 1.5 : 3.5, opacity: isDept ? 0.8 : 1, fillOpacity: isSilhouette ? 0.4 : 0.1, fillColor: "#FFD700" }
             };
-            return styles[styleMode] || styles['classic'];
+            const autoZoningActive = document.getElementById('auto-zoning-check')?.checked;
+            const style = styles[styleMode] || styles['classic'];
+
+            // Si le zonage auto est actif : aucun contour, aucun remplissage (les zones colorées suffisent)
+            if (autoZoningActive && !isDept) {
+                style.color = "transparent";
+                style.weight = 0;
+                style.opacity = 0;
+                style.fillOpacity = 0;
+            }
+
+            return style;
         }
 
         async function updateMapStyle(shouldUpdateGeo = true) {
@@ -2525,13 +2561,19 @@
                 'classic': { filter: "brightness(0.75) contrast(1.15)", bg: "#000" }
             };
 
-            const cfg = configs[styleMode] || configs['classic'];
-            tilePane.style.filter = cfg.filter;
-            mapContainer.style.background = cfg.bg;
+            const autoZoningActive = document.getElementById('auto-zoning-check')?.checked;
+            if (autoZoningActive) {
+                // En mode zonage auto : fond blanc, carte quasi-invisible pour faire ressortir les couleurs
+                tilePane.style.filter = "brightness(0) invert(1) opacity(0.08)";
+                mapContainer.style.background = "#ffffff";
+            } else {
+                tilePane.style.filter = cfg.filter;
+                mapContainer.style.background = cfg.bg;
+            }
 
             // Mise à jour de la couleur du masque si présent
             if (maskLayer) {
-                maskLayer.setStyle({ fillColor: cfg.bg });
+                maskLayer.setStyle({ fillColor: autoZoningActive ? '#ffffff' : cfg.bg });
             }
 
             // Pour la France entière, on doit parfois recharger le GeoJSON (silhouette vs régions)
@@ -2559,7 +2601,9 @@
 
             const styleMode = document.getElementById('map-style-select').value;
             const showDepts = document.getElementById('show-depts-check').checked;
-            const maskExterior = document.getElementById('mask-exterior-check').checked;
+            const autoZoningNow = document.getElementById('auto-zoning-check')?.checked;
+            // En mode zonage auto, on force le masque extérieur blanc quelle que soit la checkbox
+            const maskExterior = autoZoningNow || document.getElementById('mask-exterior-check').checked;
             const isFrance = currentConfig.id === 'fra' || currentConfig.id === 'cnews';
 
             // Background color for mask
@@ -2568,7 +2612,7 @@
                 'blue': "#1a2a3a", 'deep-blue': "#0d1a26", 'sky-blue': "#3a5a7a", 'periwinkle': "#AFC0F1",
                 'green': "#2d3a1a", 'grey': "#333333", 'classic': "#000"
             };
-            const maskBgColor = configs[styleMode] || '#000';
+            const maskBgColor = autoZoningNow ? '#ffffff' : (configs[styleMode] || '#000');
 
             // Codes INSEE des régions pour le filtrage
             const regionCodes = {
@@ -2709,15 +2753,17 @@
             }
         }
 
-        async function handleZoneChange() {
+        async function handleZoneChange(preventClear = false) {
             const selectValue = document.getElementById('zone-select').value;
             if (!zoneConfigs[selectValue]) return;
-            manualWeatherOverrides = {}; manualTempOverrides = {}; hiddenMarkers.clear();
+            if (!preventClear) {
+                manualWeatherOverrides = {}; manualTempOverrides = {}; hiddenMarkers.clear();
+            }
 
             currentConfig = zoneConfigs[selectValue];
 
             await updateGeoJson();
-            handleDayChange();
+            await handleDayChange(preventClear);
         }
 
         function initDaySelector() {
@@ -2743,8 +2789,10 @@
             if (isDrawingMode) toggleDrawingMode();
         }
 
-        async function handleDayChange() {
-            clearManualOverrides();
+        async function handleDayChange(preventClear = false) {
+            if (!preventClear) {
+                clearManualOverrides();
+            }
 
             // Auto-activation des moyennes Nord/Sud à partir de J+3 quand le zonage auto est actif
             const dayIdx = parseInt(document.getElementById('day-select').value);
@@ -2911,8 +2959,17 @@
 
         function toggleMarkers() {
             if (!markersGroup || !map) return;
-            const hide = document.getElementById('hide-markers-check').checked;
-            if (hide) {
+            const hideManual = document.getElementById('hide-markers-check')?.checked;
+            const autoZoningActive = document.getElementById('auto-zoning-check')?.checked;
+
+            // Appliquer/retirer la classe CSS pour masquer logo, légende, titre
+            const captureArea = document.getElementById('capture-area');
+            if (captureArea) {
+                if (autoZoningActive) captureArea.classList.add('auto-zoning-active');
+                else captureArea.classList.remove('auto-zoning-active');
+            }
+
+            if (hideManual || autoZoningActive) {
                 map.removeLayer(markersGroup);
             } else {
                 markersGroup.addTo(map);
@@ -2933,6 +2990,7 @@
                     manualWeatherOverrides[cityIdx] = item.code;
                     // Mise à jour locale uniquement, sans rechargement
                     updateDisplay();
+
                     closePickers();
                 };
                 container.appendChild(div);
@@ -2960,7 +3018,9 @@
         function applyManualTemp() {
             if (currentPickingCityIndex !== null) {
                 manualTempOverrides[currentPickingCityIndex] = parseInt(document.getElementById('manual-temp-input').value);
-                updateDisplay(); closePickers();
+                updateDisplay();
+
+                closePickers();
             }
         }
 
@@ -2968,6 +3028,7 @@
             if (currentPickingCityIndex !== null) {
                 hiddenMarkers.add(currentPickingCityIndex);
                 updateDisplay();
+
                 closePickers();
             }
         }
@@ -3261,7 +3322,7 @@
 
             // Collecte des données de rafales pour l'overlay du zonage auto
             const gustsData = [];
-            if (document.getElementById('auto-zoning-check').checked) {
+            {
                 const is24h = (period === 'day');
                 const isHourly = (period === 'hourly');
 
@@ -3311,7 +3372,7 @@
 
             lastZoningMarkers = allMarkerData;
             lastZoningGusts = gustsData;
-            updateAutoZoning(allMarkerData, gustsData);
+            updateAutoZoning(allMarkerData, gustsData, forceShowOverlays);
 
             // GESTION DES MOYENNES NORD/SUD
             const showAvg = document.getElementById('show-averages-check').checked;
@@ -3346,6 +3407,7 @@
             } else {
                 avgContainer.style.display = 'none';
             }
+            toggleMarkers();
         }
 
         function updateAutoTitles(param, dayIdx, period, hourOffset = null) {
@@ -3380,14 +3442,24 @@
                 precip: "CUMULS DE PRÉCIPITATIONS"
             };
 
-            document.getElementById('main-auto-title').innerHTML = (titles[param] || "MÉTÉO EXPERT");
-
-            if (param === 'weather' || param === 'weather_temp') {
-                document.getElementById('sub-auto-title').innerText = periodLabel.replace(' - ', '').toUpperCase();
-            } else if (param === 'temp') {
-                document.getElementById('sub-auto-title').innerText = dateStr.toUpperCase();
+            const manualMain = document.getElementById('manual-title-main').value.trim();
+            if (manualMain) {
+                document.getElementById('main-auto-title').innerText = manualMain.toUpperCase();
             } else {
-                document.getElementById('sub-auto-title').innerText = dateStr.toUpperCase() + periodLabel;
+                document.getElementById('main-auto-title').innerHTML = (titles[param] || "MÉTÉO EXPERT");
+            }
+
+            const manualSub = document.getElementById('manual-title-sub').value.trim();
+            if (manualSub) {
+                document.getElementById('sub-auto-title').innerText = manualSub.toUpperCase();
+            } else {
+                if (param === 'weather' || param === 'weather_temp') {
+                    document.getElementById('sub-auto-title').innerText = periodLabel.replace(' - ', '').toUpperCase();
+                } else if (param === 'temp') {
+                    document.getElementById('sub-auto-title').innerText = dateStr.toUpperCase();
+                } else {
+                    document.getElementById('sub-auto-title').innerText = dateStr.toUpperCase() + periodLabel;
+                }
             }
 
             // Positionnement dynamique du titre et du logo
@@ -3601,13 +3673,15 @@
             if (tabCommune) tabCommune.classList.remove('active');
             if (tabManual) tabManual.classList.remove('active');
 
+            // Cache par défaut
+            if (searchSection) searchSection.style.display = 'none';
+            if (manualCitySection) manualCitySection.style.display = 'none';
+
             if (view === 'map') {
                 if (tabMap) tabMap.classList.add('active');
                 if (mapArea) mapArea.style.display = 'flex';
                 if (communeArea) communeArea.style.display = 'none';
                 if (mapControls) mapControls.style.display = 'block';
-                if (searchSection) searchSection.style.display = 'none';
-                if (manualCitySection) manualCitySection.style.display = 'none';
                 if (map) {
                     map.invalidateSize();
                     handleZoneChange();
@@ -3616,8 +3690,7 @@
                 if (tabManual) tabManual.classList.add('active');
                 if (mapArea) mapArea.style.display = 'flex';
                 if (communeArea) communeArea.style.display = 'none';
-                if (mapControls) mapControls.style.display = 'block'; /* Toujours montrer les régiones pour placer les villes */
-                if (searchSection) searchSection.style.display = 'none';
+                if (mapControls) mapControls.style.display = 'block';
                 if (manualCitySection) manualCitySection.style.display = 'block';
                 if (map) map.invalidateSize();
             } else {
@@ -3626,15 +3699,14 @@
                 if (communeArea) communeArea.style.display = 'block';
                 if (mapControls) mapControls.style.display = 'none';
                 if (searchSection) searchSection.style.display = 'block';
-                if (manualCitySection) manualCitySection.style.display = 'none';
             }
         }
 
         function updateManualTitles() {
-            const main = document.getElementById('manual-title-main').value;
-            const sub = document.getElementById('manual-title-sub').value;
-            if (main) document.getElementById('main-auto-title').innerText = main;
-            if (sub) document.getElementById('sub-auto-title').innerText = sub;
+            const param = document.getElementById('param-select').value;
+            const dayIdx = document.getElementById('day-select').value;
+            const period = document.getElementById('period-select')?.value || 'day';
+            updateAutoTitles(param, dayIdx, period);
         }
 
         let manualCityMapGroup = null;
@@ -4197,7 +4269,11 @@
             });
         }
 
+        // Global variable to track export status (already declared at line 1901)
+
         async function exportMap() {
+            if (isExporting) return;
+            isExporting = true;
             const captureArea = document.getElementById('capture-area');
             const palette = document.getElementById('draw-palette');
             const wasPaletteVisible = palette.style.display !== 'none';
@@ -4281,32 +4357,89 @@
                 setTimeout(() => document.body.removeChild(link), 100);
             };
 
+            const param = document.getElementById('param-select').value;
+            const hideMarkersCheck = document.getElementById('hide-markers-check');
+            const showAvgCheck = document.getElementById('show-averages-check');
+
+            const wasAutoZoningChecked = autoZoningCheck.checked;
+            const wasHideMarkersChecked = hideMarkersCheck.checked;
+            const wasAvgChecked = showAvgCheck.checked;
+            const isWeatherTemp = (param === 'weather_temp');
+            const zone = document.getElementById('zone-select').value;
+            const isNational = (zone === 'france' || zone === 'cnews');
+
+            const shouldDoTripleExport = isNational && (isWeatherTemp || isAutoZoningActive);
+
+            // Noms pour l'archivage automatique
+            const mainTitle = document.getElementById('main-auto-title').innerText;
+            const subTitle = document.getElementById('sub-auto-title').innerText;
+            const now = new Date();
+            const timeStr = `${now.getHours()}h${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            const getArchiveName = (suffix) => `💾 ${timeStr} - ${mainTitle} ${subTitle} (${suffix})`;
+
             try {
-                // 1. CAPTURE DE LA VUE ACTUELLE
-                const currentSuffix = isAutoZoningActive ? "_ZONAGE" : "";
-                await performCapture(currentSuffix);
+                if (shouldDoTripleExport) {
+                    // --- CARTE 1 : ZONAGE AUTO (Suffix _ZONAGE) ---
+                    document.getElementById('loading-text').innerText = "GÉNÉRATION DU ZONAGE...";
+                    autoZoningCheck.checked = true;
+                    hideMarkersCheck.checked = false;
+                    if (fogGroup) fogGroup.remove(); // Masquer brouillards
+                    toggleMarkers();
+                    await updateGeoJson();
+                    await updateDisplay();
+                    await performCapture("_ZONAGE");
 
-                // 2. SI ZONAGE ACTIF, ON CAPTURE AUSSI LES PICTOS/T°
-                if (isAutoZoningActive) {
-                    document.getElementById('loading-text').innerText = "GÉNÉRATION DE LA CARTE PICTOS/T°...";
-
-                    // On bascule temporairement vers la vue classique
-                    const hideMarkersCheck = document.getElementById('hide-markers-check');
-                    const wasAutoZoningChecked = autoZoningCheck.checked;
-                    const wasHideMarkersChecked = hideMarkersCheck.checked;
-
+                    // --- CARTE 2 : PICTOS + T° (Suffix _PICTOS_T) ---
+                    document.getElementById('loading-text').innerText = "GÉNÉRATION PICTOS + T°...";
                     autoZoningCheck.checked = false;
                     hideMarkersCheck.checked = false;
+                    // fogGroup toujours masqué
+                    toggleMarkers();
+                    await updateGeoJson();
+                    await updateDisplay();
 
-                    toggleMarkers(); // Force Leaflet à rajouter la couche de marqueurs
-                    await updateDisplay(); // Rafraîchit les données des marqueurs
+
+
                     await performCapture("_PICTOS_T");
 
-                    // Restauration des réglages d'affichage
+                    // --- CARTE 3 : SURCOUCHES ---
+                    const dayIdxValue = parseInt(document.getElementById('day-select').value);
+                    const periodValue = document.getElementById('period-select')?.value || 'day';
+
+                    const hasStrongGusts = lastZoningGusts.some(g => g.val >= 60);
+                    const hasFog = manualFogMarkers.length > 0;
+                    const isAfternoonJ3Plus = (dayIdxValue > 3) || (dayIdxValue === 3 && (periodValue === 'afternoon' || periodValue === 'evening' || periodValue === 'day'));
+
+                    if (hasStrongGusts || hasFog || isAfternoonJ3Plus) {
+                        document.getElementById('loading-text').innerText = "GÉNÉRATION SURCOUCHES...";
+                        autoZoningCheck.checked = false;
+                        hideMarkersCheck.checked = true;
+                        showAvgCheck.checked = true;
+                        forceShowOverlays = true;
+                        if (fogGroup) fogGroup.addTo(map); // Réafficher brouillards pour Carte 3
+                        toggleMarkers();
+                        await updateGeoJson();
+                        await updateDisplay();
+
+                        await performCapture("_SURCOUCHES");
+                    }
+
+                    // Restauration de l'état initial
                     autoZoningCheck.checked = wasAutoZoningChecked;
                     hideMarkersCheck.checked = wasHideMarkersChecked;
+                    showAvgCheck.checked = wasAvgChecked;
+                    forceShowOverlays = false;
+                    if (fogGroup && !map.hasLayer(fogGroup)) fogGroup.addTo(map); // Toujours réafficher
                     toggleMarkers();
+                    await updateGeoJson();
                     await updateDisplay();
+                } else {
+                    // Export simple (Vue telle quelle)
+                    const currentSuffix = isAutoZoningActive ? "_ZONAGE" : "";
+
+
+
+                    await performCapture(currentSuffix);
                 }
             } catch (err) {
                 console.error("Export Error:", err);
@@ -4319,9 +4452,11 @@
                 document.getElementById('loading').style.backgroundColor = '';
                 map.invalidateSize({ animate: false });
                 fitMapToZone();
+                toggleMarkers(); // Re-synchronise la classe CSS auto-zoning-active
                 if (wasPaletteVisible) palette.style.display = 'flex';
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('loading-text').innerText = "CHARGEMENT...";
+                isExporting = false;
             }
         }
 
@@ -4330,6 +4465,7 @@
             initLeafletMap();
             initDaySelector();
             handleZoneChange();
+
 
             // Auto adjustment on resize
             window.addEventListener('resize', (e) => {
@@ -4341,6 +4477,8 @@
         // === RECORDS LILLE-LESQUIN (Source: RECORDNORMALELILLE_clean.csv) ===
 
         const lilleData = { "1-1": { "tn_rec": -17.0, "tn_rec_yr": 1971, "tn_norm": 1.8, "tn_high": 11.4, "tn_high_yr": 2012, "tx_low": -8.9, "tx_low_yr": 1997, "tx_norm": 6.4, "tx_rec": 14.3, "tx_rec_yr": 2022 }, "1-2": { "tn_rec": -14.0, "tn_rec_yr": 1979, "tn_norm": 1.8, "tn_high": 10.2, "tn_high_yr": 2022, "tx_low": -7.3, "tx_low_yr": 1997, "tx_norm": 6.4, "tx_rec": 13.9, "tx_rec_yr": 2003 }, "1-3": { "tn_rec": -10.8, "tn_rec_yr": 1997, "tn_norm": 1.9, "tn_high": 10.8, "tn_high_yr": 1948, "tx_low": -5.2, "tx_low_yr": 1997, "tx_norm": 6.5, "tx_rec": 13.1, "tx_rec_yr": 1948 }, "1-4": { "tn_rec": -10.0, "tn_rec_yr": 1979, "tn_norm": 1.9, "tn_high": 9.1, "tn_high_yr": 1948, "tx_low": -3.6, "tx_low_yr": 1979, "tx_norm": 6.5, "tx_rec": 13.4, "tx_rec_yr": 1999 }, "1-5": { "tn_rec": -14.9, "tn_rec_yr": 1985, "tn_norm": 1.9, "tn_high": 11.2, "tn_high_yr": 1957, "tx_low": -9.4, "tx_low_yr": 1985, "tx_norm": 6.5, "tx_rec": 13.4, "tx_rec_yr": 1999 }, "1-6": { "tn_rec": -15.5, "tn_rec_yr": 1985, "tn_norm": 1.9, "tn_high": 8.6, "tn_high_yr": 1983, "tx_low": -5.8, "tx_low_yr": 1979, "tx_norm": 6.5, "tx_rec": 14.7, "tx_rec_yr": 2014 }, "1-7": { "tn_rec": -11.0, "tn_rec_yr": 1979, "tn_norm": 1.9, "tn_high": 8.9, "tn_high_yr": 2014, "tx_low": -8.5, "tx_low_yr": 1985, "tx_norm": 6.6, "tx_rec": 13.5, "tx_rec_yr": 2005 }, "1-8": { "tn_rec": -19.0, "tn_rec_yr": 1985, "tn_norm": 1.9, "tn_high": 9.0, "tn_high_yr": 1911, "tx_low": -5.8, "tx_low_yr": 1985, "tx_norm": 6.7, "tx_rec": 13.4, "tx_rec_yr": 2007 }, "1-9": { "tn_rec": -11.1, "tn_rec_yr": 1985, "tn_norm": 1.9, "tn_high": 11.0, "tn_high_yr": 2020, "tx_low": -3.9, "tx_low_yr": 1982, "tx_norm": 6.7, "tx_rec": 14.5, "tx_rec_yr": 2015 }, "1-10": { "tn_rec": -15.8, "tn_rec_yr": 1985, "tn_norm": 2.0, "tn_high": 10.3, "tn_high_yr": 1993, "tx_low": -6.9, "tx_low_yr": 1963, "tx_norm": 6.7, "tx_rec": 13.2, "tx_rec_yr": 2007 }, "1-11": { "tn_rec": -10.8, "tn_rec_yr": 1963, "tn_norm": 2.0, "tn_high": 9.6, "tn_high_yr": 1993, "tx_low": -7.6, "tx_low_yr": 1987, "tx_norm": 6.7, "tx_rec": 13.0, "tx_rec_yr": 1946 }, "1-12": { "tn_rec": -13.3, "tn_rec_yr": 1987, "tn_norm": 2.0, "tn_high": 7.8, "tn_high_yr": 1976, "tx_low": -8.4, "tx_low_yr": 1987, "tx_norm": 6.7, "tx_rec": 13.2, "tx_rec_yr": 1974 }, "1-13": { "tn_rec": -19.2, "tn_rec_yr": 1982, "tn_norm": 2.0, "tn_high": 11.0, "tn_high_yr": 2011, "tx_low": -7.8, "tx_low_yr": 1987, "tx_norm": 6.7, "tx_rec": 14.2, "tx_rec_yr": 1993 }, "1-14": { "tn_rec": -19.5, "tn_rec_yr": 1982, "tn_norm": 2.0, "tn_high": 9.4, "tn_high_yr": 2011, "tx_low": -6.9, "tx_low_yr": 1987, "tx_norm": 6.7, "tx_rec": 13.9, "tx_rec_yr": 1996 }, "1-15": { "tn_rec": -14.0, "tn_rec_yr": 1982, "tn_norm": 2.0, "tn_high": 10.0, "tn_high_yr": 1974, "tx_low": -9.5, "tx_low_yr": 1985, "tx_norm": 6.7, "tx_rec": 13.6, "tx_rec_yr": 1975 }, "1-16": { "tn_rec": -17.8, "tn_rec_yr": 1985, "tn_norm": 2.0, "tn_high": 9.6, "tn_high_yr": 1990, "tx_low": -11.3, "tx_low_yr": 1985, "tx_norm": 6.7, "tx_rec": 14.1, "tx_rec_yr": 1993 }, "1-17": { "tn_rec": -18.6, "tn_rec_yr": 1985, "tn_norm": 2.0, "tn_high": 7.1, "tn_high_yr": 1968, "tx_low": -8.3, "tx_low_yr": 2013, "tx_norm": 6.7, "tx_rec": 10.8, "tx_rec_yr": 1993 }, "1-18": { "tn_rec": -16.0, "tn_rec_yr": 1963, "tn_norm": 2.0, "tn_high": 8.2, "tn_high_yr": 1974, "tx_low": -9.0, "tx_low_yr": 1963, "tx_norm": 6.7, "tx_rec": 15.2, "tx_rec_yr": 2007 }, "1-19": { "tn_rec": -16.6, "tn_rec_yr": 1966, "tn_norm": 1.9, "tn_high": 8.8, "tn_high_yr": 1986, "tx_low": -4.2, "tx_low_yr": 1966, "tx_norm": 6.7, "tx_rec": 13.7, "tx_rec_yr": 2007 }, "1-20": { "tn_rec": -8.8, "tn_rec_yr": 1966, "tn_norm": 1.8, "tn_high": 11.0, "tn_high_yr": 2008, "tx_low": -3.0, "tx_low_yr": 1950, "tx_norm": 6.6, "tx_rec": 13.3, "tx_rec_yr": 2007 }, "1-21": { "tn_rec": -10.8, "tn_rec_yr": 1963, "tn_norm": 1.7, "tn_high": 9.0, "tn_high_yr": 2008, "tx_low": -4.4, "tx_low_yr": 1963, "tx_norm": 6.5, "tx_rec": 12.6, "tx_rec_yr": 1993 }, "1-22": { "tn_rec": -13.8, "tn_rec_yr": 1963, "tn_norm": 1.7, "tn_high": 8.1, "tn_high_yr": 1993, "tx_low": -6.0, "tx_low_yr": 1963, "tx_norm": 6.5, "tx_rec": 13.3, "tx_rec_yr": 1995 }, "1-23": { "tn_rec": -11.2, "tn_rec_yr": 1963, "tn_norm": 1.6, "tn_high": 8.8, "tn_high_yr": 1969, "tx_low": -4.6, "tx_low_yr": 1963, "tx_norm": 6.5, "tx_rec": 12.9, "tx_rec_yr": 2024 }, "1-24": { "tn_rec": -13.0, "tn_rec_yr": 1945, "tn_norm": 1.6, "tn_high": 9.8, "tn_high_yr": 2024, "tx_low": -3.6, "tx_low_yr": 1963, "tx_norm": 6.4, "tx_rec": 13.2, "tx_rec_yr": 1960 }, "1-25": { "tn_rec": -17.6, "tn_rec_yr": 1945, "tn_norm": 1.6, "tn_high": 8.0, "tn_high_yr": 1962, "tx_low": -7.0, "tx_low_yr": 1945, "tx_norm": 6.4, "tx_rec": 13.1, "tx_rec_yr": 1990 }, "1-26": { "tn_rec": -16.3, "tn_rec_yr": 1945, "tn_norm": 1.5, "tn_high": 8.2, "tn_high_yr": 1983, "tx_low": -6.1, "tx_low_yr": 1996, "tx_norm": 6.2, "tx_rec": 12.4, "tx_rec_yr": 2002 }, "1-27": { "tn_rec": -10.2, "tn_rec_yr": 1954, "tn_norm": 1.3, "tn_high": 10.5, "tn_high_yr": 2002, "tx_low": -4.8, "tx_low_yr": 1947, "tx_norm": 6.1, "tx_rec": 13.5, "tx_rec_yr": 2003 }, "1-28": { "tn_rec": -12.3, "tn_rec_yr": 1952, "tn_norm": 1.3, "tn_high": 10.9, "tn_high_yr": 2002, "tx_low": -5.2, "tx_low_yr": 1947, "tx_norm": 6.2, "tx_rec": 13.9, "tx_rec_yr": 2002 }, "1-29": { "tn_rec": -13.1, "tn_rec_yr": 1947, "tn_norm": 1.2, "tn_high": 8.4, "tn_high_yr": 1993, "tx_low": -3.3, "tx_low_yr": 1945, "tx_norm": 6.2, "tx_rec": 12.4, "tx_rec_yr": 1967 }, "1-30": { "tn_rec": -12.2, "tn_rec_yr": 1947, "tn_norm": 1.3, "tn_high": 9.7, "tn_high_yr": 2000, "tx_low": -4.8, "tx_low_yr": 1972, "tx_norm": 6.3, "tx_rec": 13.1, "tx_rec_yr": 2013 }, "1-31": { "tn_rec": -11.2, "tn_rec_yr": 1954, "tn_norm": 1.3, "tn_high": 9.5, "tn_high_yr": 1990, "tx_low": -5.5, "tx_low_yr": 1954, "tx_norm": 6.4, "tx_rec": 12.9, "tx_rec_yr": 2020 }, "2-1": { "tn_rec": -14.3, "tn_rec_yr": 1956, "tn_norm": 1.5, "tn_high": 10.6, "tn_high_yr": 2016, "tx_low": -10.2, "tx_low_yr": 1956, "tx_norm": 6.5, "tx_rec": 15.6, "tx_rec_yr": 1957 }, "2-2": { "tn_rec": -15.6, "tn_rec_yr": 1956, "tn_norm": 1.5, "tn_high": 10.5, "tn_high_yr": 2004, "tx_low": -8.7, "tx_low_yr": 1956, "tx_norm": 6.6, "tx_rec": 14.5, "tx_rec_yr": 2002 }, "2-3": { "tn_rec": -11.7, "tn_rec_yr": 1956, "tn_norm": 1.5, "tn_high": 9.5, "tn_high_yr": 2004, "tx_low": -2.1, "tx_low_yr": 1954, "tx_norm": 6.6, "tx_rec": 16.6, "tx_rec_yr": 2004 }, "2-4": { "tn_rec": -9.3, "tn_rec_yr": 1954, "tn_norm": 1.5, "tn_high": 11.3, "tn_high_yr": 2004, "tx_low": -3.5, "tx_low_yr": 1954, "tx_norm": 6.7, "tx_rec": 16.1, "tx_rec_yr": 2004 }, "2-5": { "tn_rec": -10.4, "tn_rec_yr": 1954, "tn_norm": 1.6, "tn_high": 11.7, "tn_high_yr": 2004, "tx_low": -3.1, "tx_low_yr": 1954, "tx_norm": 6.8, "tx_rec": 14.4, "tx_rec_yr": 2004 }, "2-6": { "tn_rec": -12.5, "tn_rec_yr": 1963, "tn_norm": 1.6, "tn_high": 10.1, "tn_high_yr": 2004, "tx_low": -4.6, "tx_low_yr": 1991, "tx_norm": 7.0, "tx_rec": 14.0, "tx_rec_yr": 2004 }, "2-7": { "tn_rec": -12.7, "tn_rec_yr": 1991, "tn_norm": 1.7, "tn_high": 8.7, "tn_high_yr": 2001, "tx_low": -6.1, "tx_low_yr": 1991, "tx_norm": 7.0, "tx_rec": 14.4, "tx_rec_yr": 1990 }, "2-8": { "tn_rec": -11.3, "tn_rec_yr": 1953, "tn_norm": 1.7, "tn_high": 9.8, "tn_high_yr": 1946, "tx_low": -5.7, "tx_low_yr": 1991, "tx_norm": 7.1, "tx_rec": 13.6, "tx_rec_yr": 1966 }, "2-9": { "tn_rec": -8.8, "tn_rec_yr": 1986, "tn_norm": 1.7, "tn_high": 10.1, "tn_high_yr": 2024, "tx_low": -5.8, "tx_low_yr": 1986, "tx_norm": 7.2, "tx_rec": 14.0, "tx_rec_yr": 2020 }, "2-10": { "tn_rec": -10.8, "tn_rec_yr": 1986, "tn_norm": 1.7, "tn_high": 8.5, "tn_high_yr": 1958, "tx_low": -5.1, "tx_low_yr": 1985, "tx_norm": 7.2, "tx_rec": 14.7, "tx_rec_yr": 1958 }, "2-11": { "tn_rec": -10.6, "tn_rec_yr": 1956, "tn_norm": 1.7, "tn_high": 10.1, "tn_high_yr": 2011, "tx_low": -5.3, "tx_low_yr": 1956, "tx_norm": 7.2, "tx_rec": 15.0, "tx_rec_yr": 2011 }, "2-12": { "tn_rec": -10.5, "tn_rec_yr": 1985, "tn_norm": 1.6, "tn_high": 11.3, "tn_high_yr": 2002, "tx_low": -4.0, "tx_low_yr": 1947, "tx_norm": 7.2, "tx_rec": 15.0, "tx_rec_yr": 1998 }, "2-13": { "tn_rec": -11.4, "tn_rec_yr": 1985, "tn_norm": 1.6, "tn_high": 8.1, "tn_high_yr": 2002, "tx_low": -3.0, "tx_low_yr": 1947, "tx_norm": 7.2, "tx_rec": 16.8, "tx_rec_yr": 1998 }, "2-14": { "tn_rec": -13.3, "tn_rec_yr": 1956, "tn_norm": 1.6, "tn_high": 11.0, "tn_high_yr": 1958, "tx_low": -2.5, "tx_low_yr": 1969, "tx_norm": 7.2, "tx_rec": 16.5, "tx_rec_yr": 1998 }, "2-15": { "tn_rec": -9.6, "tn_rec_yr": 1956, "tn_norm": 1.6, "tn_high": 12.1, "tn_high_yr": 2024, "tx_low": -3.5, "tx_low_yr": 1985, "tx_norm": 7.2, "tx_rec": 16.5, "tx_rec_yr": 1998 }, "2-16": { "tn_rec": -9.1, "tn_rec_yr": 1985, "tn_norm": 1.6, "tn_high": 10.0, "tn_high_yr": 2024, "tx_low": -4.1, "tx_low_yr": 1947, "tx_norm": 7.3, "tx_rec": 16.5, "tx_rec_yr": 2020 }, "2-17": { "tn_rec": -9.4, "tn_rec_yr": 1956, "tn_norm": 1.7, "tn_high": 9.6, "tn_high_yr": 2023, "tx_low": -4.7, "tx_low_yr": 1956, "tx_norm": 7.3, "tx_rec": 15.6, "tx_rec_yr": 1950 }, "2-18": { "tn_rec": -13.4, "tn_rec_yr": 1956, "tn_norm": 1.7, "tn_high": 9.8, "tn_high_yr": 2023, "tx_low": -3.3, "tx_low_yr": 1956, "tx_norm": 7.4, "tx_rec": 15.9, "tx_rec_yr": 1950 }, "2-19": { "tn_rec": -13.0, "tn_rec_yr": 1956, "tn_norm": 1.8, "tn_high": 9.7, "tn_high_yr": 1989, "tx_low": -4.8, "tx_low_yr": 1956, "tx_norm": 7.5, "tx_rec": 13.9, "tx_rec_yr": 1990 }, "2-20": { "tn_rec": -13.5, "tn_rec_yr": 1956, "tn_norm": 1.9, "tn_high": 10.6, "tn_high_yr": 1990, "tx_low": -5.3, "tx_low_yr": 1948, "tx_norm": 7.7, "tx_rec": 17.8, "tx_rec_yr": 1990 }, "2-21": { "tn_rec": -17.8, "tn_rec_yr": 1956, "tn_norm": 2.0, "tn_high": 10.1, "tn_high_yr": 2016, "tx_low": -4.4, "tx_low_yr": 1948, "tx_norm": 7.8, "tx_rec": 16.2, "tx_rec_yr": 2021 }, "2-22": { "tn_rec": -12.2, "tn_rec_yr": 1956, "tn_norm": 2.1, "tn_high": 8.9, "tn_high_yr": 1997, "tx_low": -5.1, "tx_low_yr": 1956, "tx_norm": 7.9, "tx_rec": 15.2, "tx_rec_yr": 2021 }, "2-23": { "tn_rec": -15.6, "tn_rec_yr": 1956, "tn_norm": 2.2, "tn_high": 8.6, "tn_high_yr": 2021, "tx_low": -7.0, "tx_low_yr": 1956, "tx_norm": 8.0, "tx_rec": 17.1, "tx_rec_yr": 2021 }, "2-24": { "tn_rec": -15.1, "tn_rec_yr": 1956, "tn_norm": 2.3, "tn_high": 10.2, "tn_high_yr": 2025, "tx_low": -4.1, "tx_low_yr": 1956, "tx_norm": 8.1, "tx_rec": 19.0, "tx_rec_yr": 2021 }, "2-25": { "tn_rec": -12.9, "tn_rec_yr": 1956, "tn_norm": 2.3, "tn_high": 9.4, "tn_high_yr": 1997, "tx_low": -2.9, "tx_low_yr": 1956, "tx_norm": 8.1, "tx_rec": 17.7, "tx_rec_yr": 2019 }, "2-26": { "tn_rec": -11.7, "tn_rec_yr": 1956, "tn_norm": 2.3, "tn_high": 9.6, "tn_high_yr": 2002, "tx_low": -0.6, "tx_low_yr": 1962, "tx_norm": 8.2, "tx_rec": 19.0, "tx_rec_yr": 2019 }, "2-27": { "tn_rec": -9.3, "tn_rec_yr": 1986, "tn_norm": 2.3, "tn_high": 8.2, "tn_high_yr": 1945, "tx_low": -0.2, "tx_low_yr": 2018, "tx_norm": 8.3, "tx_rec": 18.4, "tx_rec_yr": 2019 }, "2-28": { "tn_rec": -7.7, "tn_rec_yr": 2018, "tn_norm": 2.3, "tn_high": 7.7, "tn_high_yr": 1987, "tx_low": -1.8, "tx_low_yr": 2018, "tx_norm": 8.4, "tx_rec": 18.9, "tx_rec_yr": 1960 }, "2-29": { "tn_rec": -3.2, "tn_rec_yr": 1968, "tn_norm": 2.4, "tn_high": 10.0, "tn_high_yr": 1960, "tx_low": -0.7, "tx_low_yr": 1968, "tx_norm": 8.5, "tx_rec": 17.4, "tx_rec_yr": 1960 }, "3-1": { "tn_rec": -7.1, "tn_rec_yr": 1955, "tn_norm": 2.5, "tn_high": 8.7, "tn_high_yr": 1960, "tx_low": 0.0, "tx_low_yr": 1946, "tx_norm": 8.7, "tx_rec": 17.8, "tx_rec_yr": 1959 }, "3-2": { "tn_rec": -7.0, "tn_rec_yr": 1947, "tn_norm": 2.6, "tn_high": 9.8, "tn_high_yr": 1999, "tx_low": -0.8, "tx_low_yr": 1965, "tx_norm": 8.8, "tx_rec": 15.8, "tx_rec_yr": 1959 }, "3-3": { "tn_rec": -6.9, "tn_rec_yr": 1965, "tn_norm": 2.7, "tn_high": 9.0, "tn_high_yr": 1977, "tx_low": -1.0, "tx_low_yr": 1987, "tx_norm": 9.0, "tx_rec": 16.8, "tx_rec_yr": 2021 }, "3-4": { "tn_rec": -7.4, "tn_rec_yr": 2005, "tn_norm": 2.8, "tn_high": 9.2, "tn_high_yr": 1959, "tx_low": -0.9, "tx_low_yr": 1971, "tx_norm": 9.2, "tx_rec": 15.9, "tx_rec_yr": 2025 }, "3-5": { "tn_rec": -8.0, "tn_rec_yr": 1971, "tn_norm": 2.8, "tn_high": 9.1, "tn_high_yr": 1991, "tx_low": -1.3, "tx_low_yr": 1971, "tx_norm": 9.4, "tx_rec": 16.7, "tx_rec_yr": 1948 }, "3-6": { "tn_rec": -8.0, "tn_rec_yr": 1971, "tn_norm": 2.9, "tn_high": 9.1, "tn_high_yr": 1991, "tx_low": -4.0, "tx_low_yr": 1971, "tx_norm": 9.6, "tx_rec": 18.4, "tx_rec_yr": 1948 }, "3-7": { "tn_rec": -8.5, "tn_rec_yr": 1971, "tn_norm": 2.9, "tn_high": 10.1, "tn_high_yr": 1991, "tx_low": -1.2, "tx_low_yr": 1971, "tx_norm": 9.7, "tx_rec": 17.9, "tx_rec_yr": 2025 }, "3-8": { "tn_rec": -8.3, "tn_rec_yr": 1971, "tn_norm": 2.9, "tn_high": 11.8, "tn_high_yr": 1981, "tx_low": -0.8, "tx_low_yr": 1946, "tx_norm": 9.9, "tx_rec": 19.7, "tx_rec_yr": 2025 }, "3-9": { "tn_rec": -8.8, "tn_rec_yr": 1970, "tn_norm": 3.0, "tn_high": 11.1, "tn_high_yr": 1981, "tx_low": 1.1, "tx_low_yr": 1946, "tx_norm": 10.2, "tx_rec": 20.0, "tx_rec_yr": 1948 }, "3-10": { "tn_rec": -7.8, "tn_rec_yr": 1970, "tn_norm": 3.2, "tn_high": 11.9, "tn_high_yr": 1981, "tx_low": 0.3, "tx_low_yr": 1958, "tx_norm": 10.6, "tx_rec": 18.1, "tx_rec_yr": 2014 }, "3-11": { "tn_rec": -8.7, "tn_rec_yr": 1958, "tn_norm": 3.5, "tn_high": 12.7, "tn_high_yr": 1981, "tx_low": -1.2, "tx_low_yr": 2013, "tx_norm": 10.9, "tx_rec": 17.5, "tx_rec_yr": 2018 }, "3-12": { "tn_rec": -5.6, "tn_rec_yr": 1958, "tn_norm": 3.7, "tn_high": 8.8, "tn_high_yr": 1978, "tx_low": -0.7, "tx_low_yr": 2013, "tx_norm": 11.1, "tx_rec": 18.5, "tx_rec_yr": 1997 }, "3-13": { "tn_rec": -10.5, "tn_rec_yr": 2013, "tn_norm": 3.8, "tn_high": 10.8, "tn_high_yr": 2024, "tx_low": 2.8, "tx_low_yr": 1996, "tx_norm": 11.2, "tx_rec": 19.1, "tx_rec_yr": 1957 }, "3-14": { "tn_rec": -3.8, "tn_rec_yr": 1955, "tn_norm": 3.9, "tn_high": 9.2, "tn_high_yr": 1957, "tx_low": 3.9, "tx_low_yr": 1970, "tx_norm": 11.3, "tx_rec": 18.2, "tx_rec_yr": 1948 }, "3-15": { "tn_rec": -4.8, "tn_rec_yr": 1958, "tn_norm": 3.9, "tn_high": 12.0, "tn_high_yr": 2024, "tx_low": 1.6, "tx_low_yr": 1947, "tx_norm": 11.4, "tx_rec": 19.4, "tx_rec_yr": 2012 }, "3-16": { "tn_rec": -4.8, "tn_rec_yr": 1956, "tn_norm": 3.9, "tn_high": 9.9, "tn_high_yr": 2004, "tx_low": 2.9, "tx_low_yr": 1954, "tx_norm": 11.5, "tx_rec": 19.9, "tx_rec_yr": 1972 }, "3-17": { "tn_rec": -4.7, "tn_rec_yr": 1962, "tn_norm": 4.0, "tn_high": 11.0, "tn_high_yr": 2005, "tx_low": 0.6, "tx_low_yr": 2018, "tx_norm": 11.5, "tx_rec": 22.0, "tx_rec_yr": 1990 }, "3-18": { "tn_rec": -3.7, "tn_rec_yr": 1962, "tn_norm": 4.1, "tn_high": 9.7, "tn_high_yr": 1957, "tx_low": 0.5, "tx_low_yr": 2018, "tx_norm": 11.6, "tx_rec": 20.8, "tx_rec_yr": 1990 }, "3-19": { "tn_rec": -3.1, "tn_rec_yr": 1985, "tn_norm": 4.2, "tn_high": 12.2, "tn_high_yr": 2010, "tx_low": 2.6, "tx_low_yr": 2018, "tx_norm": 11.7, "tx_rec": 19.5, "tx_rec_yr": 1972 }, "3-20": { "tn_rec": -5.2, "tn_rec_yr": 1958, "tn_norm": 4.3, "tn_high": 13.1, "tn_high_yr": 2010, "tx_low": 1.3, "tx_low_yr": 1980, "tx_norm": 11.8, "tx_rec": 20.4, "tx_rec_yr": 1972 }, "3-21": { "tn_rec": -3.6, "tn_rec_yr": 1958, "tn_norm": 4.4, "tn_high": 12.2, "tn_high_yr": 1990, "tx_low": 1.7, "tx_low_yr": 1980, "tx_norm": 11.9, "tx_rec": 20.0, "tx_rec_yr": 1972 }, "3-22": { "tn_rec": -3.3, "tn_rec_yr": 1958, "tn_norm": 4.4, "tn_high": 11.7, "tn_high_yr": 2025, "tx_low": 1.7, "tx_low_yr": 1963, "tx_norm": 11.9, "tx_rec": 19.6, "tx_rec_yr": 2022 }, "3-23": { "tn_rec": -4.0, "tn_rec_yr": 1958, "tn_norm": 4.5, "tn_high": 9.6, "tn_high_yr": 2023, "tx_low": 4.0, "tx_low_yr": 2013, "tx_norm": 11.9, "tx_rec": 21.2, "tx_rec_yr": 2012 }, "3-24": { "tn_rec": -3.0, "tn_rec_yr": 1958, "tn_norm": 4.4, "tn_high": 10.1, "tn_high_yr": 1994, "tx_low": 1.6, "tx_low_yr": 2013, "tx_norm": 12.0, "tx_rec": 22.0, "tx_rec_yr": 1945 }, "3-25": { "tn_rec": -3.7, "tn_rec_yr": 1962, "tn_norm": 4.5, "tn_high": 12.5, "tn_high_yr": 1981, "tx_low": 2.8, "tx_low_yr": 2013, "tx_norm": 12.1, "tx_rec": 22.0, "tx_rec_yr": 1955 }, "3-26": { "tn_rec": -2.0, "tn_rec_yr": 1982, "tn_norm": 4.5, "tn_high": 12.0, "tn_high_yr": 2006, "tx_low": 2.9, "tx_low_yr": 1969, "tx_norm": 12.4, "tx_rec": 20.8, "tx_rec_yr": 1953 }, "3-27": { "tn_rec": -2.3, "tn_rec_yr": 1993, "tn_norm": 4.6, "tn_high": 12.7, "tn_high_yr": 2006, "tx_low": 3.0, "tx_low_yr": 1975, "tx_norm": 12.6, "tx_rec": 20.8, "tx_rec_yr": 1989 }, "3-28": { "tn_rec": -3.2, "tn_rec_yr": 1969, "tn_norm": 4.7, "tn_high": 10.6, "tn_high_yr": 1980, "tx_low": 4.4, "tx_low_yr": 1975, "tx_norm": 12.8, "tx_rec": 20.9, "tx_rec_yr": 1968 }, "3-29": { "tn_rec": -3.0, "tn_rec_yr": 1969, "tn_norm": 4.8, "tn_high": 10.9, "tn_high_yr": 1994, "tx_low": 2.4, "tx_low_yr": 1952, "tx_norm": 12.8, "tx_rec": 22.7, "tx_rec_yr": 1968 }, "3-30": { "tn_rec": -2.1, "tn_rec_yr": 2013, "tn_norm": 4.9, "tn_high": 11.1, "tn_high_yr": 2023, "tx_low": 3.1, "tx_low_yr": 1975, "tx_norm": 12.9, "tx_rec": 24.0, "tx_rec_yr": 2021 }, "3-31": { "tn_rec": -3.5, "tn_rec_yr": 1977, "tn_norm": 4.8, "tn_high": 10.6, "tn_high_yr": 2006, "tx_low": 3.4, "tx_low_yr": 1952, "tx_norm": 13.0, "tx_rec": 24.8, "tx_rec_yr": 2021 }, "4-1": { "tn_rec": -2.2, "tn_rec_yr": 1967, "tn_norm": 4.8, "tn_high": 12.3, "tn_high_yr": 2011, "tx_low": 4.3, "tx_low_yr": 1984, "tx_norm": 13.1, "tx_rec": 21.1, "tx_rec_yr": 1990 }, "4-2": { "tn_rec": -2.8, "tn_rec_yr": 1958, "tn_norm": 4.8, "tn_high": 11.2, "tn_high_yr": 1945, "tx_low": 4.4, "tx_low_yr": 1964, "tx_norm": 13.2, "tx_rec": 23.5, "tx_rec_yr": 1946 }, "4-3": { "tn_rec": -3.0, "tn_rec_yr": 1958, "tn_norm": 4.9, "tn_high": 11.5, "tn_high_yr": 2014, "tx_low": 4.8, "tx_low_yr": 1964, "tx_norm": 13.3, "tx_rec": 23.4, "tx_rec_yr": 1946 }, "4-4": { "tn_rec": -1.5, "tn_rec_yr": 1973, "tn_norm": 4.9, "tn_high": 13.9, "tn_high_yr": 1949, "tx_low": 3.8, "tx_low_yr": 1989, "tx_norm": 13.4, "tx_rec": 23.4, "tx_rec_yr": 1946 }, "4-5": { "tn_rec": -2.3, "tn_rec_yr": 1990, "tn_norm": 4.9, "tn_high": 11.9, "tn_high_yr": 2024, "tx_low": 3.7, "tx_low_yr": 1989, "tx_norm": 13.5, "tx_rec": 21.3, "tx_rec_yr": 2020 }, "4-6": { "tn_rec": -2.2, "tn_rec_yr": 1968, "tn_norm": 5.0, "tn_high": 13.5, "tn_high_yr": 2024, "tx_low": 5.2, "tx_low_yr": 1984, "tx_norm": 13.6, "tx_rec": 23.9, "tx_rec_yr": 2011 }, "4-7": { "tn_rec": -3.2, "tn_rec_yr": 2013, "tn_norm": 4.9, "tn_high": 13.2, "tn_high_yr": 2014, "tx_low": 5.8, "tx_low_yr": 1970, "tx_norm": 13.6, "tx_rec": 21.9, "tx_rec_yr": 2014 }, "4-8": { "tn_rec": -2.4, "tn_rec_yr": 1968, "tn_norm": 4.9, "tn_high": 10.8, "tn_high_yr": 1960, "tx_low": 5.3, "tx_low_yr": 1977, "tx_norm": 13.5, "tx_rec": 24.9, "tx_rec_yr": 2020 }, "4-9": { "tn_rec": -4.7, "tn_rec_yr": 1968, "tn_norm": 5.0, "tn_high": 9.5, "tn_high_yr": 2020, "tx_low": 2.6, "tx_low_yr": 1975, "tx_norm": 13.6, "tx_rec": 23.6, "tx_rec_yr": 2017 }, "4-10": { "tn_rec": -2.5, "tn_rec_yr": 1990, "tn_norm": 5.0, "tn_high": 11.4, "tn_high_yr": 1952, "tx_low": 6.4, "tx_low_yr": 2003, "tx_norm": 13.7, "tx_rec": 23.5, "tx_rec_yr": 1981 }, "4-11": { "tn_rec": -2.5, "tn_rec_yr": 2003, "tn_norm": 5.0, "tn_high": 11.0, "tn_high_yr": 2013, "tx_low": 3.2, "tx_low_yr": 1986, "tx_norm": 13.9, "tx_rec": 23.8, "tx_rec_yr": 2020 }, "4-12": { "tn_rec": -2.3, "tn_rec_yr": 1986, "tn_norm": 5.1, "tn_high": 12.5, "tn_high_yr": 1945, "tx_low": 0.5, "tx_low_yr": 1986, "tx_norm": 14.0, "tx_rec": 24.9, "tx_rec_yr": 2020 }, "4-13": { "tn_rec": -1.9, "tn_rec_yr": 1986, "tn_norm": 5.2, "tn_high": 11.4, "tn_high_yr": 2007, "tx_low": 6.2, "tx_low_yr": 1986, "tx_norm": 14.1, "tx_rec": 24.9, "tx_rec_yr": 2007 }, "4-14": { "tn_rec": -2.4, "tn_rec_yr": 1966, "tn_norm": 5.3, "tn_high": 11.3, "tn_high_yr": 2013, "tx_low": 1.5, "tx_low_yr": 1966, "tx_norm": 14.2, "tx_rec": 26.0, "tx_rec_yr": 2007 }, "4-15": { "tn_rec": -1.5, "tn_rec_yr": 1957, "tn_norm": 5.4, "tn_high": 10.8, "tn_high_yr": 2003, "tx_low": 6.2, "tx_low_yr": 1962, "tx_norm": 14.5, "tx_rec": 27.9, "tx_rec_yr": 2007 }, "4-16": { "tn_rec": -1.4, "tn_rec_yr": 1977, "tn_norm": 5.6, "tn_high": 11.8, "tn_high_yr": 2003, "tx_low": 7.2, "tx_low_yr": 1962, "tx_norm": 14.8, "tx_rec": 27.4, "tx_rec_yr": 1949 }, "4-17": { "tn_rec": -1.5, "tn_rec_yr": 1978, "tn_norm": 5.7, "tn_high": 12.6, "tn_high_yr": 1945, "tx_low": 6.1, "tx_low_yr": 1979, "tx_norm": 15.0, "tx_rec": 24.9, "tx_rec_yr": 1949 }, "4-18": { "tn_rec": -0.7, "tn_rec_yr": 1956, "tn_norm": 5.9, "tn_high": 10.5, "tn_high_yr": 2003, "tx_low": 7.0, "tx_low_yr": 1991, "tx_norm": 15.2, "tx_rec": 26.2, "tx_rec_yr": 1949 }, "4-19": { "tn_rec": -2.0, "tn_rec_yr": 1967, "tn_norm": 6.1, "tn_high": 13.5, "tn_high_yr": 1988, "tx_low": 7.5, "tx_low_yr": 1965, "tx_norm": 15.5, "tx_rec": 26.8, "tx_rec_yr": 2018 }, "4-20": { "tn_rec": -3.0, "tn_rec_yr": 1969, "tn_norm": 6.3, "tn_high": 13.0, "tn_high_yr": 2018, "tx_low": 6.8, "tx_low_yr": 1991, "tx_norm": 15.7, "tx_rec": 27.3, "tx_rec_yr": 2018 }, "4-21": { "tn_rec": -1.8, "tn_rec_yr": 1991, "tn_norm": 6.5, "tn_high": 13.0, "tn_high_yr": 1993, "tx_low": 8.0, "tx_low_yr": 1965, "tx_norm": 15.9, "tx_rec": 25.9, "tx_rec_yr": 1968 }, "4-22": { "tn_rec": -1.6, "tn_rec_yr": 1967, "tn_norm": 6.6, "tn_high": 13.2, "tn_high_yr": 1996, "tx_low": 9.2, "tx_low_yr": 1991, "tx_norm": 16.0, "tx_rec": 26.5, "tx_rec_yr": 2018 }, "4-23": { "tn_rec": -0.8, "tn_rec_yr": 1946, "tn_norm": 6.7, "tn_high": 13.0, "tn_high_yr": 2019, "tx_low": 8.4, "tx_low_yr": 1981, "tx_norm": 16.3, "tx_rec": 26.4, "tx_rec_yr": 2011 }, "4-24": { "tn_rec": -2.0, "tn_rec_yr": 1981, "tn_norm": 6.9, "tn_high": 11.1, "tn_high_yr": 2011, "tx_low": 8.4, "tx_low_yr": 2016, "tx_norm": 16.5, "tx_rec": 26.1, "tx_rec_yr": 2011 }, "4-25": { "tn_rec": -2.2, "tn_rec_yr": 1955, "tn_norm": 7.1, "tn_high": 14.9, "tn_high_yr": 14, "tx_low": 6.4, "tx_low_yr": 1950, "tx_norm": 16.7, "tx_rec": 26.0, "tx_rec_yr": 2007 }, "4-26": { "tn_rec": -1.0, "tn_rec_yr": 1985, "tn_norm": 7.3, "tn_high": 12.1, "tn_high_yr": 2007, "tx_low": 5.3, "tx_low_yr": 1971, "tx_norm": 16.9, "tx_rec": 25.4, "tx_rec_yr": 2007 }, "4-27": { "tn_rec": -0.9, "tn_rec_yr": 1949, "tn_norm": 7.5, "tn_high": 12.7, "tn_high_yr": 1993, "tx_low": 8.2, "tx_low_yr": 1970, "tx_norm": 17.1, "tx_rec": 26.0, "tx_rec_yr": 2007 }, "4-28": { "tn_rec": -0.8, "tn_rec_yr": 1970, "tn_norm": 7.6, "tn_high": 15.0, "tn_high_yr": 2007, "tx_low": 6.0, "tx_low_yr": 1951, "tx_norm": 17.1, "tx_rec": 26.5, "tx_rec_yr": 2007 }, "4-29": { "tn_rec": -0.3, "tn_rec_yr": 1971, "tn_norm": 7.6, "tn_high": 13.3, "tn_high_yr": 2010, "tx_low": 6.6, "tx_low_yr": 1951, "tx_norm": 17.1, "tx_rec": 27.6, "tx_rec_yr": 1955 }, "4-30": { "tn_rec": -1.1, "tn_rec_yr": 1976, "tn_norm": 7.8, "tn_high": 14.3, "tn_high_yr": 2005, "tx_low": 4.1, "tx_low_yr": 1945, "tx_norm": 17.1, "tx_rec": 26.7, "tx_rec_yr": 2025 }, "5-1": { "tn_rec": -0.8, "tn_rec_yr": 1945, "tn_norm": 7.9, "tn_high": 13.5, "tn_high_yr": 2005, "tx_low": 7.6, "tx_low_yr": 1979, "tx_norm": 17.1, "tx_rec": 28.6, "tx_rec_yr": 2005 }, "5-2": { "tn_rec": -0.5, "tn_rec_yr": 1967, "tn_norm": 8.0, "tn_high": 14.4, "tn_high_yr": 2025, "tx_low": 7.9, "tx_low_yr": 1979, "tx_norm": 17.2, "tx_rec": 27.2, "tx_rec_yr": 2025 }, "5-3": { "tn_rec": -2.3, "tn_rec_yr": 1967, "tn_norm": 8.1, "tn_high": 13.8, "tn_high_yr": 1990, "tx_low": 7.8, "tx_low_yr": 1979, "tx_norm": 17.3, "tx_rec": 26.4, "tx_rec_yr": 1997 }, "5-4": { "tn_rec": 0.6, "tn_rec_yr": 1963, "tn_norm": 8.2, "tn_high": 13.4, "tn_high_yr": 2006, "tx_low": 8.2, "tx_low_yr": 2001, "tx_norm": 17.4, "tx_rec": 26.1, "tx_rec_yr": 2006 }, "5-5": { "tn_rec": -0.1, "tn_rec_yr": 1979, "tn_norm": 8.4, "tn_high": 13.6, "tn_high_yr": 2015, "tx_low": 8.7, "tx_low_yr": 1957, "tx_norm": 17.5, "tx_rec": 27.2, "tx_rec_yr": 1995 }, "5-6": { "tn_rec": -0.5, "tn_rec_yr": 1957, "tn_norm": 8.6, "tn_high": 13.7, "tn_high_yr": 1990, "tx_low": 7.5, "tx_low_yr": 1997, "tx_norm": 17.5, "tx_rec": 27.5, "tx_rec_yr": 1990 }, "5-7": { "tn_rec": -1.0, "tn_rec_yr": 1957, "tn_norm": 8.6, "tn_high": 13.6, "tn_high_yr": 1962, "tx_low": 9.1, "tx_low_yr": 1991, "tx_norm": 17.6, "tx_rec": 28.9, "tx_rec_yr": 1976 }, "5-8": { "tn_rec": 0.1, "tn_rec_yr": 1949, "tn_norm": 8.6, "tn_high": 16.6, "tn_high_yr": 1988, "tx_low": 7.6, "tx_low_yr": 1957, "tx_norm": 17.6, "tx_rec": 29.1, "tx_rec_yr": 1976 }, "5-9": { "tn_rec": 0.7, "tn_rec_yr": 1977, "tn_norm": 8.7, "tn_high": 15.3, "tn_high_yr": 2016, "tx_low": 10.2, "tx_low_yr": 1949, "tx_norm": 17.7, "tx_rec": 28.8, "tx_rec_yr": 1976 }, "5-10": { "tn_rec": 0.4, "tn_rec_yr": 1949, "tn_norm": 8.7, "tn_high": 16.2, "tn_high_yr": 2012, "tx_low": 9.3, "tx_low_yr": 1996, "tx_norm": 17.8, "tx_rec": 28.9, "tx_rec_yr": 1998 }, "5-11": { "tn_rec": 1.2, "tn_rec_yr": 1982, "tn_norm": 8.8, "tn_high": 15.8, "tn_high_yr": 1998, "tx_low": 10.7, "tx_low_yr": 1949, "tx_norm": 17.9, "tx_rec": 30.0, "tx_rec_yr": 1998 }, "5-12": { "tn_rec": 0.9, "tn_rec_yr": 1955, "tn_norm": 9.0, "tn_high": 14.3, "tn_high_yr": 2008, "tx_low": 11.4, "tx_low_yr": 1996, "tx_norm": 18.0, "tx_rec": 30.9, "tx_rec_yr": 1998 }, "5-13": { "tn_rec": 2.4, "tn_rec_yr": 1953, "tn_norm": 9.0, "tn_high": 15.6, "tn_high_yr": 2000, "tx_low": 9.1, "tx_low_yr": 1962, "tx_norm": 18.1, "tx_rec": 30.7, "tx_rec_yr": 1998 }, "5-14": { "tn_rec": 0.3, "tn_rec_yr": 1995, "tn_norm": 9.1, "tn_high": 17.3, "tn_high_yr": 1998, "tx_low": 10.2, "tx_low_yr": 1987, "tx_norm": 18.1, "tx_rec": 28.9, "tx_rec_yr": 1992 }, "5-15": { "tn_rec": 0.0, "tn_rec_yr": 1973, "tn_norm": 9.1, "tn_high": 15.7, "tn_high_yr": 1998, "tx_low": 10.0, "tx_low_yr": 1987, "tx_norm": 18.2, "tx_rec": 28.4, "tx_rec_yr": 2022 }, "5-16": { "tn_rec": 1.3, "tn_rec_yr": 1946, "tn_norm": 9.2, "tn_high": 16.8, "tn_high_yr": 2022, "tx_low": 7.2, "tx_low_yr": 1996, "tx_norm": 18.2, "tx_rec": 28.4, "tx_rec_yr": 2021 }, "5-17": { "tn_rec": 1.5, "tn_rec_yr": 1946, "tn_norm": 9.1, "tn_high": 15.2, "tn_high_yr": 1945, "tx_low": 8.1, "tx_low_yr": 1972, "tx_norm": 18.3, "tx_rec": 28.2, "tx_rec_yr": 2017 }, "5-18": { "tn_rec": 1.8, "tn_rec_yr": 1968, "tn_norm": 9.2, "tn_high": 15.7, "tn_high_yr": 2022, "tx_low": 10.0, "tx_low_yr": 1969, "tx_norm": 18.4, "tx_rec": 27.1, "tx_rec_yr": 2022 }, "5-19": { "tn_rec": 1.6, "tn_rec_yr": 1955, "tn_norm": 9.3, "tn_high": 17.4, "tn_high_yr": 2022, "tx_low": 11.8, "tx_low_yr": 1954, "tx_norm": 18.6, "tx_rec": 26.3, "tx_rec_yr": 1989 }, "5-20": { "tn_rec": -0.1, "tn_rec_yr": 1968, "tn_norm": 9.4, "tn_high": 15.6, "tn_high_yr": 1989, "tx_low": 10.9, "tx_low_yr": 1977, "tx_norm": 18.8, "tx_rec": 27.0, "tx_rec_yr": 1989 }, "5-21": { "tn_rec": 1.2, "tn_rec_yr": 1965, "tn_norm": 9.6, "tn_high": 15.7, "tn_high_yr": 1989, "tx_low": 10.1, "tx_low_yr": 1984, "tx_norm": 18.9, "tx_rec": 29.3, "tx_rec_yr": 2020 }, "5-22": { "tn_rec": -0.5, "tn_rec_yr": 1955, "tn_norm": 9.7, "tn_high": 17.7, "tn_high_yr": 2020, "tx_low": 9.4, "tx_low_yr": 1954, "tx_norm": 19.0, "tx_rec": 26.7, "tx_rec_yr": 1989 }, "5-23": { "tn_rec": 2.6, "tn_rec_yr": 1957, "tn_norm": 9.8, "tn_high": 14.4, "tn_high_yr": 1953, "tx_low": 10.0, "tx_low_yr": 1963, "tx_norm": 19.1, "tx_rec": 27.7, "tx_rec_yr": 1989 }, "5-24": { "tn_rec": 3.5, "tn_rec_yr": 2013, "tn_norm": 9.9, "tn_high": 15.8, "tn_high_yr": 2010, "tx_low": 8.8, "tx_low_yr": 2013, "tx_norm": 19.2, "tx_rec": 28.1, "tx_rec_yr": 2012 }, "5-25": { "tn_rec": 3.1, "tn_rec_yr": 1962, "tn_norm": 9.9, "tn_high": 15.7, "tn_high_yr": 2012, "tx_low": 10.0, "tx_low_yr": 1962, "tx_norm": 19.3, "tx_rec": 30.1, "tx_rec_yr": 1953 }, "5-26": { "tn_rec": 5.0, "tn_rec_yr": 1981, "tn_norm": 10.0, "tn_high": 16.5, "tn_high_yr": 1993, "tx_low": 10.2, "tx_low_yr": 1962, "tx_norm": 19.3, "tx_rec": 29.0, "tx_rec_yr": 2018 }, "5-27": { "tn_rec": 2.7, "tn_rec_yr": 1969, "tn_norm": 10.2, "tn_high": 19.6, "tn_high_yr": 2018, "tx_low": 11.9, "tx_low_yr": 1994, "tx_norm": 19.4, "tx_rec": 31.7, "tx_rec_yr": 2005 }, "5-28": { "tn_rec": 0.4, "tn_rec_yr": 1961, "tn_norm": 10.3, "tn_high": 17.3, "tn_high_yr": 2018, "tx_low": 11.0, "tx_low_yr": 1983, "tx_norm": 19.5, "tx_rec": 29.6, "tx_rec_yr": 1954 }, "5-29": { "tn_rec": -0.5, "tn_rec_yr": 1961, "tn_norm": 10.4, "tn_high": 18.0, "tn_high_yr": 2017, "tx_low": 9.7, "tx_low_yr": 1984, "tx_norm": 19.6, "tx_rec": 30.3, "tx_rec_yr": 2017 }, "5-30": { "tn_rec": 2.1, "tn_rec_yr": 1961, "tn_norm": 10.5, "tn_high": 16.8, "tn_high_yr": 1999, "tx_low": 11.2, "tx_low_yr": 1975, "tx_norm": 19.7, "tx_rec": 29.4, "tx_rec_yr": 1947 }, "5-31": { "tn_rec": 2.8, "tn_rec_yr": 1962, "tn_norm": 10.6, "tn_high": 16.2, "tn_high_yr": 2018, "tx_low": 11.1, "tx_low_yr": 1980, "tx_norm": 19.8, "tx_rec": 30.7, "tx_rec_yr": 1947 }, "6-1": { "tn_rec": 1.6, "tn_rec_yr": 1975, "tn_norm": 10.7, "tn_high": 18.1, "tn_high_yr": 1947, "tx_low": 6.4, "tx_low_yr": 1962, "tx_norm": 19.8, "tx_rec": 32.2, "tx_rec_yr": 1947 }, "6-2": { "tn_rec": 0.0, "tn_rec_yr": 1962, "tn_norm": 10.8, "tn_high": 16.4, "tn_high_yr": 2003, "tx_low": 7.8, "tx_low_yr": 1962, "tx_norm": 19.8, "tx_rec": 32.4, "tx_rec_yr": 2019 }, "6-3": { "tn_rec": 1.8, "tn_rec_yr": 1962, "tn_norm": 10.8, "tn_high": 18.3, "tn_high_yr": 2021, "tx_low": 8.3, "tx_low_yr": 1962, "tx_norm": 20.0, "tx_rec": 32.0, "tx_rec_yr": 1947 }, "6-4": { "tn_rec": 2.9, "tn_rec_yr": 1975, "tn_norm": 10.9, "tn_high": 18.4, "tn_high_yr": 1947, "tx_low": 8.1, "tx_low_yr": 1969, "tx_norm": 20.1, "tx_rec": 30.3, "tx_rec_yr": 2011 }, "6-5": { "tn_rec": 2.8, "tn_rec_yr": 1975, "tn_norm": 11.1, "tn_high": 17.5, "tn_high_yr": 1982, "tx_low": 9.4, "tx_low_yr": 1986, "tx_norm": 20.2, "tx_rec": 32.2, "tx_rec_yr": 2015 }, "6-6": { "tn_rec": 5.6, "tn_rec_yr": 1976, "tn_norm": 11.2, "tn_high": 16.9, "tn_high_yr": 1997, "tx_low": 9.6, "tx_low_yr": 1986, "tx_norm": 20.2, "tx_rec": 31.1, "tx_rec_yr": 1950 }, "6-7": { "tn_rec": 4.9, "tn_rec_yr": 1989, "tn_norm": 11.3, "tn_high": 18.4, "tn_high_yr": 1996, "tx_low": 10.1, "tx_low_yr": 1989, "tx_norm": 20.3, "tx_rec": 32.6, "tx_rec_yr": 1996 }, "6-8": { "tn_rec": 4.6, "tn_rec_yr": 1952, "tn_norm": 11.4, "tn_high": 16.8, "tn_high_yr": 1996, "tx_low": 9.9, "tx_low_yr": 1968, "tx_norm": 20.5, "tx_rec": 31.2, "tx_rec_yr": 2004 }, "6-9": { "tn_rec": 2.0, "tn_rec_yr": 2001, "tn_norm": 11.5, "tn_high": 17.3, "tn_high_yr": 2014, "tx_low": 9.8, "tx_low_yr": 2001, "tx_norm": 20.5, "tx_rec": 31.1, "tx_rec_yr": 1976 }, "6-10": { "tn_rec": 4.5, "tn_rec_yr": 1967, "tn_norm": 11.5, "tn_high": 18.6, "tn_high_yr": 2023, "tx_low": 9.7, "tx_low_yr": 1972, "tx_norm": 20.6, "tx_rec": 31.5, "tx_rec_yr": 2023 }, "6-11": { "tn_rec": 2.1, "tn_rec_yr": 1955, "tn_norm": 11.6, "tn_high": 18.0, "tn_high_yr": 2023, "tx_low": 12.7, "tx_low_yr": 1956, "tx_norm": 20.8, "tx_rec": 32.4, "tx_rec_yr": 2023 }, "6-12": { "tn_rec": 4.9, "tn_rec_yr": 2011, "tn_norm": 11.7, "tn_high": 16.9, "tn_high_yr": 2023, "tx_low": 13.2, "tx_low_yr": 1993, "tx_norm": 20.9, "tx_rec": 31.1, "tx_rec_yr": 2023 }, "6-13": { "tn_rec": 5.9, "tn_rec_yr": 1947, "tn_norm": 11.8, "tn_high": 18.6, "tn_high_yr": 2025, "tx_low": 12.4, "tx_low_yr": 1987, "tx_norm": 21.0, "tx_rec": 31.7, "tx_rec_yr": 2006 }, "6-14": { "tn_rec": 3.5, "tn_rec_yr": 1967, "tn_norm": 11.9, "tn_high": 18.2, "tn_high_yr": 1980, "tx_low": 13.3, "tx_low_yr": 1963, "tx_norm": 21.1, "tx_rec": 28.9, "tx_rec_yr": 2021 }, "6-15": { "tn_rec": 4.1, "tn_rec_yr": 1954, "tn_norm": 12.0, "tn_high": 16.1, "tn_high_yr": 2021, "tx_low": 10.4, "tx_low_yr": 1971, "tx_norm": 21.2, "tx_rec": 30.4, "tx_rec_yr": 2021 }, "6-16": { "tn_rec": 1.8, "tn_rec_yr": 1949, "tn_norm": 12.1, "tn_high": 17.8, "tn_high_yr": 1986, "tx_low": 13.6, "tx_low_yr": 1977, "tx_norm": 21.2, "tx_rec": 30.0, "tx_rec_yr": 1986 }, "6-17": { "tn_rec": 2.1, "tn_rec_yr": 1949, "tn_norm": 12.1, "tn_high": 19.3, "tn_high_yr": 2021, "tx_low": 13.3, "tx_low_yr": 1975, "tx_norm": 21.2, "tx_rec": 31.7, "tx_rec_yr": 2022 }, "6-18": { "tn_rec": 5.6, "tn_rec_yr": 1949, "tn_norm": 12.2, "tn_high": 19.3, "tn_high_yr": 2002, "tx_low": 14.2, "tx_low_yr": 1949, "tx_norm": 21.4, "tx_rec": 34.0, "tx_rec_yr": 2022 }, "6-19": { "tn_rec": 5.8, "tn_rec_yr": 1951, "tn_norm": 12.3, "tn_high": 18.0, "tn_high_yr": 2006, "tx_low": 12.7, "tx_low_yr": 1977, "tx_norm": 21.5, "tx_rec": 31.8, "tx_rec_yr": 2000 }, "6-20": { "tn_rec": 4.8, "tn_rec_yr": 1951, "tn_norm": 12.4, "tn_high": 18.4, "tn_high_yr": 2000, "tx_low": 12.2, "tx_low_yr": 1996, "tx_norm": 21.7, "tx_rec": 32.3, "tx_rec_yr": 2017 }, "6-21": { "tn_rec": 5.2, "tn_rec_yr": 1948, "tn_norm": 12.6, "tn_high": 19.7, "tn_high_yr": 2017, "tx_low": 14.0, "tx_low_yr": 1964, "tx_norm": 21.8, "tx_rec": 34.4, "tx_rec_yr": 2017 }, "6-22": { "tn_rec": 5.9, "tn_rec_yr": 1956, "tn_norm": 12.7, "tn_high": 21.1, "tn_high_yr": 2017, "tx_low": 12.6, "tx_low_yr": 1972, "tx_norm": 22.1, "tx_rec": 30.6, "tx_rec_yr": 2017 }, "6-23": { "tn_rec": 4.0, "tn_rec_yr": 1949, "tn_norm": 12.9, "tn_high": 18.0, "tn_high_yr": 2003, "tx_low": 13.6, "tx_low_yr": 1996, "tx_norm": 22.2, "tx_rec": 31.6, "tx_rec_yr": 2005 }, "6-24": { "tn_rec": 4.4, "tn_rec_yr": 1964, "tn_norm": 13.0, "tn_high": 18.7, "tn_high_yr": 2019, "tx_low": 12.3, "tx_low_yr": 1957, "tx_norm": 22.4, "tx_rec": 33.3, "tx_rec_yr": 1976 }, "6-25": { "tn_rec": 4.4, "tn_rec_yr": 1949, "tn_norm": 13.1, "tn_high": 19.0, "tn_high_yr": 2020, "tx_low": 15.4, "tx_low_yr": 1954, "tx_norm": 22.5, "tx_rec": 32.6, "tx_rec_yr": 1976 }, "6-26": { "tn_rec": 6.8, "tn_rec_yr": 1957, "tn_norm": 13.2, "tn_high": 18.6, "tn_high_yr": 2020, "tx_low": 12.3, "tx_low_yr": 1978, "tx_norm": 22.5, "tx_rec": 33.2, "tx_rec_yr": 1976 }, "6-27": { "tn_rec": 4.9, "tn_rec_yr": 1962, "tn_norm": 13.3, "tn_high": 21.3, "tn_high_yr": 1947, "tx_low": 13.2, "tx_low_yr": 1981, "tx_norm": 22.6, "tx_rec": 34.7, "tx_rec_yr": 1947 }, "6-28": { "tn_rec": 6.6, "tn_rec_yr": 1954, "tn_norm": 13.3, "tn_high": 22.0, "tn_high_yr": 2011, "tx_low": 11.7, "tx_low_yr": 1981, "tx_norm": 22.8, "tx_rec": 34.8, "tx_rec_yr": 1947 }, "6-29": { "tn_rec": 5.8, "tn_rec_yr": 1960, "tn_norm": 13.5, "tn_high": 18.7, "tn_high_yr": 2010, "tx_low": 12.4, "tx_low_yr": 1981, "tx_norm": 22.9, "tx_rec": 33.9, "tx_rec_yr": 2019 }, "6-30": { "tn_rec": 5.2, "tn_rec_yr": 1962, "tn_norm": 13.6, "tn_high": 18.6, "tn_high_yr": 2019, "tx_low": 15.1, "tx_low_yr": 1997, "tx_norm": 23.0, "tx_rec": 33.8, "tx_rec_yr": 1957 }, "7-1": { "tn_rec": 4.3, "tn_rec_yr": 1954, "tn_norm": 13.7, "tn_high": 20.9, "tn_high_yr": 2025, "tx_low": 12.8, "tx_low_yr": 1980, "tx_norm": 23.0, "tx_rec": 37.0, "tx_rec_yr": 2025 }, "7-2": { "tn_rec": 5.0, "tn_rec_yr": 1965, "tn_norm": 13.7, "tn_high": 22.5, "tn_high_yr": 2010, "tx_low": 14.7, "tx_low_yr": 1972, "tx_norm": 23.1, "tx_rec": 34.2, "tx_rec_yr": 2010 }, "7-3": { "tn_rec": 6.5, "tn_rec_yr": 1979, "tn_norm": 13.8, "tn_high": 19.3, "tn_high_yr": 2009, "tx_low": 14.9, "tx_low_yr": 1995, "tx_norm": 23.0, "tx_rec": 35.8, "tx_rec_yr": 1976 }, "7-4": { "tn_rec": 4.3, "tn_rec_yr": 1965, "tn_norm": 13.8, "tn_high": 22.5, "tn_high_yr": 2015, "tx_low": 14.7, "tx_low_yr": 1962, "tx_norm": 23.0, "tx_rec": 34.0, "tx_rec_yr": 1976 }, "7-5": { "tn_rec": 3.4, "tn_rec_yr": 1964, "tn_norm": 13.8, "tn_high": 21.2, "tn_high_yr": 1976, "tx_low": 13.0, "tx_low_yr": 1948, "tx_norm": 23.0, "tx_rec": 32.8, "tx_rec_yr": 1959 }, "7-6": { "tn_rec": 7.0, "tn_rec_yr": 1947, "tn_norm": 13.8, "tn_high": 19.2, "tn_high_yr": 1957, "tx_low": 15.5, "tx_low_yr": 1948, "tx_norm": 22.9, "tx_rec": 35.3, "tx_rec_yr": 1957 }, "7-7": { "tn_rec": 4.0, "tn_rec_yr": 1949, "tn_norm": 13.8, "tn_high": 17.7, "tn_high_yr": 1989, "tx_low": 14.5, "tx_low_yr": 1969, "tx_norm": 22.9, "tx_rec": 31.3, "tx_rec_yr": 1976 }, "7-8": { "tn_rec": 6.8, "tn_rec_yr": 1954, "tn_norm": 13.8, "tn_high": 19.3, "tn_high_yr": 2010, "tx_low": 14.9, "tx_low_yr": 1980, "tx_norm": 22.8, "tx_rec": 33.1, "tx_rec_yr": 1959 }, "7-9": { "tn_rec": 7.3, "tn_rec_yr": 1969, "tn_norm": 13.8, "tn_high": 21.8, "tn_high_yr": 2010, "tx_low": 13.4, "tx_low_yr": 1948, "tx_norm": 22.9, "tx_rec": 36.1, "tx_rec_yr": 1959 }, "7-10": { "tn_rec": 5.1, "tn_rec_yr": 1969, "tn_norm": 13.8, "tn_high": 20.0, "tn_high_yr": 2010, "tx_low": 12.6, "tx_low_yr": 1980, "tx_norm": 23.0, "tx_rec": 33.6, "tx_rec_yr": 1995 }, "7-11": { "tn_rec": 7.0, "tn_rec_yr": 1972, "tn_norm": 13.9, "tn_high": 22.4, "tn_high_yr": 2010, "tx_low": 13.9, "tx_low_yr": 2000, "tx_norm": 23.0, "tx_rec": 32.8, "tx_rec_yr": 1991 }, "7-12": { "tn_rec": 6.8, "tn_rec_yr": 2000, "tn_norm": 13.8, "tn_high": 18.8, "tn_high_yr": 1999, "tx_low": 15.2, "tx_low_yr": 1948, "tx_norm": 23.0, "tx_rec": 32.6, "tx_rec_yr": 2022 }, "7-13": { "tn_rec": 8.0, "tn_rec_yr": 1970, "tn_norm": 13.9, "tn_high": 21.0, "tn_high_yr": 2022, "tx_low": 16.1, "tx_low_yr": 1980, "tx_norm": 23.2, "tx_rec": 34.2, "tx_rec_yr": 1949 }, "7-14": { "tn_rec": 7.5, "tn_rec_yr": 1959, "tn_norm": 13.9, "tn_high": 18.8, "tn_high_yr": 1982, "tx_low": 16.0, "tx_low_yr": 1970, "tx_norm": 23.3, "tx_rec": 33.9, "tx_rec_yr": 1945 }, "7-15": { "tn_rec": 5.4, "tn_rec_yr": 1959, "tn_norm": 14.1, "tn_high": 18.1, "tn_high_yr": 2005, "tx_low": 15.7, "tx_low_yr": 1977, "tx_norm": 23.5, "tx_rec": 34.4, "tx_rec_yr": 1945 }, "7-16": { "tn_rec": 5.9, "tn_rec_yr": 1977, "tn_norm": 14.1, "tn_high": 18.7, "tn_high_yr": 1983, "tx_low": 13.9, "tx_low_yr": 1965, "tx_norm": 23.7, "tx_rec": 31.8, "tx_rec_yr": 1983 }, "7-17": { "tn_rec": 5.0, "tn_rec_yr": 1971, "tn_norm": 14.2, "tn_high": 19.3, "tn_high_yr": 2015, "tx_low": 15.2, "tx_low_yr": 1966, "tx_norm": 23.8, "tx_rec": 32.7, "tx_rec_yr": 1955 }, "7-18": { "tn_rec": 6.8, "tn_rec_yr": 1971, "tn_norm": 14.2, "tn_high": 19.3, "tn_high_yr": 2014, "tx_low": 17.0, "tx_low_yr": 1968, "tx_norm": 23.9, "tx_rec": 36.3, "tx_rec_yr": 2022 }, "7-19": { "tn_rec": 7.6, "tn_rec_yr": 1986, "tn_norm": 14.3, "tn_high": 20.5, "tn_high_yr": 2017, "tx_low": 15.4, "tx_low_yr": 1970, "tx_norm": 24.0, "tx_rec": 39.1, "tx_rec_yr": 2022 }, "7-20": { "tn_rec": 6.4, "tn_rec_yr": 1968, "tn_norm": 14.3, "tn_high": 20.9, "tn_high_yr": 2016, "tx_low": 15.3, "tx_low_yr": 1970, "tx_norm": 24.1, "tx_rec": 32.2, "tx_rec_yr": 1995 }, "7-21": { "tn_rec": 6.8, "tn_rec_yr": 1970, "tn_norm": 14.4, "tn_high": 20.1, "tn_high_yr": 1995, "tx_low": 16.7, "tx_low_yr": 1980, "tx_norm": 24.2, "tx_rec": 34.7, "tx_rec_yr": 1995 }, "7-22": { "tn_rec": 5.2, "tn_rec_yr": 1968, "tn_norm": 14.5, "tn_high": 19.7, "tn_high_yr": 1989, "tx_low": 16.1, "tx_low_yr": 1966, "tx_norm": 24.3, "tx_rec": 34.8, "tx_rec_yr": 1989 }, "7-23": { "tn_rec": 7.5, "tn_rec_yr": 1970, "tn_norm": 14.6, "tn_high": 20.2, "tn_high_yr": 1989, "tx_low": 16.7, "tx_low_yr": 1973, "tx_norm": 24.4, "tx_rec": 35.4, "tx_rec_yr": 2019 }, "7-24": { "tn_rec": 5.6, "tn_rec_yr": 1960, "tn_norm": 14.6, "tn_high": 20.8, "tn_high_yr": 2019, "tx_low": 14.1, "tx_low_yr": 1974, "tx_norm": 24.4, "tx_rec": 35.1, "tx_rec_yr": 2019 }, "7-25": { "tn_rec": 8.1, "tn_rec_yr": 1958, "tn_norm": 14.6, "tn_high": 23.2, "tn_high_yr": 2019, "tx_low": 16.1, "tx_low_yr": 1996, "tx_norm": 24.5, "tx_rec": 41.5, "tx_rec_yr": 2019 }, "7-26": { "tn_rec": 6.6, "tn_rec_yr": 1963, "tn_norm": 14.6, "tn_high": 23.8, "tn_high_yr": 2019, "tx_low": 15.4, "tx_low_yr": 1973, "tx_norm": 24.6, "tx_rec": 35.7, "tx_rec_yr": 2018 }, "7-27": { "tn_rec": 7.6, "tn_rec_yr": 1982, "tn_norm": 14.6, "tn_high": 21.1, "tn_high_yr": 2018, "tx_low": 16.2, "tx_low_yr": 1965, "tx_norm": 24.6, "tx_rec": 37.6, "tx_rec_yr": 2018 }, "7-28": { "tn_rec": 5.4, "tn_rec_yr": 1966, "tn_norm": 14.6, "tn_high": 18.7, "tn_high_yr": 2006, "tx_low": 16.1, "tx_low_yr": 1952, "tx_norm": 24.6, "tx_rec": 33.8, "tx_rec_yr": 1947 }, "7-29": { "tn_rec": 7.0, "tn_rec_yr": 1962, "tn_norm": 14.6, "tn_high": 20.3, "tn_high_yr": 1947, "tx_low": 16.1, "tx_low_yr": 1977, "tx_norm": 24.6, "tx_rec": 32.8, "tx_rec_yr": 1948 }, "7-30": { "tn_rec": 8.0, "tn_rec_yr": 1961, "tn_norm": 14.5, "tn_high": 18.9, "tn_high_yr": 2002, "tx_low": 17.9, "tx_low_yr": 1956, "tx_norm": 24.6, "tx_rec": 34.8, "tx_rec_yr": 1984 }, "7-31": { "tn_rec": 7.2, "tn_rec_yr": 1961, "tn_norm": 14.5, "tn_high": 20.1, "tn_high_yr": 2024, "tx_low": 16.5, "tx_low_yr": 1959, "tx_norm": 24.7, "tx_rec": 38.2, "tx_rec_yr": 2020 }, "8-1": { "tn_rec": 6.4, "tn_rec_yr": 1965, "tn_norm": 14.5, "tn_high": 19.6, "tn_high_yr": 2024, "tx_low": 17.4, "tx_low_yr": 1956, "tx_norm": 24.7, "tx_rec": 33.9, "tx_rec_yr": 1995 }, "8-2": { "tn_rec": 6.9, "tn_rec_yr": 1965, "tn_norm": 14.6, "tn_high": 20.0, "tn_high_yr": 1995, "tx_low": 15.0, "tx_low_yr": 1988, "tx_norm": 24.7, "tx_rec": 34.2, "tx_rec_yr": 2013 }, "8-3": { "tn_rec": 8.3, "tn_rec_yr": 1960, "tn_norm": 14.5, "tn_high": 19.7, "tn_high_yr": 1980, "tx_low": 16.4, "tx_low_yr": 1956, "tx_norm": 24.7, "tx_rec": 35.5, "tx_rec_yr": 1990 }, "8-4": { "tn_rec": 7.4, "tn_rec_yr": 1955, "tn_norm": 14.5, "tn_high": 19.4, "tn_high_yr": 1990, "tx_low": 15.6, "tx_low_yr": 1956, "tx_norm": 24.6, "tx_rec": 36.0, "tx_rec_yr": 1990 }, "8-5": { "tn_rec": 6.1, "tn_rec_yr": 1955, "tn_norm": 14.4, "tn_high": 19.5, "tn_high_yr": 2004, "tx_low": 17.0, "tx_low_yr": 2023, "tx_norm": 24.6, "tx_rec": 32.3, "tx_rec_yr": 2003 }, "8-6": { "tn_rec": 7.0, "tn_rec_yr": 1974, "tn_norm": 14.4, "tn_high": 19.5, "tn_high_yr": 2003, "tx_low": 17.9, "tx_low_yr": 1978, "tx_norm": 24.6, "tx_rec": 36.4, "tx_rec_yr": 2003 }, "8-7": { "tn_rec": 7.5, "tn_rec_yr": 1987, "tn_norm": 14.4, "tn_high": 20.6, "tn_high_yr": 2003, "tx_low": 15.2, "tx_low_yr": 1962, "tx_norm": 24.5, "tx_rec": 36.1, "tx_rec_yr": 2018 }, "8-8": { "tn_rec": 7.0, "tn_rec_yr": 1955, "tn_norm": 14.4, "tn_high": 19.2, "tn_high_yr": 2020, "tx_low": 16.3, "tx_low_yr": 1954, "tx_norm": 24.4, "tx_rec": 37.1, "tx_rec_yr": 2020 }, "8-9": { "tn_rec": 6.0, "tn_rec_yr": 1973, "tn_norm": 14.3, "tn_high": 23.0, "tn_high_yr": 2020, "tx_low": 17.7, "tx_low_yr": 1987, "tx_norm": 24.3, "tx_rec": 36.2, "tx_rec_yr": 2020 }, "8-10": { "tn_rec": 7.1, "tn_rec_yr": 1963, "tn_norm": 14.2, "tn_high": 21.8, "tn_high_yr": 2020, "tx_low": 21.8, "tx_low_yr": 2020, "tx_norm": 24.2, "tx_rec": 36.6, "tx_rec_yr": 2003 }, "8-11": { "tn_rec": 8.8, "tn_rec_yr": 1985, "tn_norm": 14.2, "tn_high": 21.6, "tn_high_yr": 2020, "tx_low": 16.6, "tx_low_yr": 1949, "tx_norm": 24.2, "tx_rec": 34.8, "tx_rec_yr": 2020 }, "8-12": { "tn_rec": 6.7, "tn_rec_yr": 1970, "tn_norm": 14.2, "tn_high": 20.7, "tn_high_yr": 2020, "tx_low": 15.9, "tx_low_yr": 1960, "tx_norm": 24.1, "tx_rec": 36.3, "tx_rec_yr": 2003 }, "8-13": { "tn_rec": 6.8, "tn_rec_yr": 1961, "tn_norm": 14.2, "tn_high": 19.9, "tn_high_yr": 2020, "tx_low": 16.5, "tx_low_yr": 1948, "tx_norm": 24.1, "tx_rec": 33.8, "tx_rec_yr": 2025 }, "8-14": { "tn_rec": 8.2, "tn_rec_yr": 1994, "tn_norm": 14.2, "tn_high": 19.7, "tn_high_yr": 2025, "tx_low": 18.8, "tx_low_yr": 2020, "tx_norm": 24.1, "tx_rec": 32.9, "tx_rec_yr": 2022 }, "8-15": { "tn_rec": 6.8, "tn_rec_yr": 1970, "tn_norm": 14.1, "tn_high": 19.2, "tn_high_yr": 2020, "tx_low": 16.4, "tx_low_yr": 1957, "tx_norm": 24.0, "tx_rec": 33.9, "tx_rec_yr": 1947 }, "8-16": { "tn_rec": 5.0, "tn_rec_yr": 1966, "tn_norm": 14.1, "tn_high": 17.7, "tn_high_yr": 2001, "tx_low": 16.1, "tx_low_yr": 1957, "tx_norm": 24.0, "tx_rec": 35.6, "tx_rec_yr": 1947 }, "8-17": { "tn_rec": 4.8, "tn_rec_yr": 1966, "tn_norm": 14.0, "tn_high": 18.6, "tn_high_yr": 2022, "tx_low": 16.5, "tx_low_yr": 1961, "tx_norm": 23.9, "tx_rec": 34.6, "tx_rec_yr": 1947 }, "8-18": { "tn_rec": 6.0, "tn_rec_yr": 1970, "tn_norm": 14.0, "tn_high": 19.0, "tn_high_yr": 2012, "tx_low": 13.4, "tx_low_yr": 1963, "tx_norm": 23.8, "tx_rec": 34.7, "tx_rec_yr": 2012 }, "8-19": { "tn_rec": 5.9, "tn_rec_yr": 1968, "tn_norm": 13.9, "tn_high": 21.5, "tn_high_yr": 2023, "tx_low": 15.1, "tx_low_yr": 1964, "tx_norm": 23.7, "tx_rec": 33.1, "tx_rec_yr": 2012 }, "8-20": { "tn_rec": 5.7, "tn_rec_yr": 1972, "tn_norm": 13.9, "tn_high": 19.4, "tn_high_yr": 2009, "tx_low": 17.1, "tx_low_yr": 1970, "tx_norm": 23.6, "tx_rec": 32.1, "tx_rec_yr": 2009 }, "8-21": { "tn_rec": 5.8, "tn_rec_yr": 1986, "tn_norm": 14.0, "tn_high": 21.6, "tn_high_yr": 2020, "tx_low": 21.6, "tx_low_yr": 2020, "tx_norm": 23.4, "tx_rec": 32.1, "tx_rec_yr": 1987 }, "8-22": { "tn_rec": 7.3, "tn_rec_yr": 1957, "tn_norm": 13.9, "tn_high": 18.8, "tn_high_yr": 2010, "tx_low": 16.6, "tx_low_yr": 1966, "tx_norm": 23.2, "tx_rec": 30.9, "tx_rec_yr": 1949 }, "8-23": { "tn_rec": 6.0, "tn_rec_yr": 1964, "tn_norm": 13.8, "tn_high": 18.6, "tn_high_yr": 2010, "tx_low": 17.6, "tx_low_yr": 2024, "tx_norm": 23.0, "tx_rec": 31.5, "tx_rec_yr": 1997 }, "8-24": { "tn_rec": 4.9, "tn_rec_yr": 1966, "tn_norm": 13.7, "tn_high": 17.8, "tn_high_yr": 1997, "tx_low": 16.3, "tx_low_yr": 2024, "tx_norm": 22.9, "tx_rec": 34.5, "tx_rec_yr": 2016 }, "8-25": { "tn_rec": 5.0, "tn_rec_yr": 1966, "tn_norm": 13.6, "tn_high": 19.2, "tn_high_yr": 1997, "tx_low": 16.4, "tx_low_yr": 1954, "tx_norm": 22.6, "tx_rec": 35.3, "tx_rec_yr": 2016 }, "8-26": { "tn_rec": 6.1, "tn_rec_yr": 1979, "tn_norm": 13.3, "tn_high": 19.8, "tn_high_yr": 2010, "tx_low": 15.6, "tx_low_yr": 1969, "tx_norm": 22.4, "tx_rec": 34.4, "tx_rec_yr": 2001 }, "8-27": { "tn_rec": 6.8, "tn_rec_yr": 1978, "tn_norm": 13.2, "tn_high": 19.0, "tn_high_yr": 2019, "tx_low": 15.0, "tx_low_yr": 1987, "tx_norm": 22.2, "tx_rec": 33.8, "tx_rec_yr": 2019 }, "8-28": { "tn_rec": 4.5, "tn_rec_yr": 1978, "tn_norm": 13.1, "tn_high": 19.7, "tn_high_yr": 2016, "tx_low": 15.5, "tx_low_yr": 1957, "tx_norm": 22.0, "tx_rec": 30.3, "tx_rec_yr": 2024 }, "8-29": { "tn_rec": 5.1, "tn_rec_yr": 1963, "tn_norm": 13.0, "tn_high": 17.2, "tn_high_yr": 1945, "tx_low": 16.6, "tx_low_yr": 2024, "tx_norm": 21.9, "tx_rec": 33.1, "tx_rec_yr": 2017 }, "8-30": { "tn_rec": 4.8, "tn_rec_yr": 1963, "tn_norm": 12.9, "tn_high": 17.4, "tn_high_yr": 2015, "tx_low": 15.9, "tx_low_yr": 2024, "tx_norm": 21.7, "tx_rec": 30.1, "tx_rec_yr": 2015 }, "8-31": { "tn_rec": 3.9, "tn_rec_yr": 1956, "tn_norm": 12.8, "tn_high": 16.5, "tn_high_yr": 1985, "tx_low": 16.4, "tx_low_yr": 2024, "tx_norm": 21.6, "tx_rec": 31.4, "tx_rec_yr": 2005 }, "9-1": { "tn_rec": 6.0, "tn_rec_yr": 2012, "tn_norm": 12.7, "tn_high": 18.1, "tn_high_yr": 2024, "tx_low": 14.6, "tx_low_yr": 1956, "tx_norm": 21.5, "tx_rec": 33.1, "tx_rec_yr": 2024 }, "9-2": { "tn_rec": 6.0, "tn_rec_yr": 1962, "tn_norm": 12.5, "tn_high": 17.0, "tn_high_yr": 2024, "tx_low": 15.4, "tx_low_yr": 1976, "tx_norm": 21.4, "tx_rec": 28.9, "tx_rec_yr": 1984 }, "9-3": { "tn_rec": 5.5, "tn_rec_yr": 1982, "tn_norm": 12.3, "tn_high": 18.9, "tn_high_yr": 1984, "tx_low": 14.4, "tx_low_yr": 1965, "tx_norm": 21.4, "tx_rec": 30.6, "tx_rec_yr": 1961 }, "9-4": { "tn_rec": 5.0, "tn_rec_yr": 1957, "tn_norm": 12.3, "tn_high": 17.7, "tn_high_yr": 2016, "tx_low": 15.2, "tx_low_yr": 1992, "tx_norm": 21.4, "tx_rec": 32.9, "tx_rec_yr": 1949 }, "9-5": { "tn_rec": 4.8, "tn_rec_yr": 1986, "tn_norm": 12.3, "tn_high": 18.0, "tn_high_yr": 1949, "tx_low": 15.3, "tx_low_yr": 1952, "tx_norm": 21.4, "tx_rec": 33.8, "tx_rec_yr": 1949 }, "9-6": { "tn_rec": 4.5, "tn_rec_yr": 1993, "tn_norm": 12.3, "tn_high": 19.3, "tn_high_yr": 1958, "tx_low": 13.7, "tx_low_yr": 1994, "tx_norm": 21.3, "tx_rec": 31.5, "tx_rec_yr": 2023 }, "9-7": { "tn_rec": 2.1, "tn_rec_yr": 1952, "tn_norm": 12.2, "tn_high": 16.4, "tn_high_yr": 1957, "tx_low": 14.5, "tx_low_yr": 1984, "tx_norm": 21.2, "tx_rec": 31.6, "tx_rec_yr": 2025 }, "9-8": { "tn_rec": 3.9, "tn_rec_yr": 1967, "tn_norm": 12.2, "tn_high": 17.6, "tn_high_yr": 1999, "tx_low": 14.9, "tx_low_yr": 1977, "tx_norm": 21.1, "tx_rec": 32.1, "tx_rec_yr": 2023 }, "9-9": { "tn_rec": 4.4, "tn_rec_yr": 1986, "tn_norm": 12.1, "tn_high": 18.7, "tn_high_yr": 2023, "tx_low": 14.7, "tx_low_yr": 1952, "tx_norm": 20.9, "tx_rec": 34.2, "tx_rec_yr": 2023 }, "9-10": { "tn_rec": 3.4, "tn_rec_yr": 1967, "tn_norm": 12.0, "tn_high": 19.5, "tn_high_yr": 2023, "tx_low": 12.0, "tx_low_yr": 1972, "tx_norm": 20.8, "tx_rec": 33.1, "tx_rec_yr": 2023 }, "9-11": { "tn_rec": 3.1, "tn_rec_yr": 1986, "tn_norm": 11.9, "tn_high": 17.8, "tn_high_yr": 2016, "tx_low": 13.2, "tx_low_yr": 1965, "tx_norm": 20.6, "tx_rec": 30.3, "tx_rec_yr": 1947 }, "9-12": { "tn_rec": 6.1, "tn_rec_yr": 1967, "tn_norm": 11.8, "tn_high": 17.9, "tn_high_yr": 1987, "tx_low": 12.9, "tx_low_yr": 1983, "tx_norm": 20.4, "tx_rec": 31.1, "tx_rec_yr": 1959 }, "9-13": { "tn_rec": 4.8, "tn_rec_yr": 1952, "tn_norm": 11.6, "tn_high": 19.0, "tn_high_yr": 2016, "tx_low": 12.9, "tx_low_yr": 1998, "tx_norm": 20.3, "tx_rec": 32.1, "tx_rec_yr": 2016 }, "9-14": { "tn_rec": 4.2, "tn_rec_yr": 1962, "tn_norm": 11.5, "tn_high": 19.0, "tn_high_yr": 2016, "tx_low": 12.3, "tx_low_yr": 1955, "tx_norm": 20.2, "tx_rec": 31.9, "tx_rec_yr": 2020 }, "9-15": { "tn_rec": 5.5, "tn_rec_yr": 1979, "tn_norm": 11.4, "tn_high": 17.3, "tn_high_yr": 2020, "tx_low": 11.9, "tx_low_yr": 1986, "tx_norm": 20.2, "tx_rec": 35.1, "tx_rec_yr": 2020 }, "9-16": { "tn_rec": 2.4, "tn_rec_yr": 1971, "tn_norm": 11.4, "tn_high": 17.2, "tn_high_yr": 1989, "tx_low": 12.8, "tx_low_yr": 1994, "tx_norm": 20.0, "tx_rec": 29.4, "tx_rec_yr": 1947 }, "9-17": { "tn_rec": 1.7, "tn_rec_yr": 1971, "tn_norm": 11.3, "tn_high": 18.0, "tn_high_yr": 2023, "tx_low": 12.2, "tx_low_yr": 1994, "tx_norm": 19.8, "tx_rec": 27.9, "tx_rec_yr": 1987 }, "9-18": { "tn_rec": 3.2, "tn_rec_yr": 1971, "tn_norm": 11.1, "tn_high": 18.4, "tn_high_yr": 1945, "tx_low": 12.3, "tx_low_yr": 1952, "tx_norm": 19.7, "tx_rec": 29.4, "tx_rec_yr": 2003 }, "9-19": { "tn_rec": 3.3, "tn_rec_yr": 1977, "tn_norm": 10.9, "tn_high": 17.1, "tn_high_yr": 1961, "tx_low": 11.2, "tx_low_yr": 1952, "tx_norm": 19.6, "tx_rec": 29.8, "tx_rec_yr": 2003 }, "9-20": { "tn_rec": 1.8, "tn_rec_yr": 1952, "tn_norm": 10.9, "tn_high": 18.4, "tn_high_yr": 2025, "tx_low": 12.4, "tx_low_yr": 1994, "tx_norm": 19.5, "tx_rec": 30.6, "tx_rec_yr": 2003 }, "9-21": { "tn_rec": 2.4, "tn_rec_yr": 1962, "tn_norm": 10.8, "tn_high": 16.8, "tn_high_yr": 1987, "tx_low": 12.5, "tx_low_yr": 1960, "tx_norm": 19.4, "tx_rec": 30.4, "tx_rec_yr": 2003 }, "9-22": { "tn_rec": 1.2, "tn_rec_yr": 1948, "tn_norm": 10.7, "tn_high": 17.9, "tn_high_yr": 1987, "tx_low": 11.3, "tx_low_yr": 1984, "tx_norm": 19.3, "tx_rec": 26.2, "tx_rec_yr": 2003 }, "9-23": { "tn_rec": 1.2, "tn_rec_yr": 1979, "tn_norm": 10.7, "tn_high": 15.6, "tn_high_yr": 1999, "tx_low": 12.2, "tx_low_yr": 1974, "tx_norm": 19.2, "tx_rec": 25.8, "tx_rec_yr": 1956 }, "9-24": { "tn_rec": 4.5, "tn_rec_yr": 1973, "tn_norm": 10.6, "tn_high": 17.0, "tn_high_yr": 1949, "tx_low": 10.3, "tx_low_yr": 1984, "tx_norm": 19.2, "tx_rec": 27.3, "tx_rec_yr": 1956 }, "9-25": { "tn_rec": 2.3, "tn_rec_yr": 1979, "tn_norm": 10.6, "tn_high": 15.8, "tn_high_yr": 1949, "tx_low": 12.4, "tx_low_yr": 2020, "tx_norm": 19.1, "tx_rec": 24.5, "tx_rec_yr": 2011 }, "9-26": { "tn_rec": 4.5, "tn_rec_yr": 1972, "tn_norm": 10.5, "tn_high": 16.8, "tn_high_yr": 1967, "tx_low": 12.0, "tx_low_yr": 2020, "tx_norm": 18.9, "tx_rec": 25.0, "tx_rec_yr": 1948 }, "9-27": { "tn_rec": 3.7, "tn_rec_yr": 1960, "tn_norm": 10.4, "tn_high": 17.3, "tn_high_yr": 1949, "tx_low": 11.3, "tx_low_yr": 1993, "tx_norm": 18.8, "tx_rec": 26.4, "tx_rec_yr": 1946 }, "9-28": { "tn_rec": 2.0, "tn_rec_yr": 1969, "tn_norm": 10.4, "tn_high": 16.0, "tn_high_yr": 1949, "tx_low": 12.5, "tx_low_yr": 1993, "tx_norm": 18.5, "tx_rec": 26.2, "tx_rec_yr": 1946 }, "9-29": { "tn_rec": 3.3, "tn_rec_yr": 1964, "tn_norm": 10.3, "tn_high": 15.0, "tn_high_yr": 2000, "tx_low": 10.0, "tx_low_yr": 1974, "tx_norm": 18.3, "tx_rec": 27.2, "tx_rec_yr": 2011 }, "9-30": { "tn_rec": 2.8, "tn_rec_yr": 1954, "tn_norm": 10.2, "tn_high": 14.9, "tn_high_yr": 1996, "tx_low": 11.2, "tx_low_yr": 1960, "tx_norm": 18.1, "tx_rec": 26.7, "tx_rec_yr": 1985 }, "10-1": { "tn_rec": 1.7, "tn_rec_yr": 1988, "tn_norm": 10.1, "tn_high": 15.4, "tn_high_yr": 2001, "tx_low": 12.3, "tx_low_yr": 1978, "tx_norm": 17.8, "tx_rec": 27.8, "tx_rec_yr": 2011 }, "10-2": { "tn_rec": 2.1, "tn_rec_yr": 1969, "tn_norm": 10.0, "tn_high": 15.9, "tn_high_yr": 1985, "tx_low": 10.1, "tx_low_yr": 1974, "tx_norm": 17.6, "tx_rec": 27.7, "tx_rec_yr": 2011 }, "10-3": { "tn_rec": 2.0, "tn_rec_yr": 1980, "tn_norm": 9.9, "tn_high": 17.2, "tn_high_yr": 1985, "tx_low": 7.2, "tx_low_yr": 1998, "tx_norm": 17.5, "tx_rec": 27.2, "tx_rec_yr": 2011 }, "10-4": { "tn_rec": 2.2, "tn_rec_yr": 1947, "tn_norm": 9.8, "tn_high": 16.9, "tn_high_yr": 2013, "tx_low": 9.0, "tx_low_yr": 1998, "tx_norm": 17.3, "tx_rec": 25.7, "tx_rec_yr": 1983 }, "10-5": { "tn_rec": 0.5, "tn_rec_yr": 1972, "tn_norm": 9.7, "tn_high": 15.4, "tn_high_yr": 2011, "tx_low": 10.7, "tx_low_yr": 1992, "tx_norm": 17.1, "tx_rec": 23.0, "tx_rec_yr": 1959 }, "10-6": { "tn_rec": 0.8, "tn_rec_yr": 1971, "tn_norm": 9.5, "tn_high": 14.8, "tn_high_yr": 1986, "tx_low": 10.0, "tx_low_yr": 1998, "tx_norm": 17.0, "tx_rec": 23.9, "tx_rec_yr": 1969 }, "10-7": { "tn_rec": 1.3, "tn_rec_yr": 1971, "tn_norm": 9.4, "tn_high": 17.0, "tn_high_yr": 2009, "tx_low": 9.2, "tx_low_yr": 1956, "tx_norm": 16.7, "tx_rec": 24.2, "tx_rec_yr": 1947 }, "10-8": { "tn_rec": -0.3, "tn_rec_yr": 1948, "tn_norm": 9.2, "tn_high": 14.5, "tn_high_yr": 1986, "tx_low": 10.0, "tx_low_yr": 1974, "tx_norm": 16.5, "tx_rec": 26.3, "tx_rec_yr": 2023 }, "10-9": { "tn_rec": 1.4, "tn_rec_yr": 1994, "tn_norm": 9.1, "tn_high": 16.6, "tn_high_yr": 1997, "tx_low": 11.0, "tx_low_yr": 1964, "tx_norm": 16.4, "tx_rec": 24.5, "tx_rec_yr": 2023 }, "10-10": { "tn_rec": 0.8, "tn_rec_yr": 1951, "tn_norm": 8.9, "tn_high": 15.5, "tn_high_yr": 2011, "tx_low": 9.7, "tx_low_yr": 1946, "tx_norm": 16.2, "tx_rec": 27.2, "tx_rec_yr": 2023 }, "10-11": { "tn_rec": 0.8, "tn_rec_yr": 1951, "tn_norm": 8.7, "tn_high": 15.1, "tn_high_yr": 2018, "tx_low": 7.9, "tx_low_yr": 1980, "tx_norm": 16.0, "tx_rec": 25.0, "tx_rec_yr": 1970 }, "10-12": { "tn_rec": -1.0, "tn_rec_yr": 1952, "tn_norm": 8.5, "tn_high": 15.0, "tn_high_yr": 1968, "tx_low": 9.4, "tx_low_yr": 1975, "tx_norm": 15.8, "tx_rec": 25.0, "tx_rec_yr": 1990 }, "10-13": { "tn_rec": 0.7, "tn_rec_yr": 1973, "tn_norm": 8.3, "tn_high": 17.0, "tn_high_yr": 2023, "tx_low": 5.2, "tx_low_yr": 1975, "tx_norm": 15.7, "tx_rec": 24.6, "tx_rec_yr": 2018 }, "10-14": { "tn_rec": -1.1, "tn_rec_yr": 1964, "tn_norm": 8.3, "tn_high": 15.8, "tn_high_yr": 2005, "tx_low": 10.1, "tx_low_yr": 1974, "tx_norm": 15.6, "tx_rec": 23.8, "tx_rec_yr": 2018 }, "10-15": { "tn_rec": -1.7, "tn_rec_yr": 1971, "tn_norm": 8.2, "tn_high": 14.4, "tn_high_yr": 1949, "tx_low": 6.3, "tx_low_yr": 2015, "tx_norm": 15.5, "tx_rec": 23.7, "tx_rec_yr": 2017 }, "10-16": { "tn_rec": -0.2, "tn_rec_yr": 1971, "tn_norm": 8.1, "tn_high": 14.9, "tn_high_yr": 1949, "tx_low": 10.2, "tx_low_yr": 1974, "tx_norm": 15.4, "tx_rec": 25.0, "tx_rec_yr": 2017 }, "10-17": { "tn_rec": 0.0, "tn_rec_yr": 1951, "tn_norm": 8.0, "tn_high": 15.7, "tn_high_yr": 2024, "tx_low": 8.5, "tx_low_yr": 1974, "tx_norm": 15.2, "tx_rec": 20.9, "tx_rec_yr": 1954 }, "10-18": { "tn_rec": -0.9, "tn_rec_yr": 1955, "tn_norm": 7.9, "tn_high": 13.6, "tn_high_yr": 1954, "tx_low": 9.1, "tx_low_yr": 1992, "tx_norm": 15.1, "tx_rec": 23.5, "tx_rec_yr": 2014 }, "10-19": { "tn_rec": -0.3, "tn_rec_yr": 1972, "tn_norm": 7.8, "tn_high": 14.7, "tn_high_yr": 2014, "tx_low": 7.8, "tx_low_yr": 1993, "tx_norm": 14.9, "tx_rec": 22.2, "tx_rec_yr": 2014 }, "10-20": { "tn_rec": -0.1, "tn_rec_yr": 1964, "tn_norm": 7.8, "tn_high": 15.2, "tn_high_yr": 2001, "tx_low": 7.3, "tx_low_yr": 1952, "tx_norm": 14.8, "tx_rec": 21.5, "tx_rec_yr": 2004 }, "10-21": { "tn_rec": -1.2, "tn_rec_yr": 1964, "tn_norm": 7.7, "tn_high": 13.7, "tn_high_yr": 2001, "tx_low": 7.2, "tx_low_yr": 1952, "tx_norm": 14.7, "tx_rec": 21.4, "tx_rec_yr": 2022 }, "10-22": { "tn_rec": 0.1, "tn_rec_yr": 1985, "tn_norm": 7.7, "tn_high": 14.4, "tn_high_yr": 1977, "tx_low": 9.4, "tx_low_yr": 1993, "tx_norm": 14.5, "tx_rec": 23.9, "tx_rec_yr": 2012 }, "10-23": { "tn_rec": -3.3, "tn_rec_yr": 1983, "tn_norm": 7.7, "tn_high": 15.3, "tn_high_yr": 2006, "tx_low": 7.0, "tx_low_yr": 2003, "tx_norm": 14.4, "tx_rec": 20.9, "tx_rec_yr": 2022 }, "10-24": { "tn_rec": -3.5, "tn_rec_yr": 1983, "tn_norm": 7.6, "tn_high": 14.7, "tn_high_yr": 2004, "tx_low": 7.8, "tx_low_yr": 1946, "tx_norm": 14.3, "tx_rec": 20.8, "tx_rec_yr": 1971 }, "10-25": { "tn_rec": -3.4, "tn_rec_yr": 1946, "tn_norm": 7.6, "tn_high": 13.9, "tn_high_yr": 2017, "tx_low": 7.8, "tx_low_yr": 1946, "tx_norm": 14.2, "tx_rec": 21.3, "tx_rec_yr": 2024 }, "10-26": { "tn_rec": -3.0, "tn_rec_yr": 1985, "tn_norm": 7.5, "tn_high": 14.9, "tn_high_yr": 2013, "tx_low": 7.3, "tx_low_yr": 1947, "tx_norm": 14.0, "tx_rec": 21.2, "tx_rec_yr": 2006 }, "10-27": { "tn_rec": -4.0, "tn_rec_yr": 1950, "tn_norm": 7.4, "tn_high": 14.9, "tn_high_yr": 1995, "tx_low": 4.9, "tx_low_yr": 1950, "tx_norm": 13.8, "tx_rec": 21.0, "tx_rec_yr": 2022 }, "10-28": { "tn_rec": -4.4, "tn_rec_yr": 1950, "tn_norm": 7.3, "tn_high": 13.9, "tn_high_yr": 2005, "tx_low": 5.4, "tx_low_yr": 1963, "tx_norm": 13.7, "tx_rec": 21.9, "tx_rec_yr": 2022 }, "10-29": { "tn_rec": -2.7, "tn_rec_yr": 1997, "tn_norm": 7.2, "tn_high": 13.7, "tn_high_yr": 2005, "tx_low": 4.0, "tx_low_yr": 1963, "tx_norm": 13.4, "tx_rec": 23.1, "tx_rec_yr": 2022 }, "10-30": { "tn_rec": -3.4, "tn_rec_yr": 1997, "tn_norm": 7.1, "tn_high": 14.1, "tn_high_yr": 2005, "tx_low": 3.7, "tx_low_yr": 1985, "tx_norm": 13.2, "tx_rec": 21.1, "tx_rec_yr": 1968 }, "10-31": { "tn_rec": -2.3, "tn_rec_yr": 1949, "tn_norm": 6.9, "tn_high": 14.1, "tn_high_yr": 2005, "tx_low": 3.0, "tx_low_yr": 1985, "tx_norm": 13.0, "tx_rec": 20.5, "tx_rec_yr": 1968 }, "11-1": { "tn_rec": -3.2, "tn_rec_yr": 1956, "tn_norm": 6.7, "tn_high": 13.6, "tn_high_yr": 1968, "tx_low": 2.3, "tx_low_yr": 1997, "tx_norm": 12.8, "tx_rec": 19.3, "tx_rec_yr": 2014 }, "11-2": { "tn_rec": -5.5, "tn_rec_yr": 1955, "tn_norm": 6.6, "tn_high": 12.8, "tn_high_yr": 1983, "tx_low": 0.8, "tx_low_yr": 1997, "tx_norm": 12.5, "tx_rec": 18.9, "tx_rec_yr": 2020 }, "11-3": { "tn_rec": -4.7, "tn_rec_yr": 1980, "tn_norm": 6.5, "tn_high": 13.8, "tn_high_yr": 2005, "tx_low": -0.3, "tx_low_yr": 1980, "tx_norm": 12.3, "tx_rec": 18.3, "tx_rec_yr": 2005 }, "11-4": { "tn_rec": -4.9, "tn_rec_yr": 1980, "tn_norm": 6.3, "tn_high": 14.8, "tn_high_yr": 2010, "tx_low": 1.0, "tx_low_yr": 1980, "tx_norm": 12.1, "tx_rec": 19.0, "tx_rec_yr": 1994 }, "11-5": { "tn_rec": -4.3, "tn_rec_yr": 1988, "tn_norm": 6.2, "tn_high": 13.0, "tn_high_yr": 2010, "tx_low": -0.2, "tx_low_yr": 1980, "tx_norm": 12.0, "tx_rec": 18.0, "tx_rec_yr": 2025 }, "11-6": { "tn_rec": -4.1, "tn_rec_yr": 1995, "tn_norm": 6.2, "tn_high": 14.3, "tn_high_yr": 2015, "tx_low": 0.8, "tx_low_yr": 1980, "tx_norm": 11.7, "tx_rec": 20.3, "tx_rec_yr": 2018 }, "11-7": { "tn_rec": -1.5, "tn_rec_yr": 1990, "tn_norm": 6.1, "tn_high": 16.3, "tn_high_yr": 2015, "tx_low": 2.0, "tx_low_yr": 1980, "tx_norm": 11.6, "tx_rec": 20.1, "tx_rec_yr": 2015 }, "11-8": { "tn_rec": -3.0, "tn_rec_yr": 1980, "tn_norm": 6.0, "tn_high": 10.6, "tn_high_yr": 1992, "tx_low": 2.3, "tx_low_yr": 1959, "tx_norm": 11.4, "tx_rec": 18.0, "tx_rec_yr": 1982 }, "11-9": { "tn_rec": -3.3, "tn_rec_yr": 1981, "tn_norm": 5.9, "tn_high": 12.3, "tn_high_yr": 2015, "tx_low": 2.4, "tx_low_yr": 1948, "tx_norm": 11.3, "tx_rec": 18.1, "tx_rec_yr": 2020 }, "11-10": { "tn_rec": -3.6, "tn_rec_yr": 1968, "tn_norm": 5.7, "tn_high": 11.9, "tn_high_yr": 2015, "tx_low": 2.4, "tx_low_yr": 1948, "tx_norm": 11.0, "tx_rec": 17.8, "tx_rec_yr": 1977 }, "11-11": { "tn_rec": -1.6, "tn_rec_yr": 1948, "tn_norm": 5.5, "tn_high": 12.3, "tn_high_yr": 1988, "tx_low": 1.4, "tx_low_yr": 1978, "tx_norm": 10.9, "tx_rec": 18.1, "tx_rec_yr": 1995 }, "11-12": { "tn_rec": -2.8, "tn_rec_yr": 1971, "tn_norm": 5.5, "tn_high": 12.1, "tn_high_yr": 1947, "tx_low": 3.1, "tx_low_yr": 1959, "tx_norm": 10.7, "tx_rec": 20.1, "tx_rec_yr": 1995 }, "11-13": { "tn_rec": -4.4, "tn_rec_yr": 1983, "tn_norm": 5.4, "tn_high": 10.7, "tn_high_yr": 2010, "tx_low": -1.0, "tx_low_yr": 1975, "tx_norm": 10.5, "tx_rec": 17.2, "tx_rec_yr": 2009 }, "11-14": { "tn_rec": -5.0, "tn_rec_yr": 1965, "tn_norm": 5.3, "tn_high": 12.7, "tn_high_yr": 2006, "tx_low": -1.2, "tx_low_yr": 1965, "tx_norm": 10.4, "tx_rec": 15.3, "tx_rec_yr": 1964 }, "11-15": { "tn_rec": -7.8, "tn_rec_yr": 1983, "tn_norm": 5.1, "tn_high": 12.2, "tn_high_yr": 2006, "tx_low": -0.7, "tx_low_yr": 1952, "tx_norm": 10.2, "tx_rec": 15.1, "tx_rec_yr": 1963 }, "11-16": { "tn_rec": -7.3, "tn_rec_yr": 1965, "tn_norm": 4.9, "tn_high": 12.5, "tn_high_yr": 1980, "tx_low": -1.1, "tx_low_yr": 1968, "tx_norm": 10.0, "tx_rec": 15.9, "tx_rec_yr": 2009 }, "11-17": { "tn_rec": -2.8, "tn_rec_yr": 1968, "tn_norm": 4.8, "tn_high": 12.8, "tn_high_yr": 1990, "tx_low": 1.9, "tx_low_yr": 1972, "tx_norm": 9.8, "tx_rec": 16.4, "tx_rec_yr": 2015 }, "11-18": { "tn_rec": -4.2, "tn_rec_yr": 1998, "tn_norm": 4.6, "tn_high": 11.7, "tn_high_yr": 2015, "tx_low": -0.8, "tx_low_yr": 1967, "tx_norm": 9.6, "tx_rec": 15.2, "tx_rec_yr": 1963 }, "11-19": { "tn_rec": -3.8, "tn_rec_yr": 1985, "tn_norm": 4.5, "tn_high": 11.5, "tn_high_yr": 2003, "tx_low": -2.7, "tx_low_yr": 1985, "tx_norm": 9.4, "tx_rec": 16.0, "tx_rec_yr": 1963 }, "11-20": { "tn_rec": -4.9, "tn_rec_yr": 1985, "tn_norm": 4.3, "tn_high": 12.9, "tn_high_yr": 1994, "tx_low": -1.3, "tx_low_yr": 1985, "tx_norm": 9.2, "tx_rec": 16.0, "tx_rec_yr": 1981 }, "11-21": { "tn_rec": -4.6, "tn_rec_yr": 1998, "tn_norm": 4.2, "tn_high": 10.4, "tn_high_yr": 1994, "tx_low": -1.4, "tx_low_yr": 1993, "tx_norm": 9.0, "tx_rec": 17.0, "tx_rec_yr": 2009 }, "11-22": { "tn_rec": -6.6, "tn_rec_yr": 1988, "tn_norm": 4.0, "tn_high": 12.6, "tn_high_yr": 1947, "tx_low": -0.7, "tx_low_yr": 1998, "tx_norm": 8.8, "tx_rec": 15.4, "tx_rec_yr": 1984 }, "11-23": { "tn_rec": -7.6, "tn_rec_yr": 1956, "tn_norm": 3.9, "tn_high": 13.0, "tn_high_yr": 1947, "tx_low": -0.7, "tx_low_yr": 1998, "tx_norm": 8.7, "tx_rec": 15.7, "tx_rec_yr": 2003 }, "11-24": { "tn_rec": -7.8, "tn_rec_yr": 1998, "tn_norm": 3.8, "tn_high": 11.0, "tn_high_yr": 1980, "tx_low": -0.8, "tx_low_yr": 1956, "tx_norm": 8.5, "tx_rec": 17.2, "tx_rec_yr": 2024 }, "11-25": { "tn_rec": -5.7, "tn_rec_yr": 1956, "tn_norm": 3.6, "tn_high": 11.3, "tn_high_yr": 1986, "tx_low": 0.2, "tx_low_yr": 1993, "tx_norm": 8.3, "tx_rec": 17.4, "tx_rec_yr": 2006 }, "11-26": { "tn_rec": -5.7, "tn_rec_yr": 1989, "tn_norm": 3.5, "tn_high": 13.0, "tn_high_yr": 1983, "tx_low": 2.1, "tx_low_yr": 1985, "tx_norm": 8.2, "tx_rec": 15.2, "tx_rec_yr": 1983 }, "11-27": { "tn_rec": -3.0, "tn_rec_yr": 1967, "tn_norm": 3.4, "tn_high": 11.0, "tn_high_yr": 1994, "tx_low": -1.1, "tx_low_yr": 1993, "tx_norm": 8.1, "tx_rec": 14.3, "tx_rec_yr": 2006 }, "11-28": { "tn_rec": -4.6, "tn_rec_yr": 1948, "tn_norm": 3.3, "tn_high": 9.6, "tn_high_yr": 1994, "tx_low": -2.3, "tx_low_yr": 1993, "tx_norm": 8.0, "tx_rec": 15.4, "tx_rec_yr": 2014 }, "11-29": { "tn_rec": -7.2, "tn_rec_yr": 1948, "tn_norm": 3.3, "tn_high": 10.3, "tn_high_yr": 2000, "tx_low": 0.1, "tx_low_yr": 1977, "tx_norm": 7.9, "tx_rec": 14.1, "tx_rec_yr": 1954 }, "11-30": { "tn_rec": -7.2, "tn_rec_yr": 1978, "tn_norm": 3.1, "tn_high": 10.4, "tn_high_yr": 2001, "tx_low": -3.2, "tx_low_yr": 1989, "tx_norm": 7.8, "tx_rec": 13.6, "tx_rec_yr": 2001 }, "12-1": { "tn_rec": -5.8, "tn_rec_yr": 2015, "tn_norm": 3.0, "tn_high": 11.2, "tn_high_yr": 2001, "tx_low": -2.4, "tx_low_yr": 1989, "tx_norm": 7.7, "tx_rec": 14.6, "tx_rec_yr": 1984 }, "12-2": { "tn_rec": -9.2, "tn_rec_yr": 1973, "tn_norm": 2.9, "tn_high": 10.9, "tn_high_yr": 1985, "tx_low": -2.5, "tx_low_yr": 1989, "tx_norm": 7.6, "tx_rec": 14.2, "tx_rec_yr": 2018 }, "12-3": { "tn_rec": -8.6, "tn_rec_yr": 1989, "tn_norm": 2.7, "tn_high": 12.1, "tn_high_yr": 2018, "tx_low": -0.6, "tx_low_yr": 1991, "tx_norm": 7.4, "tx_rec": 14.4, "tx_rec_yr": 1954 }, "12-4": { "tn_rec": -6.3, "tn_rec_yr": 1962, "tn_norm": 2.5, "tn_high": 10.4, "tn_high_yr": 1985, "tx_low": 0.7, "tx_low_yr": 1950, "tx_norm": 7.3, "tx_rec": 15.7, "tx_rec_yr": 1953 }, "12-5": { "tn_rec": -8.3, "tn_rec_yr": 1962, "tn_norm": 2.5, "tn_high": 11.2, "tn_high_yr": 2006, "tx_low": -2.8, "tx_low_yr": 1995, "tx_norm": 7.2, "tx_rec": 14.7, "tx_rec_yr": 2006 }, "12-6": { "tn_rec": -5.3, "tn_rec_yr": 1962, "tn_norm": 2.4, "tn_high": 10.8, "tn_high_yr": 1979, "tx_low": -1.2, "tx_low_yr": 1995, "tx_norm": 7.1, "tx_rec": 14.0, "tx_rec_yr": 2007 }, "12-7": { "tn_rec": -5.8, "tn_rec_yr": 1969, "tn_norm": 2.4, "tn_high": 8.7, "tn_high_yr": 1985, "tx_low": -2.1, "tx_low_yr": 1969, "tx_norm": 7.1, "tx_rec": 15.9, "tx_rec_yr": 2000 }, "12-8": { "tn_rec": -6.4, "tn_rec_yr": 1980, "tn_norm": 2.3, "tn_high": 10.4, "tn_high_yr": 2025, "tx_low": -1.6, "tx_low_yr": 1980, "tx_norm": 7.0, "tx_rec": 14.5, "tx_rec_yr": 2025 }, "12-9": { "tn_rec": -9.3, "tn_rec_yr": 1945, "tn_norm": 2.1, "tn_high": 10.5, "tn_high_yr": 2025, "tx_low": -4.1, "tx_low_yr": 1945, "tx_norm": 7.0, "tx_rec": 14.1, "tx_rec_yr": 2025 }, "12-10": { "tn_rec": -9.5, "tn_rec_yr": 1969, "tn_norm": 2.1, "tn_high": 11.0, "tn_high_yr": 2025, "tx_low": -3.0, "tx_low_yr": 1969, "tx_norm": 7.0, "tx_rec": 14.6, "tx_rec_yr": 1961 }, "12-11": { "tn_rec": -12.0, "tn_rec_yr": 1967, "tn_norm": 2.0, "tn_high": 11.2, "tn_high_yr": 1961, "tx_low": -2.2, "tx_low_yr": 1967, "tx_norm": 6.9, "tx_rec": 14.6, "tx_rec_yr": 1961 }, "12-12": { "tn_rec": -8.7, "tn_rec_yr": 1968, "tn_norm": 2.0, "tn_high": 11.3, "tn_high_yr": 2000, "tx_low": -3.7, "tx_low_yr": 1968, "tx_norm": 6.9, "tx_rec": 14.3, "tx_rec_yr": 1998 }, "12-13": { "tn_rec": -8.0, "tn_rec_yr": 1968, "tn_norm": 2.1, "tn_high": 9.5, "tn_high_yr": 1994, "tx_low": -4.2, "tx_low_yr": 1968, "tx_norm": 7.0, "tx_rec": 13.1, "tx_rec_yr": 2003 }, "12-14": { "tn_rec": -10.2, "tn_rec_yr": 1968, "tn_norm": 2.1, "tn_high": 8.6, "tn_high_yr": 1972, "tx_low": -2.8, "tx_low_yr": 1968, "tx_norm": 6.9, "tx_rec": 13.8, "tx_rec_yr": 1989 }, "12-15": { "tn_rec": -11.9, "tn_rec_yr": 1963, "tn_norm": 2.1, "tn_high": 9.6, "tn_high_yr": 1948, "tx_low": -2.8, "tx_low_yr": 1963, "tx_norm": 6.9, "tx_rec": 13.6, "tx_rec_yr": 1989 }, "12-16": { "tn_rec": -10.0, "tn_rec_yr": 1946, "tn_norm": 2.2, "tn_high": 10.8, "tn_high_yr": 1956, "tx_low": -4.0, "tx_low_yr": 1946, "tx_norm": 7.0, "tx_rec": 15.0, "tx_rec_yr": 1989 }, "12-17": { "tn_rec": -9.8, "tn_rec_yr": 1946, "tn_norm": 2.3, "tn_high": 11.9, "tn_high_yr": 2015, "tx_low": -3.7, "tx_low_yr": 1981, "tx_norm": 7.1, "tx_rec": 14.9, "tx_rec_yr": 2015 }, "12-18": { "tn_rec": -8.4, "tn_rec_yr": 1946, "tn_norm": 2.4, "tn_high": 11.0, "tn_high_yr": 1965, "tx_low": -3.4, "tx_low_yr": 1946, "tx_norm": 7.1, "tx_rec": 14.0, "tx_rec_yr": 1987 }, "12-19": { "tn_rec": -8.0, "tn_rec_yr": 1946, "tn_norm": 2.4, "tn_high": 10.9, "tn_high_yr": 1993, "tx_low": -2.8, "tx_low_yr": 1969, "tx_norm": 7.1, "tx_rec": 14.4, "tx_rec_yr": 2015 }, "12-20": { "tn_rec": -11.2, "tn_rec_yr": 1946, "tn_norm": 2.4, "tn_high": 9.2, "tn_high_yr": 2022, "tx_low": -6.8, "tx_low_yr": 1946, "tx_norm": 7.1, "tx_rec": 13.9, "tx_rec_yr": 1989 }, "12-21": { "tn_rec": -12.3, "tn_rec_yr": 1946, "tn_norm": 2.4, "tn_high": 11.9, "tn_high_yr": 1989, "tx_low": -4.2, "tx_low_yr": 1946, "tx_norm": 7.1, "tx_rec": 14.6, "tx_rec_yr": 1989 }, "12-22": { "tn_rec": -7.6, "tn_rec_yr": 1946, "tn_norm": 2.4, "tn_high": 11.4, "tn_high_yr": 2020, "tx_low": -3.5, "tx_low_yr": 1946, "tx_norm": 7.0, "tx_rec": 14.1, "tx_rec_yr": 2015 }, "12-23": { "tn_rec": -9.7, "tn_rec_yr": 1962, "tn_norm": 2.4, "tn_high": 10.8, "tn_high_yr": 2020, "tx_low": -6.3, "tx_low_yr": 1946, "tx_norm": 7.0, "tx_rec": 14.2, "tx_rec_yr": 1977 }, "12-24": { "tn_rec": -11.0, "tn_rec_yr": 1963, "tn_norm": 2.4, "tn_high": 10.1, "tn_high_yr": 1977, "tx_low": -4.4, "tx_low_yr": 1962, "tx_norm": 6.9, "tx_rec": 13.2, "tx_rec_yr": 1977 }, "12-25": { "tn_rec": -9.3, "tn_rec_yr": 1961, "tn_norm": 2.4, "tn_high": 11.4, "tn_high_yr": 2023, "tx_low": -4.0, "tx_low_yr": 1962, "tx_norm": 6.8, "tx_rec": 14.4, "tx_rec_yr": 1997 }, "12-26": { "tn_rec": -10.0, "tn_rec_yr": 1948, "tn_norm": 2.2, "tn_high": 10.0, "tn_high_yr": 1974, "tx_low": -2.8, "tx_low_yr": 1961, "tx_norm": 6.6, "tx_rec": 13.8, "tx_rec_yr": 2015 }, "12-27": { "tn_rec": -12.7, "tn_rec_yr": 1964, "tn_norm": 2.3, "tn_high": 10.9, "tn_high_yr": 2002, "tx_low": -3.8, "tx_low_yr": 1962, "tx_norm": 6.6, "tx_rec": 13.1, "tx_rec_yr": 1994 }, "12-28": { "tn_rec": -10.0, "tn_rec_yr": 1996, "tn_norm": 2.2, "tn_high": 11.8, "tn_high_yr": 1994, "tx_low": -5.6, "tx_low_yr": 1996, "tx_norm": 6.5, "tx_rec": 14.2, "tx_rec_yr": 1955 }, "12-29": { "tn_rec": -17.3, "tn_rec_yr": 1964, "tn_norm": 2.0, "tn_high": 9.4, "tn_high_yr": 2012, "tx_low": -8.4, "tx_low_yr": 1950, "tx_norm": 6.4, "tx_rec": 13.8, "tx_rec_yr": 2021 }, "12-30": { "tn_rec": -14.0, "tn_rec_yr": 1950, "tn_norm": 1.9, "tn_high": 13.0, "tn_high_yr": 2021, "tx_low": -5.5, "tx_low_yr": 1950, "tx_norm": 6.4, "tx_rec": 16.0, "tx_rec_yr": 2022 }, "12-31": { "tn_rec": -12.4, "tn_rec_yr": 1978, "tn_norm": 1.9, "tn_high": 12.4, "tn_high_yr": 2022, "tx_low": -9.2, "tx_low_yr": 1978, "tx_norm": 6.4, "tx_rec": 16.1, "tx_rec_yr": 2022 } };
+
+
 
 
 
