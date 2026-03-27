@@ -801,12 +801,18 @@
 
         #icon-picker-modal .picker-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 12px;
             margin-top: 15px;
-            max-height: 380px;
+            max-height: 550px;
             overflow-y: auto;
             padding-right: 5px;
+        }
+
+        .manual-type-btn.active {
+            background: #FFD700 !important;
+            color: #000 !important;
+            border-color: #fff !important;
         }
 
         .picker-item {
@@ -1410,6 +1416,17 @@
                 </div>
             </div>
 
+            <!-- BOUTON CSV GLOBAL (TOUJOURS VISIBLE) -->
+            <div class="sidebar-section" style="border: 2px solid #2ecc71; background: rgba(46, 204, 113, 0.1); border-radius: 12px; padding: 10px; margin-bottom: 15px;">
+                <button onclick="generate7DayCSV()" class="sidebar-btn" id="csv-export-btn"
+                    style="background: #2ecc71; color: #fff; border: none; font-weight: 900; font-size: 14px; width: 100%; transition: transform 0.2s;">
+                    <i class="fas fa-file-csv"></i> GÉNÉRER CSV (7 JOURS)
+                </button>
+                <div style="font-size: 10px; color: #2ecc71; margin-top: 5px; font-weight: bold; text-align: center; letter-spacing: 0.5px; text-transform: uppercase;">
+                    Export 31 villes Master
+                </div>
+            </div>
+
             <div id="commune-search-section" class="sidebar-section" style="display:none;">
                 <h3>RECHERCHE COMMUNE</h3>
                 <div class="search-container">
@@ -1418,6 +1435,15 @@
                     <button class="search-btn" onclick="searchCommune()"><i class="fas fa-search"></i></button>
                 </div>
                 <div id="search-results" style="margin-top: 10px; font-size: 12px; color: #FFD700;"></div>
+                
+                <div id="commune-actions" style="display:none; flex-direction:column; gap:8px; margin-top:20px; border-top:1px solid rgba(255,215,0,0.3); padding-top:15px;">
+                    <button class="sidebar-btn" onclick="exportCommuneJPG()" style="background:#f39c12; color:white; border-color:#e67e22;">
+                        <i class="fas fa-file-image"></i> EXPORT IMAGE (15J)
+                    </button>
+                    <button class="sidebar-btn" onclick="exportCommunePDF()">
+                        <i class="fas fa-file-pdf"></i> PDF EXPERT
+                    </button>
+                </div>
             </div>
 
             <!-- Groupe supprimé ou remplacé pour l'onglet manuel -->
@@ -1590,10 +1616,18 @@
                             LA LÉGENDE
                         </label>
 
-                        <button id="btn-toggle-fog" onclick="toggleFogMode()"
-                            style="padding:6px; font-size:0.75rem; margin-top:2px; background:#444; border-radius:4px; color:#fff; border:1px solid #666; width:fit-content;">
-                            <i class="fas fa-smog"></i> PIC TO BROUILLARD
-                        </button>
+                        <div id="manual-marker-ui" style="display:flex; flex-direction:column; gap:5px; margin-top:5px; padding:8px; background:rgba(255,255,255,0.05); border-radius:6px; border:1px solid #444;">
+                            <div style="font-size:10px; color:#FFD700; font-weight:bold; margin-bottom:2px;">PICTO MANUEL (SURCOUCHE)</div>
+                            <div style="display:flex; gap:3px;">
+                                <button onclick="setManualType(12, this)" class="manual-type-btn active" title="Brouillard" style="padding:4px; margin:0; flex:1; background:#444; border:1px solid #666; font-size:12px;"><i class="fas fa-smog"></i></button>
+                                <button onclick="setManualType(10, this)" class="manual-type-btn" title="Orage" style="padding:4px; margin:0; flex:1; background:#444; border:1px solid #666; font-size:12px;"><i class="fas fa-bolt"></i></button>
+                                <button onclick="setManualType(11, this)" class="manual-type-btn" title="Orage/Grêle" style="padding:4px; margin:0; flex:1; background:#444; border:1px solid #666; font-size:12px;"><i class="fas fa-cloud-meatball"></i></button>
+                                <button onclick="setManualType(9, this)" class="manual-type-btn" title="Neige" style="padding:4px; margin:0; flex:1; background:#444; border:1px solid #666; font-size:12px;"><i class="fas fa-snowflake"></i></button>
+                            </div>
+                            <button id="btn-toggle-fog" onclick="toggleFogMode()" style="padding:8px; font-size:0.8rem; margin-top:5px; background:#444; border-radius:4px; color:#fff; border:1px solid #666; width:100%; font-weight:bold;">
+                                <i class="fas fa-mouse-pointer"></i> ACTIVER POSE MANUELLE
+                            </button>
+                        </div>
                         <label
                             style="font-size:11px; color:#FFD700; cursor:pointer; display:flex; align-items:center; gap:10px">
                             <input type="checkbox" id="show-logo-check" onchange="toggleLogo();" checked> AFFICHER LE
@@ -1621,6 +1655,9 @@
                             <input type="checkbox" id="show-anchors-check" onchange="updateDisplay();" checked>
                             VOIR LES PILIERS (ANCRAGES)
                         </label>
+                        <button onclick="openIconPicker('all')" class="sidebar-btn" style="margin-top:10px; background:#444; color:#FFD700; border:1px solid #FFD700; padding:10px; font-size:0.85rem">
+                            <i class="fas fa-fill-drip"></i> REMPLIR TOUTE LA CARTE
+                        </button>
                         <label
                             style="font-size:11px; color:#FFD700; cursor:pointer; display:flex; align-items:center; gap:10px">
                             <input type="checkbox" id="freeze-map-check" onchange="toggleMapFreeze();" checked> 🔒 FIGER
@@ -1844,7 +1881,6 @@
                     { name: "CHERBOURG", lat: 49.63, lon: -1.62 },
                     { name: "ROUEN", lat: 49.44, lon: 1.10 },
                     { name: "PARIS", lat: 48.85, lon: 2.35 },
-                    { name: "AMIENS", lat: 49.89, lon: 2.29 },
                     { name: "LILLE", lat: 50.62, lon: 3.05 },
                     { name: "REIMS", lat: 49.25, lon: 4.03 },
                     { name: "METZ", lat: 49.11, lon: 6.17 },
@@ -1857,7 +1893,6 @@
                     { name: "BELFORT", lat: 47.63, lon: 6.86 },
                     { name: "LIMOGES", lat: 45.83, lon: 1.26 },
                     { name: "VICHY", lat: 46.12, lon: 3.42 },
-                    { name: "CHALON/S.", lat: 46.78, lon: 4.85 },
                     { name: "LYON", lat: 45.76, lon: 4.83 },
                     { name: "PONTARLIER", lat: 46.90, lon: 6.35 },
                     { name: "LA ROCHELLE", lat: 46.16, lon: -1.15 },
@@ -1873,15 +1908,12 @@
                     { name: "MARSEILLE", lat: 43.29, lon: 5.36 },
                     { name: "NICE", lat: 43.71, lon: 7.26 },
                     { name: "AJACCIO", lat: 41.92, lon: 8.73 },
-                    { name: "BASTIA", lat: 42.69, lon: 9.45 },
-                    { name: "ALENÇON", lat: 48.43, lon: 0.09 },
-                    { name: "BOURG-ST-M.", lat: 45.62, lon: 6.77 }
+                    { name: "BASTIA", lat: 42.69, lon: 9.45 }
                 ]
             },
             cnews: {
                 id: 'cnews', name: "CNEWS", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/france.geojson', padding: [15, 15, 15, 15], center: [46.5, 2.5], zoom: 6, cities: [
                     { name: "LILLE", lat: 50.62, lon: 3.05 },
-                    { name: "LAON", lat: 49.56, lon: 3.62 },
                     { name: "ROUEN", lat: 49.44, lon: 1.10 },
                     { name: "CAEN", lat: 49.18, lon: -0.37 },
                     { name: "BREST", lat: 48.39, lon: -4.48 },
@@ -1889,7 +1921,6 @@
                     { name: "NANTES", lat: 47.21, lon: -1.55 },
                     { name: "PARIS", lat: 48.85, lon: 2.35 },
                     { name: "TOURS", lat: 47.39, lon: 0.68 },
-                    { name: "POITIERS", lat: 46.58, lon: 0.34 },
                     { name: "LA ROCHELLE", lat: 46.16, lon: -1.15 },
                     { name: "BORDEAUX", lat: 44.83, lon: -0.57 },
                     { name: "BIARRITZ", lat: 43.48, lon: -1.56 },
@@ -1905,28 +1936,11 @@
                     { name: "BESANÇON", lat: 47.23, lon: 6.02 },
                     { name: "DIJON", lat: 47.32, lon: 5.04 },
                     { name: "LYON", lat: 45.76, lon: 4.83 },
-                    { name: "GRENOBLE", lat: 45.18, lon: 5.72 },
                     { name: "LIMOGES", lat: 45.83, lon: 1.26 },
                     { name: "AURILLAC", lat: 44.92, lon: 2.44 },
                     { name: "CLERMONT-FERRAND", lat: 45.78, lon: 3.08 },
                     { name: "BOURGES", lat: 47.08, lon: 2.39 },
-                    { name: "Gorges du Tarn Causses", lat: 44.318, lon: 3.447, isAnchor: true },
-                    { name: "Saint-Paul-de-Jarrat", lat: 42.913, lon: 1.636, isAnchor: true },
-                    { name: "Puylagarde", lat: 44.298, lon: 1.837, isAnchor: true },
-                    { name: "Novacelles", lat: 45.437, lon: 3.651, isAnchor: true },
-                    { name: "Moirans", lat: 45.325, lon: 5.565, isAnchor: true },
-                    { name: "Empuré", lat: 46.024, lon: 0.054, isAnchor: true },
-                    { name: "La Roche-Posay", lat: 46.784, lon: 0.814, isAnchor: true },
-                    { name: "Moux-en-Morvan", lat: 47.171, lon: 4.155, isAnchor: true },
-                    { name: "Berné", lat: 47.994, lon: -3.391, isAnchor: true },
-                    { name: "Attray", lat: 48.219, lon: 2.11, isAnchor: true },
-                    { name: "Faux-Fresnay", lat: 48.748, lon: 3.921, isAnchor: true },
-                    { name: "Fontenoy-la-Joute", lat: 48.453, lon: 6.66, isAnchor: true },
-                    { name: "Clermont-en-Argonne", lat: 49.102, lon: 5.071, isAnchor: true },
-                    { name: "Castine-en-Plaine", lat: 49.13, lon: -0.31, isAnchor: true },
-                    { name: "Boulogne-sur-Mer", lat: 50.726, lon: 1.614, isAnchor: true },
-                    { name: "Prémont", lat: 50.012, lon: 3.414, isAnchor: true },
-                    { name: "Morannes-sur-Sarthe-Daumeray", lat: 47.644, lon: -0.416, isAnchor: true }
+                    { name: "VALENCE", lat: 44.93, lon: 4.89 }
                 ]
             }
         };
@@ -1934,43 +1948,40 @@
 
         // MAPPING WMO OPEN-METEO VERS NOS 12 PICTOGRAMMES (P1 à P12)
         const wmoMapping = {
-            0: 0,   // P1 (Beau temps)
-            1: 1,   // P2 (Peu Nuageux)
-            2: 2,   // P3 (Nuageux)
-            3: 71,  // P6 (Couvert) - WMO 3 est Overcast
-            45: 71, // P6 (Brouillard -> Couvert)
-            48: 71, // P6 (Givrant -> Couvert)
-            53: 51, 55: 51, // P7 (Bruine -> Pluie Faible)
-            56: 51, 57: 51, // P7 (Bruine Verg -> Pluie Faible)
-            61: 51, 63: 51, // P7 (Pluie / Pluie Modérée)
-            65: 61, // P8 (Pluie Forte)
-            66: 61, 67: 61, // P8 (Pluie Verg -> Pluie Forte)
-            71: 95, 73: 95, 75: 95, 77: 95, // P12 (Neige) - Code arbitraire 95 utilisé comme ID interne P12
-            80: 45, // P5 (Averses) - Code 45 utilisé comme ID P5
-            81: 45, 82: 45, // P5 (Averses)
-            85: 81, 86: 81, // P11 (Averses Neige) - Code 81 utilisé comme ID P11
-            95: 65, // P9 (Orages) - Code 65 utilisé comme ID P9
-            96: 80, 99: 80  // P10 (Orages Grêle) - Code 80 utilisé comme ID P10
+            0: 0,    // P1 (Soleil)
+            1: 1,    // P2 (Peu nuageux)
+            2: 2,    // P8 (Nuageux)
+            3: 4,    // P5 (Couvert)
+            45: 12,  // Brouillard
+            48: 12,  // Brouillard givrant
+            51: 7, 53: 7, 55: 7, // Drizzle -> P10 (Pluies faibles)
+            56: 7, 57: 7,
+            61: 7, 63: 7,        // Rain -> P10 (Pluies faibles)
+            65: 8,               // Heavy Rain -> P11 (Fortes pluies)
+            66: 7, 67: 7,
+            71: 9, 73: 9, 75: 9, 77: 9, // Snow -> P12 (Neige)
+            80: 6, 81: 6, 82: 6,        // Showers -> P9 (Averses)
+            85: 9, 86: 9,               // Snow Showers -> P12 (Neige)
+            95: 7, 96: 7, 99: 7         // Orages -> P10 (Pluies faibles) par défaut (Demande utilisateur)
         };
 
         // LES 12 CATÉGORIES UNIQUES POUR LE PICKER (P1 à P12)
         // Les 'code' ici servent d'identifiants internes pour la logique de mapping ci-dessus.
         // P1=0, P2=1, P3=2, P4=3, P5=45, P6=71, P7=51, P8=61, P9=65, P10=80, P11=81, P12=95
         const weatherCodes = [
-            { code: 0, label: "P1", icon: "fa-sun", color: "#FF0000", emoji: "☀️", img: "P1.png" },       // P1 -> Rouge
-            { code: 1, label: "P2", icon: "fa-cloud-sun", color: "#FF7F00", emoji: "🌤️", img: "P2.png" }, // P2 -> Orange
-            { code: 2, label: "P3", icon: "fa-cloud-sun", color: "#FFFF00", emoji: "⛅", img: "P3.png" },     // P3 -> Jaune
-            { code: 3, label: "P4", icon: "fa-cloud", color: "#7FFF00", emoji: "☁️", img: "P4.png" },    // P4 -> Vert clair
-            { code: 45, label: "P5", icon: "fa-cloud-sun-rain", color: "#00FF00", emoji: "🌦️", img: "P5.png" }, // P5 -> Vert
-            { code: 71, label: "P6", icon: "fa-cloud", color: "#00FF7F", emoji: "☁️", img: "P6.png" },        // P6 -> Turquoise
-            { code: 51, label: "P7", icon: "fa-cloud-rain", color: "#00FFFF", emoji: "🌧️", img: "P7.png" }, // P7 -> Cyan
-            { code: 61, label: "P8", icon: "fa-cloud-showers-heavy", color: "#007FFF", emoji: "🌧️", img: "P8.png" }, // P8 -> Bleu clair
-            { code: 65, label: "P9", icon: "fa-bolt", color: "#0000FF", emoji: "⚡", img: "P9.png" },       // P9 -> Bleu
-            { code: 80, label: "P10", icon: "fa-cloud-meatball", color: "#7F00FF", emoji: "⛈️", img: "P10.png" }, // P10 -> Violet
-            { code: 81, label: "P11", icon: "fa-snowflake", color: "#FF00FF", emoji: "🌨️", img: "P11.png" }, // P11 -> Magenta
-            { code: 95, label: "P12", icon: "fa-snowflake", color: "#FF007F", emoji: "❄️", img: "P12.png" },      // P12 -> Rose
-            { code: 13, label: "P13", icon: "fa-cloud-sun", color: "#808080", emoji: "🌤️", img: "P13.png" }, // P13 -> Gris (Soleil Voilé)
-            { code: 14, label: "P14", icon: "fa-smog", color: "#ccc", emoji: "🌫️", img: "P14.png" }      // P14 -> Brouillard
+            { code: 0, label: "P1 (soleil)", icon: "fa-sun", color: "#FF0000", emoji: "☀️", img: "P1 (soleil).png" },
+            { code: 1, label: "P2 (peu nuageux)", icon: "fa-cloud-sun", color: "#00FF00", emoji: "🌤️", img: "P2 (peu nuageux).png" },
+            { code: 2, label: "P8 (nuageux)", icon: "fa-cloud-sun", color: "#0000FF", emoji: "⛅", img: "P8 (nuageux).png" },
+            { code: 3, label: "P4 (très nuageux)", icon: "fa-cloud", color: "#00A0E3", emoji: "☁️", img: "P4 (très nuageux).png" },
+            { code: 4, label: "P5 (couvert)", icon: "fa-cloud", color: "#F5B2B6", emoji: "☁️", img: "P5 (couvert).png" },
+            { code: 5, label: "P6 (soleil voilé)", icon: "fa-cloud-sun", color: "#8A00FF", emoji: "🌤️", img: "P6 (soleil voilé).png" },
+            { code: 6, label: "P9 (averses)", icon: "fa-cloud-sun-rain", color: "#FF1493", emoji: "🌦️", img: "P9 (averses).png" },
+            { code: 7, label: "P10 (pluies faibles)", icon: "fa-cloud-rain", color: "#FF00FF", emoji: "🌧️", img: "P10 (pluies faibles).png" },
+            { code: 8, label: "P11 (fortes pluies)", icon: "fa-cloud-showers-heavy", color: "#00FFFF", emoji: "🌧️", img: "P11 (fortes pluies).png" },
+            { code: 9, label: "P12 (neige)", icon: "fa-snowflake", color: "#FF6A00", emoji: "🌨️", img: "P12 (neige).png" },
+            { code: 10, label: "orages", icon: "fa-bolt", color: "#0000FF", emoji: "⚡", img: "orages.png" },
+            { code: 11, label: "Orages accompagnés de grêle", icon: "fa-cloud-meatball", color: "#7F00FF", emoji: "⛈️", img: "Orages accompagnés de grêle.png" },
+            { code: 12, label: "brouillards", icon: "fa-smog", color: "#ccc", emoji: "🌫️", img: "brouillards.png" }
         ];
 
         let map, markersGroup, drawingGroup, autoZoningGroup, fogGroup, geoLayer = null, maskLayer = null, globalWeatherData = null, currentConfig = zoneConfigs.france_pictos, globalGeoBoundary = null, globalBoundaryPolygon = null;
@@ -1979,7 +1990,7 @@
         let suppressedAutoZones = new Set();
         let currentPickingCityIndex = null;
         let selectedMarkerIndices = new Set();
-        let isDrawingMode = false, isFogMode = false, curvePoints = [], tempLine = null, tempMarkers = [], currentDrawColor = '#ff4d4d', manualFogMarkers = [], forceShowOverlays = false, isExporting = false;
+        let isDrawingMode = false, isFogMode = false, curvePoints = [], tempLine = null, tempMarkers = [], currentDrawColor = '#ff4d4d', manualSpecialMarkers = [], selectedManualType = 12, forceShowOverlays = false, isExporting = false;
 
         async function initLeafletMap() {
             if (map) return;
@@ -2023,28 +2034,9 @@
             // LOGIQUE CLIC CARTE (DESSIN OU BROUILLARD)
             map.on('click', (e) => {
                 if (isFogMode) {
-                    const fogData = { lat: e.latlng.lat, lon: e.latlng.lng, id: Date.now() };
-                    manualFogMarkers.push(fogData);
-
-                    const marker = L.marker(e.latlng, {
-                        icon: L.divIcon({
-                            className: 'fog-manual-marker',
-                            html: `<div class="weather-icon-large">${getWeatherIcon(14, 'custom')}</div>`,
-                            iconSize: [80, 80],
-                            iconAnchor: [40, 40]
-                        }),
-                        interactive: true,
-                        pane: 'manualMarkersPane'
-                    }).addTo(fogGroup); // Groupe dédié brouillard
-
-                    marker.manualFogId = fogData.id;
-
-                    // Permettre la suppression au clic
-                    marker.on('click', function (ev) {
-                        L.DomEvent.stopPropagation(ev);
-                        openDeleteZoneModal(this, null);
-                    });
-
+                    const picData = { lat: e.latlng.lat, lon: e.latlng.lng, id: Date.now(), type: selectedManualType };
+                    manualSpecialMarkers.push(picData);
+                    updateAutoZoning();
                     return;
                 }
 
@@ -2189,8 +2181,8 @@
                 if (elementToDelete.isAutoZone) {
                     suppressedAutoZones.add(elementToDelete.autoZoneSig);
                     updateDisplay();
-                } else if (elementToDelete.manualFogId) {
-                    manualFogMarkers = manualFogMarkers.filter(m => m.id !== elementToDelete.manualFogId);
+                } else if (elementToDelete.manualPicId) {
+                    manualSpecialMarkers = manualSpecialMarkers.filter(m => m.id !== elementToDelete.manualPicId);
                     fogGroup.removeLayer(elementToDelete);
                 } else {
                     drawingGroup.removeLayer(elementToDelete);
@@ -2250,25 +2242,42 @@
         }
 
         function toggleFogMode() {
+            if (isDrawingMode) toggleDrawingMode();
             isFogMode = !isFogMode;
             const btn = document.getElementById('btn-toggle-fog');
-
+            
             if (isFogMode) {
-                btn.style.background = '#FFD700';
-                btn.style.color = '#000';
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-check"></i> TERMINER LA POSE';
+                    btn.style.background = '#e74c3c';
+                    btn.style.color = '#fff';
+                }
                 document.getElementById('map').classList.add('cursor-draw');
                 map.dragging.disable();
-
-                // Désactiver le mode dessin si actif
-                if (isDrawingMode) toggleDrawingMode();
             } else {
-                btn.style.background = '#444';
-                btn.style.color = '#fff';
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-mouse-pointer"></i> ACTIVER POSE MANUELLE';
+                    btn.style.background = '#444';
+                    btn.style.color = '#fff';
+                }
                 document.getElementById('map').classList.remove('cursor-draw');
-
                 if (!document.getElementById('freeze-map-check').checked) {
                     map.dragging.enable();
                 }
+            }
+        }
+
+        function setManualType(type, btn) {
+            selectedManualType = type;
+            document.querySelectorAll('.manual-type-btn').forEach(b => {
+                b.classList.remove('active');
+                b.style.background = '#444';
+                b.style.borderColor = '#666';
+            });
+            if (btn) {
+                btn.classList.add('active');
+                btn.style.background = '#FFD700';
+                btn.style.borderColor = '#fff';
             }
         }
 
@@ -2299,7 +2308,7 @@
             curvePoints = [];
             tempMarkers = [];
             tempLine = null;
-            manualFogMarkers = []; // Reset complet des brouillards manuels
+            manualSpecialMarkers = []; // Reset complet des marqueurs spéciaux (brouillards/orages/neige)
         }
 
         // ALGORITHME CONVEX HULL (Monotone Chain)
@@ -2352,24 +2361,23 @@
         }
 
         function updateAutoZoning(markerData, gustsOverlay = [], showOverlays = false) {
-            autoZoningGroup.clearLayers(); // Ne touche PAS fogGroup
+            autoZoningGroup.clearLayers();
 
-            // --- BROUILLARDS (groupe dédié, toujours synchronisé) ---
-            // Rafraîchir fogGroup depuis manualFogMarkers
+            // --- PICTOGRAMMES MANUELS (SYSTÈME GÉNÉRIQUE : Brouillard, Orage, Grêle, Neige) ---
             if (fogGroup) {
                 fogGroup.clearLayers();
-                manualFogMarkers.forEach(fog => {
-                    const marker = L.marker([fog.lat, fog.lon], {
+                manualSpecialMarkers.forEach(pic => {
+                    const marker = L.marker([pic.lat, pic.lon], {
                         icon: L.divIcon({
                             className: 'fog-manual-marker',
-                            html: `<div class="weather-icon-large">${getWeatherIcon(14, 'custom')}</div>`,
+                            html: `<div class="weather-icon-large">${getWeatherIcon(pic.type, 'custom')}</div>`,
                             iconSize: [80, 80],
                             iconAnchor: [40, 40]
                         }),
                         interactive: true,
                         pane: 'manualMarkersPane'
                     }).addTo(fogGroup);
-                    marker.manualFogId = fog.id;
+                    marker.manualPicId = pic.id;
                     marker.on('click', function (ev) {
                         L.DomEvent.stopPropagation(ev);
                         openDeleteZoneModal(this, null);
@@ -2411,7 +2419,7 @@
                 labelGroups[zLabel].points.push(L.latLng(d.lat, d.lon));
             });
 
-            const priorityColors = ['#FF0000', '#FF7F00', '#FFFF00', '#7FFF00', '#00FF00', '#00FF7F', '#00FFFF', '#007FFF', '#0000FF', '#7F00FF', '#FF00FF', '#FF007F', '#808080'];
+            const priorityColors = ['#FF0000', '#00FF00', '#0000FF', '#00A0E3', '#F5B2B6', '#8A00FF', '#FF1493', '#FF00FF', '#00FFFF', '#FF6A00', '#7F00FF', '#ccc'];
             const rawPolygonsByColor = {};
 
             // 2. Génération des enveloppes par cluster individuel
@@ -3150,7 +3158,11 @@
                 const iconHtml = getWeatherIcon(item.code, bank);
                 div.innerHTML = `<div class="weather-icon-large">${iconHtml}</div><span style="font-size:12px; font-weight:bold; color:#FFD700; margin-top:5px;">${item.label}</span>`;
                 div.onclick = () => {
-                    if (selectedMarkerIndices.size > 0) {
+                    if (cityIdx === 'all') {
+                        currentConfig.cities.forEach((_, idx) => {
+                            manualWeatherOverrides[idx] = item.code;
+                        });
+                    } else if (selectedMarkerIndices.size > 0) {
                         selectedMarkerIndices.forEach(idx => {
                             manualWeatherOverrides[idx] = item.code;
                         });
@@ -3205,50 +3217,56 @@
         function getBankClass(bank) { return 'bank-' + bank; }
 
         function getWeatherIcon(code, bank) {
-            // CUSTOM PICTOGRAMMES
-            if (bank === 'custom') {
-                const codeData = weatherCodes.find(c => c.code === code);
-                if (codeData && codeData.img) {
-                    // Suppression du cacheBuster pour utiliser le cache navigateur et gagner en fluidité
-                    return `<img src="pictogramme/${codeData.img}" alt="${codeData.label}" style="background-color:transparent;" onerror="this.onerror=null;this.src='';this.alt='ERR';">`;
-                }
+            // Sécurité : conversion en nombre si nécessaire
+            const cNum = parseInt(code);
+            const codeData = weatherCodes.find(c => c.code === cNum);
+
+            // 1. BANQUE CUSTOM (PNG du dossier pictogramme)
+            if (bank === 'custom' && codeData && codeData.img) {
+                return `<img src="pictogramme/${encodeURI(codeData.img)}" alt="${codeData.label}" style="background-color:transparent;" onerror="this.onerror=null;this.src='';this.alt='ERR';">`;
             }
 
+            // 2. BANQUE EMOJI
+            if (bank === 'emoji') {
+                if (codeData && codeData.emoji) return `<span style="font-size:38px;">${codeData.emoji}</span>`;
+                const eMap = { 0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️', 4: '☁️', 5: '🌤️', 6: '🌦️', 7: '🌧️', 8: '🌧️', 9: '❄️', 10: '⚡', 11: '⛈️', 12: '🌫️' };
+                return `<span style="font-size:38px;">${eMap[cNum] || '❓'}</span>`;
+            }
+
+            // 3. BANQUES ICON & FLAT (FontAwesome)
             const sunCol = (bank === 'flat') ? "#fff" : "#FFD700";
             const rainCol = (bank === 'flat') ? "#fff" : "#4db8ff";
+            const cloudCol = (bank === 'flat') ? "#fff" : "#ddd";
+            const snowCol = (bank === 'flat') ? "#fff" : "#80d4ff";
 
-            // Emoji Fallback
-            if (bank === 'emoji') {
-                const map = { 0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️', 45: '🌫️', 48: '❄️', 51: '🌦️', 61: '🌧️', 65: '🌧️', 80: '🌦️', 81: '🌧️', 95: '⚡' };
-                return `<span style="font-size:38px;">${map[code] || '❓'}</span>`;
-            }
-
-            // AVERSES SOLEIL (Code 80) -> Superposition CSS Stable (Test 2/7)
-            if (code === 80) {
+            // Cas complexe : Averses sous soleil (mapping interne si code 6 ou 80)
+            if (cNum === 6 || cNum === 80) {
                 return `<div class="icon-stack-expert"><span class="sun-wrap"><i class="fas fa-sun" style="color:${sunCol}"></i></span><span class="cloud-wrap"><i class="fas fa-cloud-showers-heavy" style="color:${rainCol}"></i></span></div>`;
             }
 
-            // MAPPING STANDARD RESTAURÉ
             let icon = 'fa-cloud';
-            let col = "#aaa"; // Default grey for overcast
+            let col = "#aaa";
 
-            if (code === 0) { icon = 'fa-sun'; col = sunCol; } // Soleil
-            else if (code === 1) { icon = 'fa-cloud-sun'; col = sunCol; } // Peu Nuageux
-            else if (code === 2) { icon = 'fa-cloud-sun'; col = "#ddd"; } // Voilé (Gris clair/Blanc)
-            else if (code === 3) { icon = 'fa-cloud'; col = "#aaa"; } // Couvert
-            else if (code === 45) { icon = 'fa-smog'; col = "#ccc"; } // Brouillard
-            else if (code === 48) { icon = 'fa-snowflake'; col = "#80d4ff"; } // Givrant
-            else if (code === 51) { icon = 'fa-cloud-rain'; col = rainCol; } // Bruine
-            else if (code === 61) { icon = 'fa-cloud-rain'; col = rainCol; } // Pluie Faible
-            else if (code === 65) { icon = 'fa-cloud-showers-heavy'; col = rainCol; } // Pluie Forte
-            else if (code === 81) { icon = 'fa-cloud-showers-heavy'; col = "#0099ff"; } // Averses (Darker Blue)
-            else if (code === 95) { icon = 'fa-bolt'; col = sunCol; } // Orage
+            if (cNum === 0) { icon = 'fa-sun'; col = sunCol; }
+            else if (cNum === 1) { icon = 'fa-cloud-sun'; col = sunCol; }
+            else if (cNum === 2) { icon = 'fa-cloud'; col = cloudCol; }
+            else if (cNum === 3) { icon = 'fa-cloud'; col = "#bbb"; }
+            else if (cNum === 4) { icon = 'fa-cloud'; col = "#999"; }
+            else if (cNum === 5) { icon = 'fa-cloud-sun'; col = "#808080"; }
+            else if (cNum === 6) { icon = 'fa-cloud-sun-rain'; col = rainCol; }
+            else if (cNum === 7) { icon = 'fa-cloud-rain'; col = rainCol; }
+            else if (cNum === 8) { icon = 'fa-cloud-showers-heavy'; col = rainCol; }
+            else if (cNum === 9) { icon = 'fa-snowflake'; col = snowCol; }
+            else if (cNum === 10) { icon = 'fa-bolt'; col = sunCol; }
+            else if (cNum === 11) { icon = 'fa-poo-storm'; col = sunCol; }
+            else if (cNum === 12) { icon = 'fa-smog'; col = "#ccc"; }
+            // Support des codes WMO directs pour compatibilité
+            else if (cNum === 45) { icon = 'fa-smog'; col = "#ccc"; }
+            else if (cNum === 61 || cNum === 63) { icon = 'fa-cloud-rain'; col = rainCol; }
+            else if (cNum === 65) { icon = 'fa-cloud-showers-heavy'; col = rainCol; }
+            else if (cNum === 95) { icon = 'fa-bolt'; col = sunCol; }
 
-
-
-            // Flat override
             if (bank === 'flat') col = "#fff";
-
             return `<i class="fas ${icon}" style="color:${col}"></i>`;
         }
 
@@ -3475,7 +3493,7 @@
                 // On l'active si on a bcp de nuages hauts (>30%) ET que les nuages bas/moyens sont peu présents (<40%)
                 // Même si le code brut est 3 (Couvert), s'il n'y a que des nuages hauts, c'est un voile.
                 if (rawCode <= 3 && highCloud > 30 && lowCloud < 40 && midCloud < 40) {
-                    mappedCode = 13;
+                    mappedCode = 5;
                 }
 
                 // Override manuel (prioritaire)
@@ -4356,20 +4374,31 @@
                 const midCloud = hourlyData.cloud_cover_mid[idx];
 
                 // Si bcp de nuages hauts et peu de nuages bas/moyens, c'est un voile
-                if (rawCode <= 3 && highCloud > 30 && lowCloud < 40 && midCloud < 40) return 'P13.png';
+                if (rawCode <= 3 && highCloud > 30 && lowCloud < 40 && midCloud < 40) return 'P6 (soleil voilé).png';
             }
 
             // Mapping WMO -> Nos fichiers P1.png etc.
             const map = {
-                0: 'P1.png', 1: 'P2.png', 2: 'P3.png', 3: 'P4.png',
-                13: 'P13.png',
-                45: 'P6.png', 48: 'P6.png',
-                51: 'P7.png', 53: 'P7.png', 55: 'P7.png',
-                61: 'P7.png', 63: 'P7.png', 65: 'P8.png',
-                80: 'P5.png', 81: 'P5.png', 82: 'P5.png',
-                95: 'P9.png', 96: 'P10.png', 99: 'P10.png'
+                0: 'P1 (soleil).png', 
+                1: 'P2 (peu nuageux).png', 
+                2: 'P8 (nuageux).png', 
+                3: 'P4 (très nuageux).png',
+                5: 'P6 (soleil voilé).png', // P13 mapped to P6
+                13: 'P6 (soleil voilé).png',
+                45: 'brouillards.png', 48: 'brouillards.png',
+                51: 'P10 (pluies faibles).png', 53: 'P10 (pluies faibles).png', 55: 'P10 (pluies faibles).png',
+                61: 'P10 (pluies faibles).png', 63: 'P10 (pluies faibles).png', 65: 'P11 (fortes pluies).png',
+                80: 'P9 (averses).png', 81: 'P9 (averses).png', 82: 'P9 (averses).png',
+                95: 'P10 (pluies faibles).png', 96: 'P10 (pluies faibles).png', 99: 'P10 (pluies faibles).png'
             };
-            return map[code] || 'P1.png';
+            // Fallback pour les codes remappés via wmoMapping si appelés ici
+            const idMap = {
+                0: 'P1 (soleil).png', 1: 'P2 (peu nuageux).png', 2: 'P8 (nuageux).png', 3: 'P4 (très nuageux).png',
+                4: 'P5 (couvert).png', 5: 'P6 (soleil voilé).png', 6: 'P9 (averses).png', 7: 'P10 (pluies faibles).png',
+                8: 'P11 (fortes pluies).png', 9: 'P12 (neige).png', 10: 'orages.png', 11: 'Orages accompagnés de grêle.png',
+                12: 'brouillards.png'
+            };
+            return idMap[code] || map[code] || 'P1 (soleil).png';
         }
 
         function initCommuneCharts(data) {
@@ -4589,10 +4618,10 @@
                     const periodValue = document.getElementById('period-select')?.value || 'day';
 
                     const hasStrongGusts = lastZoningGusts.some(g => g.val >= 60);
-                    const hasFog = manualFogMarkers.length > 0;
+                    const hasSpecialMarkers = manualSpecialMarkers.length > 0;
                     const isAfternoonJ3Plus = (dayIdxValue > 3) || (dayIdxValue === 3 && (periodValue === 'afternoon' || periodValue === 'evening' || periodValue === 'day'));
 
-                    if (hasStrongGusts || hasFog || isAfternoonJ3Plus) {
+                    if (hasStrongGusts || hasSpecialMarkers || isAfternoonJ3Plus) {
                         document.getElementById('loading-text').innerText = "GÉNÉRATION SURCOUCHES...";
                         autoZoningCheck.checked = false;
                         hideMarkersCheck.checked = true;
@@ -4640,6 +4669,156 @@
                 if (wasPaletteVisible) palette.style.display = 'flex';
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('loading-text').innerText = "CHARGEMENT...";
+                isExporting = false;
+            }
+        }
+
+        const MASTER_CSV_CITIES = [
+            { name: "Lille", lat: 50.62, lon: 3.05 },
+            { name: "Laon", lat: 49.56, lon: 3.62 },
+            { name: "Rouen", lat: 49.44, lon: 1.10 },
+            { name: "Caen", lat: 49.18, lon: -0.37 },
+            { name: "Brest", lat: 48.39, lon: -4.48 },
+            { name: "Rennes", lat: 48.11, lon: -1.67 },
+            { name: "Nantes", lat: 47.21, lon: -1.55 },
+            { name: "Paris", lat: 48.85, lon: 2.35 },
+            { name: "Tours", lat: 47.39, lon: 0.68 },
+            { name: "Poitiers", lat: 46.58, lon: 0.34 },
+            { name: "La Rochelle", lat: 46.16, lon: -1.15 },
+            { name: "Bordeaux", lat: 44.83, lon: -0.57 },
+            { name: "Biarritz", lat: 43.48, lon: -1.56 },
+            { name: "Toulouse", lat: 43.60, lon: 1.44 },
+            { name: "Perpignan", lat: 42.69, lon: 2.89 },
+            { name: "Montpellier", lat: 43.61, lon: 3.87 },
+            { name: "Marseille", lat: 43.29, lon: 5.36 },
+            { name: "Nice", lat: 43.71, lon: 7.26 },
+            { name: "Bastia", lat: 42.69, lon: 9.45 },
+            { name: "Ajaccio", lat: 41.92, lon: 8.73 },
+            { name: "Metz", lat: 49.11, lon: 6.17 },
+            { name: "Strasbourg", lat: 48.57, lon: 7.75 },
+            { name: "Besançon", lat: 47.23, lon: 6.02 },
+            { name: "Dijon", lat: 47.32, lon: 5.04 },
+            { name: "Lyon", lat: 45.76, lon: 4.83 },
+            { name: "Grenoble", lat: 45.18, lon: 5.72 },
+            { name: "Limoges", lat: 45.83, lon: 1.26 },
+            { name: "Aurillac", lat: 44.92, lon: 2.44 },
+            { name: "Clermont-Ferrand", lat: 45.78, lon: 3.08 },
+            { name: "Bourges", lat: 47.08, lon: 2.39 },
+            { name: "Valence", lat: 44.93, lon: 4.89 }
+        ];
+
+        async function generate7DayCSV() {
+            if (isExporting) return;
+            isExporting = true;
+            closePickers();
+            const loading = document.getElementById('loading');
+            const loadingText = document.getElementById('loading-text');
+
+            if (loading) {
+                loadingText.innerText = "COHÉRENCE CARTE/CSV EN COURS (31 VILLES)...";
+                loading.style.display = 'flex';
+                loading.style.backgroundColor = 'rgba(0,0,0,0.8)';
+            }
+
+            try {
+                const lats = MASTER_CSV_CITIES.map(c => c.lat).join(',');
+                const lons = MASTER_CSV_CITIES.map(c => c.lon).join(',');
+                const hourlyParams = "temperature_2m,wind_gusts_10m";
+                const models = "arome_france,meteofrance_arpege_world,icon_eu,ecmwf_ifs";
+                const forecastDays = 8;
+                
+                const fetchUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&hourly=${hourlyParams}&models=${models}&forecast_days=${forecastDays}&timezone=Europe/Paris`;
+                const res = await fetch(fetchUrl);
+                if (!res.ok) throw new Error("API Error: " + res.status);
+                const rawData = await res.json();
+                const locations = Array.isArray(rawData) ? rawData : [rawData];
+
+                const csvLines = ["Ville;Date;Min;Max;Rafale"];
+                const dayIdxOnMap = parseInt(document.getElementById('day-select').value);
+                const paramOnMap = document.getElementById('param-select').value;
+
+                locations.forEach((loc, cityIdx) => {
+                    const cityName = MASTER_CSV_CITIES[cityIdx].name;
+                    const modelList = ["arome_france", "meteofrance_arpege_world", "icon_eu", "ecmwf_ifs"];
+                    const hLength = forecastDays * 24;
+                    const mergedTemp = new Array(hLength).fill(null);
+                    const mergedGusts = new Array(hLength).fill(null);
+
+                    for (const m of modelList) {
+                        const tNames = [`temperature_2m_${m}`, "temperature_2m"];
+                        const gNames = [`wind_gusts_10m_${m}`, "wind_gusts_10m"];
+                        
+                        for(const tn of tNames) {
+                            if (loc.hourly[tn]) {
+                                for (let i = 0; i < Math.min(hLength, loc.hourly[tn].length); i++) {
+                                    if (mergedTemp[i] === null && loc.hourly[tn][i] !== null) mergedTemp[i] = loc.hourly[tn][i];
+                                }
+                            }
+                        }
+                        for(const gn of gNames) {
+                            if (loc.hourly[gn]) {
+                                for (let i = 0; i < Math.min(hLength, loc.hourly[gn].length); i++) {
+                                    if (mergedGusts[i] === null && loc.hourly[gn][i] !== null) mergedGusts[i] = loc.hourly[gn][i];
+                                }
+                            }
+                        }
+                    }
+
+                    const dayGroups = {};
+                    loc.hourly.time.forEach((tStr, i) => {
+                        const datePart = tStr.split('T')[0];
+                        if (!dayGroups[datePart]) dayGroups[datePart] = { temps0_11: [], temps11_18: [], gusts: [] };
+                        const hourPart = parseInt(tStr.split('T')[1].split(':')[0]);
+
+                        if (mergedTemp[i] !== null) {
+                            if (hourPart >= 0 && hourPart <= 11) dayGroups[datePart].temps0_11.push(mergedTemp[i]);
+                            if (hourPart >= 11 && hourPart <= 18) dayGroups[datePart].temps11_18.push(mergedTemp[i]);
+                        }
+                        if (mergedGusts[i] !== null) dayGroups[datePart].gusts.push(mergedGusts[i]);
+                    });
+
+                    const sortedDates = Object.keys(dayGroups).sort().slice(0, 7);
+                    sortedDates.forEach((dStr, dOffset) => {
+                        const group = dayGroups[dStr];
+                        const [y, m, d] = dStr.split('-');
+                        const formattedDate = `${d}/${m}/${y}`;
+                        
+                        let minVal = group.temps0_11.length > 0 ? Math.min(...group.temps0_11) : null;
+                        let maxVal = group.temps11_18.length > 0 ? Math.max(...group.temps11_18) : null;
+                        const gustMax = group.gusts.length > 0 ? Math.max(...group.gusts) : 0;
+                        const roundedGust = Math.round(gustMax / 5) * 5;
+
+                        // INJECTION DES OVERRIDES MANUELS DE LA CARTE POUR UNE COHÉRENCE ABSOLUE
+                        const mapCityIdx = currentConfig.cities.findIndex(c => c.name.toUpperCase() === cityName.toUpperCase());
+                        if (mapCityIdx !== -1 && dOffset === dayIdxOnMap) {
+                            if (paramOnMap === 'temp_min' && manualTempOverrides[mapCityIdx] !== undefined) {
+                                minVal = manualTempOverrides[mapCityIdx];
+                            }
+                            if (paramOnMap === 'temp_max' && manualTempOverrides[mapCityIdx] !== undefined) {
+                                maxVal = manualTempOverrides[mapCityIdx];
+                            }
+                        }
+
+                        csvLines.push(`${cityName.toUpperCase()};${formattedDate};${minVal !== null ? Math.round(minVal) : ""};${maxVal !== null ? Math.round(maxVal) : ""};${roundedGust}`);
+                    });
+                });
+
+                const csvContent = "\uFEFF" + csvLines.join("\n");
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const downloadUrl = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                const ts = new Date().toISOString().split('T')[0];
+                link.setAttribute("href", downloadUrl);
+                link.setAttribute("download", `Export_Meteo_7Jours_31Villes_${ts}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+            } catch (error) {
+                console.error("Export Error:", error);
+                alert("Erreur lors de la génération du CSV.");
+            } finally {
+                if (loading) loading.style.display = 'none';
                 isExporting = false;
             }
         }
