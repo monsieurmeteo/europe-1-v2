@@ -4799,7 +4799,8 @@
                             }
                         }
 
-                        csvLines.push(`${cityName.toUpperCase()};${formattedDate};${minVal !== null ? Math.round(minVal) : ""};${maxVal !== null ? Math.round(maxVal) : ""};${roundedGust}`);
+                        const formattedCityName = cityName.split('-').map(part => part.split(' ').map(s => s.charAt(0).toUpperCase() + s.substring(1).toLowerCase()).join(' ')).join('-');
+                        csvLines.push(`${formattedCityName};${formattedDate};${minVal !== null ? Math.round(minVal) : ""};${maxVal !== null ? Math.round(maxVal) : ""};${roundedGust}`);
                     });
                 });
 
