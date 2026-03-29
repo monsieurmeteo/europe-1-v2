@@ -4604,7 +4604,7 @@
                     document.getElementById('loading-text').innerText = "GÉNÉRATION PICTOS + T°...";
                     autoZoningCheck.checked = false;
                     hideMarkersCheck.checked = false;
-                    // fogGroup toujours masqué
+                    if (fogGroup) fogGroup.addTo(map); // Réafficher brouillards pour Carte 2
                     toggleMarkers();
                     await updateGeoJson();
                     await updateDisplay();
