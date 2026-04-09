@@ -1645,6 +1645,14 @@
                                 <i class="fas fa-mouse-pointer"></i> ACTIVER POSE MANUELLE
                             </button>
                         </div>
+                        <!-- AIDE AU QUADRILLAGE -->
+                        <div id="grid-helper-ui" style="display:flex; flex-direction:column; gap:5px; margin-top:5px; padding:8px; background:rgba(255,255,255,0.05); border-radius:6px; border:1px solid #4db8ff;">
+                            <div style="font-size:10px; color:#4db8ff; font-weight:bold; margin-bottom:2px;">AIDE AU QUADRILLAGE</div>
+                            <button id="btn-toggle-grid" onclick="toggleGridHelp()" style="padding:8px; font-size:0.8rem; background:#222; border-radius:4px; color:#4db8ff; border:1px solid #4db8ff; width:100%; font-weight:bold;">
+                                <i class="fas fa-crosshairs"></i> CAPTURER UN POINT
+                            </button>
+                            <div id="grid-output" style="font-size:9px; color:#fff; word-break:break-all; display:none; padding:5px; background:#000; border-radius:4px; margin-top:4px; font-family:monospace;"></div>
+                        </div>
                         <label
                             style="font-size:11px; color:#FFD700; cursor:pointer; display:flex; align-items:center; gap:10px">
                             <input type="checkbox" id="show-logo-check" onchange="toggleLogo();" checked> AFFICHER LE
@@ -2002,7 +2010,6 @@
                     { "name": "St-Cyr", "lat": 43.17, "lon": 5.7055, "labelPos": "top" },
                     { "name": "Bandol", "lat": 43.147, "lon": 5.7488, "labelPos": "top" },
                     { "name": "Sanary", "lat": 43.1374, "lon": 5.7951, "labelPos": "bottom" },
-                    { "name": "Le Brusc", "lat": 43.07, "lon": 5.81, "labelPos": "bottom" },
                     { "name": "Six-Fours", "lat": 43.0843, "lon": 5.8079, "labelPos": "bottom" },
                     { "name": "La Seyne", "lat": 43.0837, "lon": 5.8789, "labelPos": "top" },
                     { "name": "Ollioules", "lat": 43.1385, "lon": 5.8515, "labelPos": "top" },
@@ -2161,7 +2168,25 @@
         let suppressedAutoZones = new Set();
         let currentPickingCityIndex = null;
         let selectedMarkerIndices = new Set();
-        let isDrawingMode = false, isFogMode = false, curvePoints = [], tempLine = null, tempMarkers = [], currentDrawColor = '#ff4d4d', manualSpecialMarkers = [], selectedManualType = 12, forceShowOverlays = false, isExporting = false;
+        let isFogMode = false;
+        let isGridHelp = false;
+
+        function toggleGridHelp() {
+            isGridHelp = !isGridHelp;
+            const btn = document.getElementById('btn-toggle-grid');
+            const out = document.getElementById('grid-output');
+            if (isGridHelp) {
+                btn.style.background = '#4db8ff'; btn.style.color = '#000';
+                out.style.display = 'block'; out.innerText = "CLIQUEZ SUR LA CARTE...";
+                if (isFogMode) toggleFogMode();
+                if (isDrawingMode) toggleDrawingMode();
+            } else {
+                btn.style.background = '#222'; btn.style.color = '#4db8ff';
+                out.style.display = 'none';
+            }
+        }
+
+        let curvePoints = [], tempLine = null, tempMarkers = [], currentDrawColor = '#ff4d4d', manualSpecialMarkers = [], selectedManualType = 12, forceShowOverlays = false, isExporting = false;
 
         async function initLeafletMap() {
             if (map) return;
@@ -2204,6 +2229,19 @@
 
             // LOGIQUE CLIC CARTE (DESSIN OU BROUILLARD)
             map.on('click', (e) => {
+                if (isGridHelp) {
+                    const name = prompt("NOM DE LA VILLE ?", "Ville");
+                    if (name) {
+                        const obj = `{ "name": "${name}", "lat": ${e.latlng.lat.toFixed(4)}, "lon": ${e.latlng.lng.toFixed(4)}, "labelPos": "top" },`;
+                        const out = document.getElementById('grid-output');
+                        out.innerText = obj;
+                        out.style.display = 'block';
+                        navigator.clipboard.writeText(obj).catch(() => {});
+                        console.log("GRID POINT:", obj);
+                    }
+                    return;
+                }
+
                 if (isFogMode) {
                     const picData = { lat: e.latlng.lat, lon: e.latlng.lng, id: Date.now(), type: selectedManualType };
                     manualSpecialMarkers.push(picData);
