@@ -1494,6 +1494,7 @@
                     <h3>RÉGION & VILLES</h3>
                     <select id="zone-select" onchange="handleZoneChange();">
                         <option value="france_pictos" selected>🗺️ FRANCE - PICTOS</option>
+                        <option value="cnews">📺 CNEWS (31 VILLES CSV)</option>
                         <option value="france">🌎 FRANCE ENTIÈRE (AUTO)</option>
                         <option value="hdf">🏘️ HAUTS-DE-FRANCE</option>
                         <option value="normandie">🍏 NORMANDIE</option>
@@ -1508,6 +1509,14 @@
                         <option value="pdl">🌾 PAYS DE LA LOIRE</option>
                         <option value="cvl">🏰 CENTRE-VAL DE LOIRE</option>
                         <option value="corse">⛰️ CORSE</option>
+                        <optgroup label="DÉPARTEMENTS">
+                            <option value="hautes-alpes">🏔️ (05) HAUTES-ALPES</option>
+                            <option value="alpes-de-haute-provence">🏔️ (04) ALPES-DE-H-P</option>
+                            <option value="alpes-maritimes">🏔️ (06) ALPES-MARITIMES</option>
+                            <option value="bouches-du-rhone">🌊 (13) BOUCHES-DU-RHÔNE</option>
+                            <option value="var">🌊 (83) VAR</option>
+                            <option value="vaucluse">🍇 (84) VAUCLUSE</option>
+                        </optgroup>
                     </select>
                 </div>
 
@@ -1543,6 +1552,13 @@
                         <option value="hourly">⏱️ MODE HORAIRE (36H)</option>
                     </select>
 
+                    <div id="soiree-mode-container" style="margin-top: 5px;">
+                        <label style="font-size:11px; color:#4db8ff; cursor:pointer; display:flex; align-items:center; gap:5px;">
+                            <input type="checkbox" id="soiree-mode-check" onchange="updateDisplay();">
+                            OPTION SOIRÉE (À LA PLACE DE L'APRÈS-MIDI)
+                        </label>
+                    </div>
+
                     <div id="hourly-controls"
                         style="display:none; margin-top:10px; background:rgba(0,0,0,0.2); padding:8px; border-radius:6px;">
                         <input type="range" id="hour-slider" min="0" max="36" value="0" style="width:100%"
@@ -1557,7 +1573,7 @@
                     <div style="display: flex; justify-content: flex-end; margin-top: -10px;">
                         <div id="active-model-display"
                             style="font-size: 8px; color: #555; font-weight: bold; letter-spacing: 0.5px; margin-right: 5px;">
-                            AUTO</div>
+                            AROME / ECMWF</div>
                     </div>
                 </div>
 
@@ -1860,20 +1876,122 @@
 
     <script>
         const zoneConfigs = {
-            france: { id: 'fra', name: "FRANCE ENTIÈRE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/france.geojson', padding: [15, 15, 15, 15], center: [46.5, 2.5], zoom: 6, cities: [{ name: "BREST", lat: 48.39, lon: -4.48 }, { name: "RENNES", lat: 48.11, lon: -1.67 }, { name: "CHERBOURG", lat: 49.63, lon: -1.62 }, { name: "ROUEN", lat: 49.44, lon: 1.10 }, { name: "PARIS", lat: 48.85, lon: 2.35 }, { name: "AMIENS", lat: 49.89, lon: 2.29 }, { name: "LILLE", lat: 50.62, lon: 3.05 }, { name: "REIMS", lat: 49.25, lon: 4.03 }, { name: "METZ", lat: 49.11, lon: 6.17 }, { name: "NANTES", lat: 47.21, lon: -1.55 }, { name: "TOURS", lat: 47.39, lon: 0.68 }, { name: "AUXERRE", lat: 47.79, lon: 3.57 }, { name: "CHAUMONT", lat: 48.11, lon: 5.14 }, { name: "STRASBOURG", lat: 48.57, lon: 7.75 }, { name: "BOURGES", lat: 47.08, lon: 2.39 }, { name: "BELFORT", lat: 47.63, lon: 6.86 }, { name: "LIMOGES", lat: 45.83, lon: 1.26 }, { name: "VICHY", lat: 46.12, lon: 3.42 }, { name: "CHALON/S.", lat: 46.78, lon: 4.85 }, { name: "LYON", lat: 45.76, lon: 4.83 }, { name: "PONTARLIER", lat: 46.90, lon: 6.35 }, { name: "LA ROCHELLE", lat: 46.16, lon: -1.15 }, { name: "BORDEAUX", lat: 44.83, lon: -0.57 }, { name: "BIARRITZ", lat: 43.48, lon: -1.56 }, { name: "TARBES", lat: 43.23, lon: 0.07 }, { name: "TOULOUSE", lat: 43.60, lon: 1.44 }, { name: "AURILLAC", lat: 44.92, lon: 2.44 }, { name: "MONTÉLIMAR", lat: 44.55, lon: 4.75 }, { name: "GAP", lat: 44.55, lon: 6.07 }, { name: "PERPIGNAN", lat: 42.69, lon: 2.89 }, { name: "MONTPELLIER", lat: 43.61, lon: 3.87 }, { name: "MARSEILLE", lat: 43.29, lon: 5.36 }, { name: "NICE", lat: 43.71, lon: 7.26 }, { name: "AJACCIO", lat: 41.92, lon: 8.73 }, { name: "BASTIA", lat: 42.69, lon: 9.45 }, { name: "ALENÇON", lat: 48.43, lon: 0.09 }, { name: "BOURG-ST-M.", lat: 45.62, lon: 6.77 }, { name: "Gorges du Tarn Causses", lat: 44.318, lon: 3.447, isAnchor: true }, { name: "Saint-Paul-de-Jarrat", lat: 42.913, lon: 1.636, isAnchor: true }, { name: "Puylagarde", lat: 44.298, lon: 1.837, isAnchor: true }, { name: "Novacelles", lat: 45.437, lon: 3.651, isAnchor: true }, { name: "Moirans", lat: 45.325, lon: 5.565, isAnchor: true }, { name: "Empuré", lat: 46.024, lon: 0.054, isAnchor: true }, { name: "La Roche-Posay", lat: 46.784, lon: 0.814, isAnchor: true }, { name: "Moux-en-Morvan", lat: 47.171, lon: 4.155, isAnchor: true }, { name: "Berné", lat: 47.994, lon: -3.391, isAnchor: true }, { name: "Attray", lat: 48.219, lon: 2.11, isAnchor: true }, { name: "Faux-Fresnay", lat: 48.748, lon: 3.921, isAnchor: true }, { name: "Fontenoy-la-Joute", lat: 48.453, lon: 6.66, isAnchor: true }, { name: "Clermont-en-Argonne", lat: 49.102, lon: 5.071, isAnchor: true }, { name: "Castine-en-Plaine", lat: 49.13, lon: -0.31, isAnchor: true }, { name: "Boulogne-sur-Mer", lat: 50.726, lon: 1.614, isAnchor: true }, { name: "Prémont", lat: 50.012, lon: 3.414, isAnchor: true }, { name: "Morannes-sur-Sarthe-Daumeray", lat: 47.644, lon: -0.416, isAnchor: true }] },
-            hdf: { id: 'hdf', name: "HAUTS-DE-FRANCE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/hauts-de-france/region-hauts-de-france.geojson', padding: [60, 20, 20, 20], center: [49.9, 2.8], zoom: 8, cities: [{ name: "Château-Thierry", lat: 49.046, lon: 3.403 }, { name: "Laon", lat: 49.56, lon: 3.62 }, { name: "Saint-Quentin", lat: 49.85, lon: 3.29 }, { name: "Soissons", lat: 49.38, lon: 3.32 }, { name: "Vervins", lat: 49.83, lon: 3.91 }, { name: "Avesnes-sur-Helpe", lat: 50.12, lon: 3.93 }, { name: "Cambrai", lat: 50.17, lon: 3.23 }, { name: "Dunkerque", lat: 51.03, lon: 2.37 }, { name: "Hazebrouck", lat: 50.72, lon: 2.53 }, { name: "Lille", lat: 50.63, lon: 3.06 }, { name: "Valenciennes", lat: 50.36, lon: 3.52 }, { name: "Beauvais", lat: 49.43, lon: 2.08 }, { name: "Compiègne", lat: 49.41, lon: 2.82 }, { name: "Senlis", lat: 49.207, lon: 2.585 }, { name: "Feuquières", lat: 49.64, lon: 1.85 }, { name: "Rosoy-en-Multien", lat: 49.098, lon: 2.995 }, { name: "Arras", lat: 50.29, lon: 2.78 }, { name: "Berck", lat: 50.40, lon: 1.57 }, { name: "Calais", lat: 50.95, lon: 1.85 }, { name: "Renty", lat: 50.58, lon: 2.06 }, { name: "Saint-Pol-sur-Ternoise", lat: 50.38, lon: 2.33 }, { name: "Abbeville", lat: 50.11, lon: 1.83 }, { name: "Amiens", lat: 49.89, lon: 2.30 }, { name: "Estrées-Deniécourt", lat: 49.87, lon: 2.82 }, { name: "Montdidier", lat: 49.65, lon: 2.57 }, { name: "Boulogne-sur-Mer", lat: 50.726, lon: 1.614 }] },
+            france: { id: 'fra', name: "FRANCE ENTIÈRE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/france.geojson', padding: [15, 15, 15, 15], center: [46.5, 2.5], zoom: 6, cities: [{ name: "AMIENS", lat: 49.894, lon: 2.295 }, { name: "BREST", lat: 48.39, lon: -4.48 }, { name: "RENNES", lat: 48.11, lon: -1.67 }, { name: "CHERBOURG", lat: 49.63, lon: -1.62 }, { name: "ROUEN", lat: 49.44, lon: 1.10 }, { name: "PARIS", lat: 48.85, lon: 2.35 }, { name: "LILLE", lat: 50.62, lon: 3.05 }, { name: "REIMS", lat: 49.25, lon: 4.03 }, { name: "METZ", lat: 49.11, lon: 6.17 }, { name: "NANTES", lat: 47.21, lon: -1.55 }, { name: "TOURS", lat: 47.39, lon: 0.68 }, { name: "AUXERRE", lat: 47.79, lon: 3.57 }, { name: "CHAUMONT", lat: 48.11, lon: 5.14 }, { name: "STRASBOURG", lat: 48.57, lon: 7.75 }, { name: "BOURGES", lat: 47.08, lon: 2.39 }, { name: "BELFORT", lat: 47.63, lon: 6.86 }, { name: "LIMOGES", lat: 45.83, lon: 1.26 }, { name: "VICHY", lat: 46.12, lon: 3.42 }, { name: "CHALON/S.", lat: 46.78, lon: 4.85 }, { name: "LYON", lat: 45.76, lon: 4.83 }, { name: "PONTARLIER", lat: 46.90, lon: 6.35 }, { name: "LA ROCHELLE", lat: 46.16, lon: -1.15 }, { name: "BORDEAUX", lat: 44.83, lon: -0.57 }, { name: "BIARRITZ", lat: 43.48, lon: -1.56 }, { name: "TARBES", lat: 43.23, lon: 0.07 }, { name: "TOULOUSE", lat: 43.60, lon: 1.44 }, { name: "AURILLAC", lat: 44.92, lon: 2.44 }, { name: "MONTÉLIMAR", lat: 44.55, lon: 4.75 }, { name: "GAP", lat: 44.55, lon: 6.07 }, { name: "PERPIGNAN", lat: 42.69, lon: 2.89 }, { name: "MONTPELLIER", lat: 43.61, lon: 3.87 }, { name: "MARSEILLE", lat: 43.296, lon: 5.381 }, { name: "NICE", lat: 43.71, lon: 7.26 }, { name: "AJACCIO", lat: 41.92, lon: 8.73 }, { name: "BASTIA", lat: 42.69, lon: 9.45 }, { name: "ALENÇON", lat: 48.43, lon: 0.09 }, { name: "BOURG-ST-M.", lat: 45.62, lon: 6.77 }, { name: "Gorges du Tarn Causses", lat: 44.318, lon: 3.447, isAnchor: true }, { name: "Saint-Paul-de-Jarrat", lat: 42.913, lon: 1.636, isAnchor: true }, { name: "Puylagarde", lat: 44.298, lon: 1.837, isAnchor: true }, { name: "Novacelles", lat: 45.437, lon: 3.651, isAnchor: true }, { name: "Moirans", lat: 45.325, lon: 5.565, isAnchor: true }, { name: "Empuré", lat: 46.024, lon: 0.054, isAnchor: true }, { name: "La Roche-Posay", lat: 46.784, lon: 0.814, isAnchor: true }, { name: "Moux-en-Morvan", lat: 47.171, lon: 4.155, isAnchor: true }, { name: "Berné", lat: 47.994, lon: -3.391, isAnchor: true }, { name: "Attray", lat: 48.219, lon: 2.11, isAnchor: true }, { name: "Faux-Fresnay", lat: 48.748, lon: 3.921, isAnchor: true }, { name: "Fontenoy-la-Joute", lat: 48.453, lon: 6.66, isAnchor: true }, { name: "Clermont-en-Argonne", lat: 49.102, lon: 5.071, isAnchor: true }, { name: "Castine-en-Plaine", lat: 49.13, lon: -0.31, isAnchor: true }, { name: "Boulogne-sur-Mer", lat: 50.726, lon: 1.614, isAnchor: true }, { name: "Prémont", lat: 50.012, lon: 3.414, isAnchor: true }, { name: "Morannes-sur-Sarthe-Daumeray", lat: 47.644, lon: -0.416, isAnchor: true }] },
+            hdf: { id: 'hdf', name: "HAUTS-DE-FRANCE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/hauts-de-france/region-hauts-de-france.geojson', padding: [60, 20, 20, 20], center: [49.9, 2.8], zoom: 8, cities: [{ name: "Amiens", lat: 49.894, lon: 2.295 }, { name: "Château-Thierry", lat: 49.046, lon: 3.403 }, { name: "Laon", lat: 49.56, lon: 3.62 }, { name: "Saint-Quentin", lat: 49.85, lon: 3.29 }, { name: "Soissons", lat: 49.38, lon: 3.32 }, { name: "Vervins", lat: 49.83, lon: 3.91 }, { name: "Avesnes-sur-Helpe", lat: 50.12, lon: 3.93 }, { name: "Cambrai", lat: 50.17, lon: 3.23 }, { name: "Dunkerque", lat: 51.03, lon: 2.37 }, { name: "Hazebrouck", lat: 50.72, lon: 2.53 }, { name: "Lille", lat: 50.62, lon: 3.05 }, { name: "Valenciennes", lat: 50.36, lon: 3.52 }, { name: "Beauvais", lat: 49.43, lon: 2.08 }, { name: "Compiègne", lat: 49.41, lon: 2.82 }, { name: "Senlis", lat: 49.207, lon: 2.585 }, { name: "Feuquières", lat: 49.64, lon: 1.85 }, { name: "Rosoy-en-Multien", lat: 49.098, lon: 2.995 }, { name: "Arras", lat: 50.29, lon: 2.78 }, { name: "Berck", lat: 50.40, lon: 1.57 }, { name: "Calais", lat: 50.95, lon: 1.85 }, { name: "Renty", lat: 50.58, lon: 2.06 }, { name: "Saint-Pol-sur-Ternoise", lat: 50.38, lon: 2.33 }, { name: "Abbeville", lat: 50.11, lon: 1.83 }, { name: "Estrées-Deniécourt", lat: 49.87, lon: 2.82 }, { name: "Montdidier", lat: 49.65, lon: 2.57 }, { name: "Boulogne-sur-Mer", lat: 50.726, lon: 1.614 }] },
             normandie: { id: 'nor', name: "NORMANDIE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/normandie/region-normandie.geojson', padding: [60, 20, 20, 20], center: [49.1, 0.4], zoom: 8, cities: [{ name: "Bayeux", lat: 49.28, lon: -0.70 }, { name: "Caen", lat: 49.18, lon: -0.37 }, { name: "Clécy", lat: 48.91, lon: -0.48 }, { name: "Lisieux", lat: 49.14, lon: 0.22 }, { name: "Vire", lat: 48.84, lon: -0.89 }, { name: "Brionne", lat: 49.19, lon: 0.72 }, { name: "Étrépagny", lat: 49.30, lon: 1.61 }, { name: "Évreux", lat: 49.02, lon: 1.15 }, { name: "Giverny", lat: 49.07, lon: 1.53 }, { name: "Vesly", lat: 49.24, lon: 1.65 }, { name: "Verneuil-sur-Avre", lat: 48.74, lon: 0.93 }, { name: "Avranches", lat: 48.68, lon: -1.36 }, { name: "Cherbourg-Octeville", lat: 49.63, lon: -1.62 }, { name: "Coutances", lat: 49.05, lon: -1.44 }, { name: "Saint-Lô", lat: 49.11, lon: -1.09 }, { name: "Alençon", lat: 48.43, lon: 0.09 }, { name: "Argentan", lat: 48.74, lon: -0.02 }, { name: "Domfront", lat: 48.59, lon: -0.65 }, { name: "Mortagne-au-Perche", lat: 48.52, lon: 0.54 }, { name: "Villers-en-Ouche", lat: 48.86, lon: 0.57 }, { name: "Dieppe", lat: 49.92, lon: 1.07 }, { name: "Fécamp", lat: 49.75, lon: 0.37 }, { name: "Le Havre", lat: 49.49, lon: 0.10 }, { name: "Neufchâtel-en-Bray", lat: 49.73, lon: 1.44 }, { name: "Rouen", lat: 49.44, lon: 1.09 }, { name: "Le Tréport", lat: 50.06, lon: 1.37 }] },
             "ile-de-france": { id: 'idf', name: "ÎLE-DE-FRANCE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/ile-de-france/region-ile-de-france.geojson', padding: [60, 20, 20, 20], center: [48.8, 2.3], zoom: 9, cities: [{ name: "Paris", lat: 48.85, lon: 2.35 }, { name: "Chelles", lat: 48.88, lon: 2.59 }, { name: "Coulommiers", lat: 48.81, lon: 3.08 }, { name: "Fontainebleau", lat: 48.41, lon: 2.70 }, { name: "La Ferté-Gaucher", lat: 48.78, lon: 3.30 }, { name: "Meaux", lat: 48.96, lon: 2.89 }, { name: "Melun", lat: 48.54, lon: 2.66 }, { name: "Montereau-Fault-Yonne", lat: 48.38, lon: 2.95 }, { name: "Nangis", lat: 48.56, lon: 3.02 }, { name: "Nemours", lat: 48.27, lon: 2.69 }, { name: "Provins", lat: 48.56, lon: 3.30 }, { name: "Tournan-en-Brie", lat: 48.74, lon: 2.77 }, { name: "Houdan", lat: 48.79, lon: 1.60 }, { name: "Mantes-la-Jolie", lat: 48.99, lon: 1.72 }, { name: "Orgeval", lat: 48.92, lon: 1.98 }, { name: "Rambouillet", lat: 48.64, lon: 1.83 }, { name: "Versailles", lat: 48.80, lon: 2.13 }, { name: "Arpajon", lat: 48.59, lon: 2.25 }, { name: "Étampes", lat: 48.43, lon: 2.16 }, { name: "Évry", lat: 48.62, lon: 2.44 }, { name: "Milly-la-Forêt", lat: 48.40, lon: 2.47 }, { name: "Nanterre", lat: 48.89, lon: 2.20 }, { name: "Aulnay-sous-Bois", lat: 48.93, lon: 2.50 }, { name: "Bobigny", lat: 48.91, lon: 2.44 }, { name: "Créteil", lat: 48.79, lon: 2.46 }, { name: "Cergy", lat: 49.04, lon: 2.08 }, { name: "Magny-en-Vexin", lat: 49.16, lon: 1.79 }, { name: "Marly-la-Ville", lat: 49.08, lon: 2.50 }, { name: "Pontoise", lat: 49.05, lon: 2.10 }] },
             "grand-est": { id: 'ges', name: "GRAND EST", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/grand-est/region-grand-est.geojson', padding: [60, 20, 20, 20], center: [48.6, 5.8], zoom: 7.2, cities: [{ name: "Charleville-Mézières", lat: 49.76, lon: 4.71 }, { name: "Rethel", lat: 49.51, lon: 4.36 }, { name: "Nogent-sur-Seine", lat: 48.49, lon: 3.50 }, { name: "Troyes", lat: 48.30, lon: 4.07 }, { name: "Vitry-le-Croisé", lat: 48.15, lon: 4.65 }, { name: "Châlons-en-Champagne", lat: 48.95, lon: 4.36 }, { name: "Épernay", lat: 49.04, lon: 3.95 }, { name: "Reims", lat: 49.25, lon: 4.03 }, { name: "Vitry-le-François", lat: 48.72, lon: 4.58 }, { name: "Chaumont", lat: 48.11, lon: 5.14 }, { name: "Langres", lat: 47.86, lon: 5.33 }, { name: "Saint-Dizier", lat: 48.63, lon: 4.95 }, { name: "Longwy", lat: 49.52, lon: 5.76 }, { name: "Lunéville", lat: 48.59, lon: 6.49 }, { name: "Nancy", lat: 48.69, lon: 6.18 }, { name: "Bar-le-Duc", lat: 48.77, lon: 5.16 }, { name: "Commercy", lat: 48.76, lon: 5.59 }, { name: "Verdun", lat: 49.16, lon: 5.38 }, { name: "Metz", lat: 49.11, lon: 6.17 }, { name: "Sarrebourg", lat: 48.73, lon: 7.05 }, { name: "Sarreguemines", lat: 49.11, lon: 7.06 }, { name: "Strasbourg", lat: 48.57, lon: 7.75 }, { name: "Wissembourg", lat: 49.03, lon: 7.94 }, { name: "Colmar", lat: 48.08, lon: 7.35 }, { name: "Mulhouse", lat: 47.75, lon: 7.33 }, { name: "Épinal", lat: 48.17, lon: 6.45 }, { name: "Neufchâteau", lat: 48.35, lon: 5.69 }, { name: "Saint-Dié-des-Vosges", lat: 48.29, lon: 6.95 }] },
             ara: { id: 'ara', name: "AUVERGNE-RHÔNE-ALPES", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/auvergne-rhone-alpes/region-auvergne-rhone-alpes.geojson', padding: [60, 20, 20, 20], center: [45.5, 4.5], zoom: 7.2, cities: [{ name: "Bourg-en-Bresse", lat: 46.20, lon: 5.22 }, { name: "Vichy", lat: 46.12, lon: 3.42 }, { name: "Montluçon", lat: 46.34, lon: 2.60 }, { name: "Moulins", lat: 46.56, lon: 3.33 }, { name: "Privas", lat: 44.73, lon: 4.59 }, { name: "Sablières", lat: 44.53, lon: 4.07 }, { name: "Aurillac", lat: 44.93, lon: 2.44 }, { name: "Saint-Flour", lat: 45.03, lon: 3.09 }, { name: "Dieulefit", lat: 44.52, lon: 5.06 }, { name: "Montélimar", lat: 44.56, lon: 4.75 }, { name: "Valence", lat: 44.93, lon: 4.89 }, { name: "Bourgoin-Jallieu", lat: 45.59, lon: 5.28 }, { name: "Grenoble", lat: 45.18, lon: 5.72 }, { name: "Lalley", lat: 44.76, lon: 5.67 }, { name: "Roanne", lat: 46.03, lon: 4.07 }, { name: "Saint-Étienne", lat: 45.43, lon: 4.39 }, { name: "Le Puy-en-Velay", lat: 45.04, lon: 3.88 }, { name: "Ambert", lat: 45.55, lon: 3.74 }, { name: "Clermont-Ferrand", lat: 45.78, lon: 3.08 }, { name: "Vodable", lat: 45.50, lon: 3.14 }, { name: "Lyon", lat: 45.76, lon: 4.83 }, { name: "Bonneval-sur-Arc", lat: 45.37, lon: 7.04 }, { name: "Chambéry", lat: 45.56, lon: 5.91 }, { name: "Moûtiers", lat: 45.48, lon: 6.53 }, { name: "Annecy", lat: 45.90, lon: 6.12 }, { name: "Chamonix", lat: 45.92, lon: 6.86 }, { name: "Thonon-les-Bains", lat: 46.37, lon: 6.48 }] },
             naq: { id: 'naq', name: "NOUVELLE-AQUITAINE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/nouvelle-aquitaine/region-nouvelle-aquitaine.geojson', padding: [60, 20, 20, 20], center: [45.2, 0.4], zoom: 6.8, cities: [{ name: "Angoulême", lat: 45.65, lon: 0.15 }, { name: "La Rochelle", lat: 46.16, lon: -1.15 }, { name: "Pons", lat: 45.58, lon: -0.55 }, { name: "Brive-la-Gaillarde", lat: 45.15, lon: 1.53 }, { name: "Tulle", lat: 45.26, lon: 1.77 }, { name: "Guéret", lat: 46.17, lon: 1.87 }, { name: "Périgueux", lat: 45.18, lon: 0.72 }, { name: "Bordeaux", lat: 44.83, lon: -0.57 }, { name: "Mimizan", lat: 44.20, lon: -1.23 }, { name: "Mont-de-Marsan", lat: 43.89, lon: -0.50 }, { name: "Agen", lat: 44.20, lon: 0.61 }, { name: "Marmande", lat: 44.50, lon: 0.16 }, { name: "Bayonne", lat: 43.49, lon: -1.47 }, { name: "Oloron-Sainte-Marie", lat: 43.19, lon: -0.60 }, { name: "Pau", lat: 43.30, lon: -0.37 }, { name: "Saint-Jean-de-Luz", lat: 43.38, lon: -1.66 }, { name: "Niort", lat: 46.32, lon: -0.46 }, { name: "Poitiers", lat: 46.58, lon: 0.34 }, { name: "Limoges", lat: 45.83, lon: 1.26 }] },
             occitanie: { id: 'occ', name: "OCCITANIE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/occitanie/region-occitanie.geojson', padding: [60, 20, 20, 20], center: [43.6, 2.3], zoom: 7, cities: [{ name: "Foix", lat: 42.96, lon: 1.60 }, { name: "Carcassonne", lat: 43.21, lon: 2.35 }, { name: "Salles-sur-l'Hers", lat: 43.29, lon: 1.78 }, { name: "Laguiole", lat: 44.68, lon: 2.85 }, { name: "Rodez", lat: 44.35, lon: 2.57 }, { name: "Saint-Affrique", lat: 43.96, lon: 2.88 }, { name: "Alès", lat: 44.12, lon: 4.08 }, { name: "Nîmes", lat: 43.83, lon: 4.36 }, { name: "Saint-Gaudens", lat: 43.10, lon: 0.72 }, { name: "Toulouse", lat: 43.60, lon: 1.44 }, { name: "Auch", lat: 43.64, lon: 0.58 }, { name: "Béziers", lat: 43.34, lon: 3.21 }, { name: "Montpellier", lat: 43.61, lon: 3.87 }, { name: "Cahors", lat: 44.44, lon: 1.44 }, { name: "Saint-Céré", lat: 44.86, lon: 1.89 }, { name: "Mende", lat: 44.51, lon: 3.50 }, { name: "Tarbes", lat: 43.23, lon: 0.07 }, { name: "Font-Romeu", lat: 42.50, lon: 2.04 }, { name: "Perpignan", lat: 42.69, lon: 2.89 }, { name: "Albi", lat: 43.92, lon: 2.14 }, { name: "Castres", lat: 43.60, lon: 2.24 }, { name: "Montauban", lat: 44.01, lon: 1.35 }] },
-            paca: { id: 'pac', name: "PACA", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/provence-alpes-cote-d-azur/region-provence-alpes-cote-d-azur.geojson', padding: [60, 20, 20, 20], center: [43.8, 6.2], zoom: 7.8, cities: [{ name: "Barcelonnette", lat: 44.38, lon: 6.65 }, { name: "Digne-les-Bains", lat: 44.09, lon: 6.23 }, { name: "Forcalquier", lat: 43.96, lon: 5.78 }, { name: "Briançon", lat: 44.89, lon: 6.64 }, { name: "Étoile-Saint-Cyrice", lat: 44.31, lon: 5.63 }, { name: "Gap", lat: 44.56, lon: 6.07 }, { name: "Vallouise", lat: 44.84, lon: 6.48 }, { name: "Cannes", lat: 43.55, lon: 7.01 }, { name: "Nice", lat: 43.71, lon: 7.26 }, { name: "Puget-Théniers", lat: 43.95, lon: 6.89 }, { name: "Tende", lat: 44.08, lon: 7.59 }, { name: "Aix-en-Provence", lat: 43.52, lon: 5.44 }, { name: "Istres", lat: 43.51, lon: 4.99 }, { name: "Marseille", lat: 43.29, lon: 5.36 }, { name: "Saintes-Maries-de-la-Mer", lat: 43.45, lon: 4.42 }, { name: "Castellet", lat: 43.20, lon: 5.77 }, { name: "Draguignan", lat: 43.53, lon: 6.46 }, { name: "Gonfaron", lat: 43.31, lon: 6.29 }, { name: "Saint-Maximin", lat: 43.45, lon: 5.86 }, { name: "Saint-Tropez", lat: 43.27, lon: 6.64 }, { name: "Toulon", lat: 43.12, lon: 5.93 }, { name: "Avignon", lat: 43.94, lon: 4.80 }, { name: "Carpentras", lat: 44.05, lon: 5.04 }] },
+            paca: { id: 'pac', name: "PACA", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/provence-alpes-cote-d-azur/region-provence-alpes-cote-d-azur.geojson', padding: [60, 20, 20, 20], center: [43.8, 6.2], zoom: 7.8, cities: [{ name: "Barcelonnette", lat: 44.38, lon: 6.65 }, { name: "Digne-les-Bains", lat: 44.09, lon: 6.23 }, { name: "Forcalquier", lat: 43.96, lon: 5.78 }, { name: "Briançon", lat: 44.89, lon: 6.64 }, { name: "Étoile-Saint-Cyrice", lat: 44.31, lon: 5.63 }, { name: "Gap", lat: 44.56, lon: 6.07 }, { name: "Vallouise", lat: 44.84, lon: 6.48 }, { name: "Cannes", lat: 43.55, lon: 7.01 }, { name: "Nice", lat: 43.71, lon: 7.26 }, { name: "Puget-Théniers", lat: 43.95, lon: 6.89 }, { name: "Tende", lat: 44.08, lon: 7.59 }, { name: "Aix-en-Provence", lat: 43.52, lon: 5.44 }, { name: "Istres", lat: 43.51, lon: 4.99 }, { name: "Marseille", lat: 43.296, lon: 5.381 }, { name: "Saintes-Maries-de-la-Mer", lat: 43.45, lon: 4.42 }, { name: "Castellet", lat: 43.20, lon: 5.77 }, { name: "Draguignan", lat: 43.53, lon: 6.46 }, { name: "Gonfaron", lat: 43.31, lon: 6.29 }, { name: "Saint-Maximin", lat: 43.45, lon: 5.86 }, { name: "Saint-Tropez", lat: 43.27, lon: 6.64 }, { name: "Toulon", lat: 43.12, lon: 5.93 }, { name: "Avignon", lat: 43.94, lon: 4.80 }, { name: "Carpentras", lat: 44.05, lon: 5.04 }] },
             bfc: { id: 'bfc', name: "BOURGOGNE-F-COMTÉ", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/bourgogne-franche-comte/region-bourgogne-franche-comte.geojson', padding: [60, 20, 20, 20], center: [47.2, 5.0], zoom: 7.5, cities: [{ name: "Châtillon-sur-Seine", lat: 47.86, lon: 4.57 }, { name: "Dijon", lat: 47.32, lon: 5.04 }, { name: "Pouilly-en-Auxois", lat: 47.25, lon: 4.55 }, { name: "Besançon", lat: 47.23, lon: 6.02 }, { name: "Pontarlier", lat: 46.90, lon: 6.35 }, { name: "Sancey-le-Grand", lat: 47.29, lon: 6.58 }, { name: "Dole", lat: 47.09, lon: 5.49 }, { name: "Lons-le-Saunier", lat: 46.67, lon: 5.55 }, { name: "Morez", lat: 46.52, lon: 6.02 }, { name: "Thoirette", lat: 46.27, lon: 5.53 }, { name: "Cosne-Cours-sur-Loire", lat: 47.41, lon: 2.92 }, { name: "Nevers", lat: 46.99, lon: 3.15 }, { name: "Saint-Honoré-les-Bains", lat: 46.90, lon: 3.84 }, { name: "Varzy", lat: 47.35, lon: 3.39 }, { name: "Ainvelle", lat: 47.84, lon: 6.25 }, { name: "Nantilly", lat: 47.44, lon: 5.54 }, { name: "Vesoul", lat: 47.62, lon: 6.15 }, { name: "Autun", lat: 46.95, lon: 4.29 }, { name: "Chalon-sur-Saône", lat: 46.78, lon: 4.85 }, { name: "Charolles", lat: 46.43, lon: 4.27 }, { name: "Mâcon", lat: 46.30, lon: 4.83 }, { name: "Montceau-les-Mines", lat: 46.67, lon: 4.36 }, { name: "Auxerre", lat: 47.79, lon: 3.57 }, { name: "Sens", lat: 48.19, lon: 3.28 }, { name: "Belfort", lat: 47.63, lon: 6.86 }] },
             bretagne: { id: 'bre', name: "BRETAGNE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/bretagne/region-bretagne.geojson', padding: [60, 20, 20, 20], center: [48.1, -2.8], zoom: 7.8, cities: [{ name: "Lannion", lat: 48.73, lon: -3.46 }, { name: "Merdrignac", lat: 48.19, lon: -2.41 }, { name: "Rostrenen", lat: 48.23, lon: -3.31 }, { name: "Saint-Brieuc", lat: 48.51, lon: -2.76 }, { name: "Brest", lat: 48.39, lon: -4.48 }, { name: "Île-de-Sein", lat: 48.03, lon: -4.85 }, { name: "Morlaix", lat: 48.57, lon: -3.82 }, { name: "Ouessant", lat: 48.45, lon: -5.09 }, { name: "Quimper", lat: 47.99, lon: -4.09 }, { name: "Fougères", lat: 48.35, lon: -1.20 }, { name: "Redon", lat: 47.65, lon: -2.08 }, { name: "Rennes", lat: 48.11, lon: -1.67 }, { name: "Saint-Malo", lat: 48.64, lon: -2.02 }, { name: "Lorient", lat: 47.74, lon: -3.36 }, { name: "Pontivy", lat: 48.06, lon: -2.96 }, { name: "Vannes", lat: 47.65, lon: -2.76 }] },
             pdl: { id: 'pdl', name: "PAYS DE LA LOIRE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/pays-de-la-loire/region-pays-de-la-loire.geojson', padding: [60, 20, 20, 20], center: [47.5, -0.6], zoom: 7.8, cities: [{ name: "Blain", lat: 47.47, lon: -1.76 }, { name: "Châteaubriant", lat: 47.71, lon: -1.37 }, { name: "NANTES", lat: 47.21, lon: -1.55 }, { name: "Saint-Nazaire", lat: 47.27, lon: -2.21 }, { name: "Angers", lat: 47.47, lon: -0.55 }, { name: "Cholet", lat: 47.06, lon: -0.87 }, { name: "Nyoiseau", lat: 47.71, lon: -0.91 }, { name: "Saumur", lat: 47.26, lon: -0.07 }, { name: "Ernée", lat: 48.30, lon: -0.93 }, { name: "Javron-les-Chapelles", lat: 48.41, lon: -0.34 }, { name: "Laval", lat: 48.07, lon: -0.77 }, { name: "La Ferté-Bernard", lat: 48.18, lon: 0.65 }, { name: "La Flèche", lat: 47.70, lon: -0.07 }, { name: "Le Mans", lat: 48.00, lon: 0.19 }, { name: "Mamers", lat: 48.35, lon: 0.37 }, { name: "Saint-Denis-d'Orques", lat: 48.02, lon: -0.27 }, { name: "Challans", lat: 46.84, lon: -1.88 }, { name: "Fontenay-le-Comte", lat: 46.46, lon: -0.80 }, { name: "L'Île-d'Yeu", lat: 46.72, lon: -2.34 }, { name: "La Roche-sur-Yon", lat: 46.67, lon: -1.42 }, { name: "La Tranche-sur-Mer", lat: 46.34, lon: -1.43 }] },
             cvl: { id: 'cvl', name: "CENTRE-VAL DE LOIRE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/centre-val-de-loire/region-centre-val-de-loire.geojson', padding: [60, 20, 20, 20], center: [47.5, 1.8], zoom: 7.8, cities: [{ name: "Argent-sur-Sauldre", lat: 47.56, lon: 2.45 }, { name: "Bourges", lat: 47.08, lon: 2.39 }, { name: "Saint-Amand-Montrond", lat: 46.72, lon: 2.50 }, { name: "Sancerre", lat: 47.33, lon: 2.84 }, { name: "Chartres", lat: 48.44, lon: 1.48 }, { name: "Châteaudun", lat: 48.07, lon: 1.33 }, { name: "Dreux", lat: 48.73, lon: 1.36 }, { name: "Nogent-le-Rotrou", lat: 48.32, lon: 0.82 }, { name: "Châteauroux", lat: 46.81, lon: 1.69 }, { name: "Écueillé", lat: 47.08, lon: 1.34 }, { name: "Éguzon-Chantôme", lat: 46.44, lon: 1.58 }, { name: "Le Blanc", lat: 46.63, lon: 1.06 }, { name: "Chinon", lat: 47.16, lon: 0.24 }, { name: "Le Grand-Pressigny", lat: 46.92, lon: 0.80 }, { name: "Tours", lat: 47.39, lon: 0.68 }, { name: "Blois", lat: 47.58, lon: 1.33 }, { name: "Romorantin-Lanthenay", lat: 47.35, lon: 1.74 }, { name: "Vendôme", lat: 47.79, lon: 1.06 }, { name: "Montargis", lat: 47.99, lon: 2.73 }, { name: "Orléans", lat: 47.90, lon: 1.90 }, { name: "Pithiviers", lat: 48.17, lon: 2.25 }] },
             corse: { id: 'cor', name: "CORSE", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/corse/region-corse.geojson', padding: [60, 20, 20, 20], center: [42.1, 9.1], zoom: 8.5, cities: [{ name: "Ajaccio", lat: 41.92, lon: 8.73 }, { name: "Figari", lat: 41.48, lon: 9.09 }, { name: "Porto-Vecchio", lat: 41.59, lon: 9.27 }, { name: "Sartène", lat: 41.62, lon: 8.97 }, { name: "Zévaco", lat: 41.89, lon: 9.05 }, { name: "Bastia", lat: 42.69, lon: 9.45 }, { name: "Calvi", lat: 42.56, lon: 8.75 }, { name: "Cervione", lat: 42.33, lon: 9.49 }, { name: "Corte", lat: 42.30, lon: 9.15 }, { name: "Pietralba", lat: 42.54, lon: 9.18 }, { name: "Prunelli-di-Fiumorbo", lat: 42.01, lon: 9.32 }, { name: "Rogliano", lat: 42.95, lon: 9.41 }, { name: "Vico", lat: 42.16, lon: 8.80 }] },
+            "hautes-alpes": {
+                id: '05',
+                name: "HAUTES-ALPES",
+                geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements/05-hautes-alpes/departement-05-hautes-alpes.geojson',
+                padding: [60, 20, 20, 20],
+                center: [44.6, 6.1],
+                zoom: 9.2,
+                cities: [
+                    { name: "Rosans", lat: 44.39, lon: 5.47 },
+                    { name: "Laragne-M.", lat: 44.31, lon: 5.82 },
+                    { name: "Veynes", lat: 44.53, lon: 5.82 },
+                    { name: "St-Étienne-D.", lat: 44.69, lon: 5.94 },
+                    { name: "GAP", lat: 44.55, lon: 6.07 },
+                    { name: "Villar-Loubière", lat: 44.82, lon: 6.14 },
+                    { name: "Orcières", lat: 44.68, lon: 6.32 },
+                    { name: "Savines-le-Lac", lat: 44.52, lon: 6.38 },
+                    { name: "Guillestre", lat: 44.66, lon: 6.65 },
+                    { name: "La Grave", lat: 45.04, lon: 6.30 },
+                    { name: "Briançon", lat: 44.89, lon: 6.64 },
+                    { name: "Aiguilles", lat: 44.78, lon: 6.86 }
+                ]
+            },
+            "alpes-de-haute-provence": {
+                "id": "04",
+                "name": "ALPES-DE-HAUTE-PROVENCE",
+                "geoUrl": "https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements/04-alpes-de-haute-provence/departement-04-alpes-de-haute-provence.geojson",
+                "padding": [60, 20, 20, 20],
+                "center": [44.01, 5.94],
+                "zoom": 9,
+                "cities": [
+                    { "name": "Manosque", "lat": 43.8293, "lon": 5.7896 },
+                    { "name": "Digne-les-Bains", "lat": 44.0954, "lon": 6.2495 },
+                    { "name": "Sisteron", "lat": 44.1993, "lon": 5.9276 },
+                    { "name": "Oraison", "lat": 43.9116, "lon": 5.9232 },
+                    { "name": "Forcalquier", "lat": 43.9582, "lon": 5.7842 },
+                    { "name": "Château-Arnoux", "lat": 44.0801, "lon": 5.9942 }
+                ]
+            },
+            "alpes-maritimes": {
+                "id": "06",
+                "name": "ALPES-MARITIMES",
+                "geoUrl": "https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements/06-alpes-maritimes/departement-06-alpes-maritimes.geojson",
+                "padding": [60, 20, 20, 20],
+                "center": [43.62, 7.08],
+                "zoom": 9,
+                "cities": [
+                    { "name": "Nice", "lat": 43.7032, "lon": 7.2528 },
+                    { "name": "Antibes", "lat": 43.5823, "lon": 7.1048 },
+                    { "name": "Cannes", "lat": 43.5454, "lon": 7.0152 },
+                    { "name": "Cagnes-sur-Mer", "lat": 43.6712, "lon": 7.1502 },
+                    { "name": "Grasse", "lat": 43.656, "lon": 6.937 },
+                    { "name": "Le Cannet", "lat": 43.5745, "lon": 7.001 }
+                ]
+            },
+            "bouches-du-rhone": {
+                "id": "13",
+                "name": "BOUCHES-DU-RHÔNE",
+                "geoUrl": "https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements/13-bouches-du-rhone/departement-13-bouches-du-rhone.geojson",
+                "padding": [60, 20, 20, 20],
+                "center": [43.43, 5.16],
+                "zoom": 9,
+                "cities": [
+                    { "name": "Marseille", "lat": 43.2803, "lon": 5.3806 },
+                    { "name": "Aix-en-Provence", "lat": 43.536, "lon": 5.3879 },
+                    { "name": "Arles", "lat": 43.5441, "lon": 4.6513 },
+                    { "name": "Martigues", "lat": 43.3839, "lon": 5.0451 },
+                    { "name": "Aubagne", "lat": 43.2904, "lon": 5.5643 },
+                    { "name": "Istres", "lat": 43.5455, "lon": 4.9477 }
+                ]
+            },
+            "var": {
+                "id": "83",
+                "name": "VAR",
+                "geoUrl": "https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements/83-var/departement-83-var.geojson",
+                "padding": [60, 20, 20, 20],
+                "center": [43.3, 6.36],
+                "zoom": 9,
+                "cities": [
+                    { "name": "Toulon", "lat": 43.1364, "lon": 5.9334 },
+                    { "name": "La Seyne-sur-Mer", "lat": 43.0837, "lon": 5.8789 },
+                    { "name": "Fréjus", "lat": 43.4553, "lon": 6.7848 },
+                    { "name": "Hyères", "lat": 43.1139, "lon": 6.2357 },
+                    { "name": "Draguignan", "lat": 43.5346, "lon": 6.4651 },
+                    { "name": "Saint-Raphaël", "lat": 43.4582, "lon": 6.8483 }
+                ]
+            },
+            "vaucluse": {
+                "id": "84",
+                "name": "VAUCLUSE",
+                "geoUrl": "https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements/84-vaucluse/departement-84-vaucluse.geojson",
+                "padding": [60, 20, 20, 20],
+                "center": [43.93, 5.05],
+                "zoom": 9,
+                "cities": [
+                    { "name": "Avignon", "lat": 43.9416, "lon": 4.8333 },
+                    { "name": "Carpentras", "lat": 44.0629, "lon": 5.0584 },
+                    { "name": "Orange", "lat": 44.1264, "lon": 4.8031 },
+                    { "name": "Cavaillon", "lat": 43.8485, "lon": 5.0333 },
+                    { "name": "L'Isle-sur-la-Sorgue", "lat": 43.9191, "lon": 5.0588 },
+                    { "name": "Pertuis", "lat": 43.6931, "lon": 5.5345 }
+                ]
+            },
             france_pictos: {
                 id: 'fra_pic', name: "FRANCE - PICTOS", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/france.geojson', padding: [15, 15, 15, 15], center: [46.5, 2.5], zoom: 6, cities: [
                     { name: "BREST", lat: 48.39, lon: -4.48 },
@@ -1905,7 +2023,8 @@
                     { name: "GAP", lat: 44.55, lon: 6.07 },
                     { name: "PERPIGNAN", lat: 42.69, lon: 2.89 },
                     { name: "MONTPELLIER", lat: 43.61, lon: 3.87 },
-                    { name: "MARSEILLE", lat: 43.29, lon: 5.36 },
+                    { name: "MARSEILLE", lat: 43.296, lon: 5.381 },
+                    { name: "AMIENS", lat: 49.894, lon: 2.295 },
                     { name: "NICE", lat: 43.71, lon: 7.26 },
                     { name: "AJACCIO", lat: 41.92, lon: 8.73 },
                     { name: "BASTIA", lat: 42.69, lon: 9.45 }
@@ -1914,6 +2033,7 @@
             cnews: {
                 id: 'cnews', name: "CNEWS", geoUrl: 'https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/france.geojson', padding: [15, 15, 15, 15], center: [46.5, 2.5], zoom: 6, cities: [
                     { name: "LILLE", lat: 50.62, lon: 3.05 },
+                    { name: "LAON", lat: 49.56, lon: 3.62 },
                     { name: "ROUEN", lat: 49.44, lon: 1.10 },
                     { name: "CAEN", lat: 49.18, lon: -0.37 },
                     { name: "BREST", lat: 48.39, lon: -4.48 },
@@ -1921,13 +2041,14 @@
                     { name: "NANTES", lat: 47.21, lon: -1.55 },
                     { name: "PARIS", lat: 48.85, lon: 2.35 },
                     { name: "TOURS", lat: 47.39, lon: 0.68 },
+                    { name: "POITIERS", lat: 46.58, lon: 0.34 },
                     { name: "LA ROCHELLE", lat: 46.16, lon: -1.15 },
                     { name: "BORDEAUX", lat: 44.83, lon: -0.57 },
                     { name: "BIARRITZ", lat: 43.48, lon: -1.56 },
                     { name: "TOULOUSE", lat: 43.60, lon: 1.44 },
                     { name: "PERPIGNAN", lat: 42.69, lon: 2.89 },
                     { name: "MONTPELLIER", lat: 43.61, lon: 3.87 },
-                    { name: "MARSEILLE", lat: 43.29, lon: 5.36 },
+                    { name: "MARSEILLE", lat: 43.296, lon: 5.381 },
                     { name: "NICE", lat: 43.71, lon: 7.26 },
                     { name: "BASTIA", lat: 42.69, lon: 9.45 },
                     { name: "AJACCIO", lat: 41.92, lon: 8.73 },
@@ -1936,6 +2057,7 @@
                     { name: "BESANÇON", lat: 47.23, lon: 6.02 },
                     { name: "DIJON", lat: 47.32, lon: 5.04 },
                     { name: "LYON", lat: 45.76, lon: 4.83 },
+                    { name: "GRENOBLE", lat: 45.18, lon: 5.72 },
                     { name: "LIMOGES", lat: 45.83, lon: 1.26 },
                     { name: "AURILLAC", lat: 44.92, lon: 2.44 },
                     { name: "CLERMONT-FERRAND", lat: 45.78, lon: 3.08 },
@@ -2867,19 +2989,27 @@
 
             currentConfig = zoneConfigs[selectValue];
 
-            // Pour france_pictos : reproduire exactement l'état de la 2ème carte de l'export
+            // Gestion automatique de la visibilité des villes : SHOWN pour cnews, HIDDEN pour le reste par défaut
+            const hideCitiesCheck = document.getElementById('hide-cities-check');
+            if (hideCitiesCheck) {
+                hideCitiesCheck.checked = (selectValue !== 'cnews');
+                toggleCities();
+            }
+
+            // Pour france_pictos et cnews : reproduire exactement l'état de la 2ème carte de l'export
             // autoZoning OFF + markers visibles + mode weather_temp + pas d'ancres
-            if (selectValue === 'france_pictos') {
+            if (selectValue === 'france_pictos' || selectValue === 'cnews') {
                 const autoZoningCheck = document.getElementById('auto-zoning-check');
                 const hideMarkersCheck = document.getElementById('hide-markers-check');
                 const showAnchorsCheck = document.getElementById('show-anchors-check');
                 const paramSelect = document.getElementById('param-select');
                 if (autoZoningCheck) autoZoningCheck.checked = false;
                 if (hideMarkersCheck) hideMarkersCheck.checked = false;
+
                 if (showAnchorsCheck) showAnchorsCheck.checked = false;
                 if (paramSelect && paramSelect.value !== 'weather_temp') paramSelect.value = 'weather_temp';
-            } else if (selectValue === 'france' || selectValue === 'cnews') {
-                // Pour la France entière : re-cocher les piliers par défaut
+            } else if (selectValue === 'france') {
+                // Pour la France entière (avec départements) : re-cocher les piliers par défaut
                 const showAnchorsCheck = document.getElementById('show-anchors-check');
                 if (showAnchorsCheck) showAnchorsCheck.checked = true;
             }
@@ -2902,6 +3032,7 @@
         function clearManualOverrides() {
             manualWeatherOverrides = {};
             manualTempOverrides = {};
+            manualMarkerOffsets = {};
             hiddenMarkers.clear(); // Réinitialise les villes masquées
             suppressedAutoZones.clear(); // Réinitialise les zones supprimées
             clearDrawings(); // Efface dessins et brouillards manuels
@@ -2930,7 +3061,7 @@
         let lastFetchKey = ""; // Pour le cache des données
 
         const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes de validité
-        const CACHE_VERSION = "v5"; // Incrémenter pour forcer le rafraîchissement
+        const CACHE_VERSION = "v7"; // Incrémenter pour forcer le rafraîchissement
 
         async function fetchWeatherData(model) {
             const lats = currentConfig.cities.map(c => c.lat).join(',');
@@ -2972,10 +3103,9 @@
                 loading.style.backgroundColor = 'rgba(0,0,0,0.8)';
             }
 
-            const hourlyParams = "temperature_2m,precipitation,weathercode,wind_gusts_10m,windspeed_10m,winddirection_10m,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high";
-            const dailyParams = "temperature_2m_max,temperature_2m_min,weathercode,sunrise,sunset,precipitation_sum,wind_gusts_10m_max";
-            const models = "arome_france,meteofrance_arpege_world,icon_eu,ecmwf_ifs";
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&hourly=${hourlyParams}&daily=${dailyParams}&models=${models}&forecast_days=16&timezone=Europe/Paris`;
+            const hourlyParams = "temperature_2m,relativehumidity_2m,precipitation,weathercode,pressure_msl,windspeed_10m,wind_gusts_10m,winddirection_10m,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high";
+            const models = "arome_france,ecmwf_ifs"; 
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&hourly=${hourlyParams}&daily=sunrise,sunset&timezone=Europe/Paris&forecast_days=16&models=${models}`;
 
             try {
                 const res = await fetch(url);
@@ -2983,42 +3113,44 @@
                 const rawData = await res.json();
                 const locations = Array.isArray(rawData) ? rawData : [rawData];
 
-                globalWeatherData = locations.filter(loc => loc && loc.hourly).map(loc => {
+                globalWeatherData = locations.map((loc, i) => {
+                    if (!loc || !loc.hourly || !loc.daily) {
+                        console.warn("Données incomplètes pour la ville index " + i + " : " + (currentConfig.cities[i]?.name || "Inconnue"));
+                        return null; 
+                    }
                     const merged = {
                         ...loc,
                         hourly: { time: loc.hourly.time },
                         daily: { time: loc.daily.time }
                     };
 
-                    const vars = ["wind_gusts_10m", "windspeed_10m", "winddirection_10m", "temperature_2m", "weathercode", "precipitation", "cloud_cover", "cloud_cover_low", "cloud_cover_mid", "cloud_cover_high"];
-                    const modelList = ["arome_france", "meteofrance_arpege_world", "icon_eu", "ecmwf_ifs"];
-                    const hLength = 16 * 24;
-                    const dLength = 16;
+                    const vars = ["temperature_2m", "relativehumidity_2m", "precipitation", "weathercode", "pressure_msl", "windspeed_10m", "wind_gusts_10m", "winddirection_10m", "cloud_cover", "cloud_cover_low", "cloud_cover_mid", "cloud_cover_high"];
+                    const modelList = ["arome_france", "ecmwf_ifs"];
 
                     vars.forEach(v => {
-                        let dataTable = new Array(hLength).fill(null);
+                        let dataTable = new Array(loc.hourly.time.length).fill(null);
                         for (const m of modelList) {
                             const modelData = loc.hourly[`${v}_${m}`] || loc.hourly[v];
                             if (modelData) {
                                 for (let i = 0; i < Math.min(dataTable.length, modelData.length); i++) {
-                                    if (dataTable[i] === null && modelData[i] !== null) {
-                                        dataTable[i] = modelData[i];
-                                    }
+                                    // A partir de J+1 (24h), on ignore AROME pour ne garder que ECMWF
+                                    if (i >= 24 && m === "arome_france") continue;
+                                    if (dataTable[i] === null && modelData[i] !== null) dataTable[i] = modelData[i];
                                 }
                             }
                         }
                         merged.hourly[v] = dataTable;
                     });
 
-                    ["temperature_2m_max", "temperature_2m_min", "weathercode", "sunrise", "sunset", "precipitation_sum", "wind_gusts_10m_max"].forEach(v => {
-                        let dailyTable = new Array(dLength).fill(null);
+                    ["sunrise", "sunset"].forEach(v => {
+                        let dailyTable = new Array(loc.daily.time.length).fill(null);
                         for (const m of modelList) {
                             const modelData = loc.daily[`${v}_${m}`] || loc.daily[v];
                             if (modelData) {
-                                for (let i = 0; i < Math.min(dailyTable.length, modelData.length); i++) {
-                                    if (dailyTable[i] === null && modelData[i] !== null) {
-                                        dailyTable[i] = modelData[i];
-                                    }
+                                for (let i = 0; i < Math.min(dailyTable.length, dailyTable.length); i++) {
+                                    // A partir de J+1 (index 1), on ignore AROME
+                                    if (i >= 1 && m === "arome_france") continue;
+                                    if (dailyTable[i] === null && modelData[i] !== null) dailyTable[i] = modelData[i];
                                 }
                             }
                         }
@@ -3340,7 +3472,30 @@
             const dayIdx = parseInt(document.getElementById('day-select').value);
             const param = document.getElementById('param-select').value;
             const periodSelect = document.getElementById('period-select');
-            const period = periodSelect ? periodSelect.value : 'day';
+            let period = periodSelect ? periodSelect.value : 'day';
+            const isSoireeMode = document.getElementById('soiree-mode-check')?.checked;
+
+            if (periodSelect) {
+                const optApresMidi = Array.from(periodSelect.options).find(o => o.value === 'afternoon');
+                const optSoireeDirect = Array.from(periodSelect.options).find(o => o.value === 'evening');
+
+                if (isSoireeMode) {
+                    if (optApresMidi) optApresMidi.innerText = "SOIRÉE";
+                    if (optSoireeDirect) optSoireeDirect.style.display = "none";
+                    // Si on était sur l'option Soirée directe, on bascule sur l'option Après-midi (qui dit maintenant Soirée)
+                    if (periodSelect.value === 'evening') {
+                        periodSelect.value = 'afternoon';
+                        period = 'afternoon';
+                    }
+                } else {
+                    if (optApresMidi) optApresMidi.innerText = "APRÈS-MIDI";
+                    if (optSoireeDirect) optSoireeDirect.style.display = "block";
+                }
+            }
+
+            if (isSoireeMode && period === 'afternoon') {
+                period = 'evening';
+            }
             const bank = document.getElementById('icon-bank-select').value;
 
             // Gestion de l'affichage du sélecteur de période
@@ -3379,7 +3534,7 @@
             }
 
             globalWeatherData.forEach((loc, idx) => {
-                if (hiddenMarkers.has(idx)) {
+                if (hiddenMarkers.has(idx) || !loc) {
                     values[idx] = null;
                     return;
                 }
@@ -3390,18 +3545,18 @@
                 if (period === 'hourly') {
                     const h = hGlobal;
                     if (param.startsWith('gusts')) {
-                        v = Math.round(loc.hourly.wind_gusts_10m[h] / 5) * 5;
+                        v = loc.hourly.wind_gusts_10m[h] !== null ? Math.round(loc.hourly.wind_gusts_10m[h] / 5) * 5 : 0;
                         windData = {
-                            mean: Math.round(loc.hourly.windspeed_10m[h] / 5) * 5,
+                            mean: loc.hourly.windspeed_10m[h] !== null ? Math.round(loc.hourly.windspeed_10m[h] / 5) * 5 : 0,
                             dir: loc.hourly.winddirection_10m[h]
                         };
                     } else if (param.startsWith('precip')) {
                         const rawVal = loc.hourly.precipitation[h];
-                        if (rawVal === 0) v = 0;
+                        if (rawVal === 0 || rawVal === null) v = 0;
                         else if (rawVal < 2.5) v = 1;
                         else v = Math.round(rawVal / 5) * 5;
                     } else {
-                        v = Math.round(loc.hourly.temperature_2m[h]);
+                        v = loc.hourly.temperature_2m[h] !== null ? Math.round(loc.hourly.temperature_2m[h]) : null;
                     }
                 } else if (param.startsWith('gusts')) {
                     const is24h = (period === 'day');
@@ -3410,31 +3565,31 @@
                     const chunk = loc.hourly.wind_gusts_10m.slice(hStart, hEnd);
 
                     const meanChunk = loc.hourly.windspeed_10m.slice(hStart, hEnd);
-                    const maxRawMean = Math.max(...meanChunk);
+                    const validMean = meanChunk.filter(x => x !== null);
+                    const maxRawMean = validMean.length > 0 ? Math.max(...validMean) : 0;
                     let roundedMean = Math.round(maxRawMean / 5) * 5;
                     if (maxRawMean > 0 && roundedMean === 0) roundedMean = 5;
 
-                    const maxIdxInChunk = chunk.indexOf(Math.max(...chunk));
-                    const absoluteIdx = hStart + maxIdxInChunk;
+                    const validChunk = chunk.filter(x => x !== null);
+                    const maxIdxInChunk = validChunk.length > 0 ? chunk.indexOf(Math.max(...validChunk)) : -1;
+                    const absoluteIdx = maxIdxInChunk !== -1 ? hStart + maxIdxInChunk : hStart;
 
                     windData = {
                         mean: roundedMean,
-                        dir: loc.hourly.winddirection_10m[absoluteIdx]
+                        dir: loc.hourly.winddirection_10m[absoluteIdx] || 0
                     };
 
-                    // Priorité à la donnée daily pour le 24h si dispo, sinon calcul hourly
                     if (v === null) {
                         if (is24h && loc.daily && loc.daily.wind_gusts_10m_max && loc.daily.wind_gusts_10m_max[dayIdx] !== null) {
                             v = Math.round(loc.daily.wind_gusts_10m_max[dayIdx] / 5) * 5;
                         } else {
-                            const validChunk = chunk.filter(x => x !== null);
                             v = validChunk.length > 0 ? Math.round(Math.max(...validChunk) / 5) * 5 : 0;
                         }
                     }
                 } else if (v === null) {
                     const is24h = (period === 'day');
-                    const hStart = dayIdx * 24 + (is24h ? 0 : (period === 'morning' ? 0 : period === 'afternoon' ? 11 : period === 'evening' ? 17 : 0));
-                    const hEnd = dayIdx * 24 + (is24h ? 24 : (period === 'morning' ? 11 : period === 'afternoon' ? 18 : period === 'evening' ? 23 : 24));
+                    const isMorning = (period === 'morning');
+                    const isAfternoon = (period === 'afternoon');
 
                     if (param.startsWith('precip')) {
                         let rawVal = 0;
@@ -3442,28 +3597,47 @@
                             rawVal = loc.daily.precipitation_sum[dayIdx];
                         } else {
                             const dataKey = 'precipitation';
+                            const hStart = dayIdx * 24; const hEnd = hStart + 24;
                             const chunk = loc.hourly[dataKey].slice(hStart, hEnd);
-                            rawVal = chunk.reduce((a, b) => a + b, 0);
+                            rawVal = chunk.reduce((a, b) => (a || 0) + (b || 0), 0);
                         }
-
-                        // Règle d'arrondi précise
                         if (rawVal === 0) v = 0;
                         else if (rawVal < 2.5) v = 1;
                         else v = Math.round(rawVal / 5) * 5;
 
                     } else {
-                        const dataKey = 'temperature_2m';
-                        const chunk = loc.hourly[dataKey].slice(hStart, hEnd);
-                        if (period === 'morning') v = Math.round(Math.min(...chunk));
-                        else v = Math.round(Math.max(...chunk));
+                        const wantsMin = (param === 'temp_min' || (param === 'weather_temp' && isMorning));
+                        const wantsMax = (param === 'temp_max' || (param === 'weather_temp' && (isAfternoon || is24h)));
+
+                        if (wantsMin) {
+                            if (loc.daily && loc.daily.temperature_2m_min && loc.daily.temperature_2m_min[dayIdx] !== null) {
+                                v = Math.round(loc.daily.temperature_2m_min[dayIdx]);
+                            } else {
+                                const chunk = loc.hourly.temperature_2m.slice(dayIdx * 24, (dayIdx + 1) * 24).filter(x => x !== null);
+                                v = chunk.length > 0 ? Math.round(Math.min(...chunk)) : null;
+                            }
+                        } else if (wantsMax) {
+                            if (loc.daily && loc.daily.temperature_2m_max && loc.daily.temperature_2m_max[dayIdx] !== null) {
+                                v = Math.round(loc.daily.temperature_2m_max[dayIdx]);
+                            } else {
+                                const chunk = loc.hourly.temperature_2m.slice(dayIdx * 24, (dayIdx + 1) * 24).filter(x => x !== null);
+                                v = chunk.length > 0 ? Math.round(Math.max(...chunk)) : null;
+                            }
+                        } else {
+                            // Paramètre ne demandant ni min/max absolu (evening par exemple)
+                            const hStart = dayIdx * 24 + (period === 'evening' ? 18 : 0);
+                            const hEnd = hStart + 6;
+                            const chunk = loc.hourly.temperature_2m.slice(hStart, hEnd).filter(x => x !== null);
+                            v = chunk.length > 0 ? Math.round(Math.max(...chunk)) : null;
+                        }
                     }
                 }
                 values[idx] = { val: v, wind: windData };
-                if (v < minV) minV = v; if (v > maxV) maxV = v;
+                if (v !== null && v < minV) minV = v; if (v !== null && v > maxV) maxV = v;
             });
 
             // Déterminer le type précis pour la couleur et la légende
-            const isMin = (period === 'morning');
+            const isMin = (param === 'temp_min' || (param === 'weather_temp' && period === 'morning'));
             let colorType = param;
             if (param === 'temp' || param === 'weather_temp') colorType = isMin ? 'temp_min' : 'temp_max';
             else if (param.startsWith('gusts')) colorType = 'gusts';
@@ -3475,8 +3649,8 @@
 
             const allMarkerData = [];
             globalWeatherData.forEach((loc, idx) => {
-                if (hiddenMarkers.has(idx)) return;
-                if (!values[idx]) return; // Ville non retenue (non côtière en mode plage, etc.)
+                if (hiddenMarkers.has(idx) || !loc) return;
+                if (!values[idx]) return; 
 
                 let hIdx = dayIdx * 24 + (period === 'morning' ? 9 : period === 'afternoon' ? 15 : period === 'evening' ? 20 : 12);
                 if (period === 'hourly') hIdx = hGlobal;
@@ -3520,10 +3694,10 @@
                 const isHourly = (period === 'hourly');
 
                 const ghStart = dayIdx * 24 + (is24h ? 0 : (period === 'morning' ? 0 : period === 'afternoon' ? 11 : period === 'evening' ? 17 : 0));
-                const ghEnd = dayIdx * 24 + (is24h ? 24 : (period === 'morning' ? 11 : period === 'afternoon' ? 18 : period === 'evening' ? 23 : 24));
+                const ghEnd = dayIdx * 24 + (is24h ? 24 : (period === 'morning' ? 11 : period === 'afternoon' ? 20 : period === 'evening' ? 23 : 24));
 
                 globalWeatherData.forEach((loc, idx) => {
-                    if (hiddenMarkers.has(idx)) return;
+                    if (hiddenMarkers.has(idx) || !loc) return;
                     const city = currentConfig.cities[idx];
                     if (!city) return;
 
@@ -3570,28 +3744,42 @@
             // GESTION DES MOYENNES NORD/SUD
             const showAvg = document.getElementById('show-averages-check').checked;
             const avgContainer = document.getElementById('averages-container');
-            const isTempOrWeather = (param === 'temp' || param === 'weather_temp' || param === 'weather');
 
-            if (showAvg && isTempOrWeather) {
+            if (showAvg) {
                 avgContainer.style.display = 'flex';
                 let sumNorth = 0, countNorth = 0, sumSouth = 0, countSouth = 0;
 
                 globalWeatherData.forEach((loc, idx) => {
-                    // On prend toutes les villes de la config actuelle qui ne sont pas masquées
-                    if (hiddenMarkers.has(idx)) return;
+                    if (hiddenMarkers.has(idx) || !loc) return;
                     const city = currentConfig.cities[idx];
                     if (!city || city.isAnchor) return;
 
-                    // Calcul de la température MAX réelle de la journée (indépendamment de la période affichée)
-                    const hStart = dayIdx * 24;
-                    const hEnd = hStart + 24;
-                    const dayTemps = loc.hourly.temperature_2m.slice(hStart, hEnd);
-                    const maxT = Math.round(Math.max(...dayTemps));
+                    // On utilise une température spécifique pour les moyennes, même si la carte affiche autre chose (Rafales...)
+                    let v = null;
+                    const isMorning = (period === 'morning');
+                    const wantsMin = (param === 'temp_min' || (param === 'weather_temp' && isMorning) || (param === 'weather' && isMorning));
+
+                    if (wantsMin) {
+                        if (loc.daily && loc.daily.temperature_2m_min && loc.daily.temperature_2m_min[dayIdx] !== null) v = loc.daily.temperature_2m_min[dayIdx];
+                        else {
+                            const chunk = loc.hourly.temperature_2m.slice(dayIdx * 24, (dayIdx + 1) * 24).filter(x => x !== null);
+                            v = chunk.length > 0 ? Math.min(...chunk) : null;
+                        }
+                    } else {
+                        // Par défaut (Après-midi, Soirée, Journée entière), on prend la Max
+                        if (loc.daily && loc.daily.temperature_2m_max && loc.daily.temperature_2m_max[dayIdx] !== null) v = loc.daily.temperature_2m_max[dayIdx];
+                        else {
+                            const chunk = loc.hourly.temperature_2m.slice(dayIdx * 24, (dayIdx + 1) * 24).filter(x => x !== null);
+                            v = chunk.length > 0 ? Math.max(...chunk) : null;
+                        }
+                    }
+
+                    if (v === null) return;
 
                     if (city.lat > 46.5) {
-                        sumNorth += maxT; countNorth++;
+                        sumNorth += v; countNorth++;
                     } else {
-                        sumSouth += maxT; countSouth++;
+                        sumSouth += v; countSouth++;
                     }
                 });
 
@@ -3903,7 +4091,10 @@
         function updateManualTitles() {
             const param = document.getElementById('param-select').value;
             const dayIdx = document.getElementById('day-select').value;
-            const period = document.getElementById('period-select')?.value || 'day';
+            let period = document.getElementById('period-select')?.value || 'day';
+            if (document.getElementById('soiree-mode-check')?.checked && period === 'afternoon') {
+                period = 'evening';
+            }
             updateAutoTitles(param, dayIdx, period);
         }
 
@@ -4103,7 +4294,7 @@
             document.getElementById('loading').style.display = 'flex';
             document.getElementById('commune-actions').style.display = 'flex';
 
-            const models = "arome_france,meteofrance_arpege_world,icon_eu,ecmwf_ifs";
+            const models = "arome_france,ecmwf_ifs";
             const hourlyParams = "temperature_2m,relativehumidity_2m,precipitation,weathercode,pressure_msl,windspeed_10m,wind_gusts_10m,winddirection_10m,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high";
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=${hourlyParams}&daily=sunrise,sunset&timezone=Europe/Paris&forecast_days=16&models=${models}`;
 
@@ -4118,7 +4309,7 @@
                 };
 
                 const vars = ["temperature_2m", "relativehumidity_2m", "precipitation", "weathercode", "pressure_msl", "windspeed_10m", "wind_gusts_10m", "winddirection_10m", "cloud_cover", "cloud_cover_low", "cloud_cover_mid", "cloud_cover_high"];
-                const modelList = ["arome_france", "meteofrance_arpege_world", "icon_eu", "ecmwf_ifs"];
+                const modelList = ["arome_france", "ecmwf_ifs"];
 
                 vars.forEach(v => {
                     let dataTable = new Array(loc.hourly.time.length).fill(null);
@@ -4126,6 +4317,8 @@
                         const modelData = loc.hourly[`${v}_${m}`] || loc.hourly[v];
                         if (modelData) {
                             for (let i = 0; i < Math.min(dataTable.length, modelData.length); i++) {
+                                // A partir de J+1 (24h), on ignore AROME pour ne garder que ECMWF
+                                if (i >= 24 && m === "arome_france") continue;
                                 if (dataTable[i] === null && modelData[i] !== null) dataTable[i] = modelData[i];
                             }
                         }
@@ -4138,7 +4331,9 @@
                     for (const m of modelList) {
                         const modelData = loc.daily[`${v}_${m}`] || loc.daily[v];
                         if (modelData) {
-                            for (let i = 0; i < Math.min(dailyTable.length, modelData.length); i++) {
+                            for (let i = 0; i < Math.min(dailyTable.length, dailyTable.length); i++) {
+                                // A partir de J+1 (index 1), on ignore AROME
+                                if (i >= 1 && m === "arome_france") continue;
                                 if (dailyTable[i] === null && modelData[i] !== null) dailyTable[i] = modelData[i];
                             }
                         }
@@ -4209,8 +4404,8 @@
             const hourly = data.hourly;
             let lastDay = "";
 
-            // Routine : 72 premières heures (3 jours) par pas de 1h (AROME)
-            // Puis jusqu'à 15 jours par pas de 3h (ARPEGE / GFS)
+            // Routine : 24 premières heures (Aujourd'hui) par pas de 1h (AROME)
+            // Puis jusqu'à 15 jours par pas de 3h (ECMWF)
             for (let i = 0; i < hourly.time.length; i++) {
                 // Pas de 1h pour les 72 premières heures, puis pas de 3h
                 if (i > 72 && i % 3 !== 0) continue;
@@ -4220,7 +4415,7 @@
                 const hour = date.getHours() + ":00";
 
                 if (dayName !== lastDay) {
-                    const modelName = i <= 72 ? 'MODÈLE HAUTE RÉSOLUTION (AROME)' : 'MODÈLE MOYENNE ÉCHÉANCE (ARPEGE / GFS)';
+                    const modelName = i < 24 ? 'MODÈLE HAUTE RÉSOLUTION (AROME)' : 'MODÈLE MOYENNE ÉCHÉANCE (ECMWF)';
                     // On ajoute une classe pour forcer un saut de page si on est à J+4 ou J+8 pour éviter les coupes moches
                     const isPageBreak = (lastDay !== "" && (i === 114 || i === 240));
                     html += `<tr class="row-day ${isPageBreak ? 'pdf-page-break' : ''}">
@@ -4265,7 +4460,7 @@
                 </div>
 
                 <div style="margin-top: 20px; text-align: center; color: #7f8c8d; font-size: 0.8em; border-top: 1px solid #eee; padding-top: 10px;">
-                    Données collectées via Open-Meteo (Intégration AROME/ARPEGE Météo-France) • © MÉTÉO-CLIMAT PRO
+                    Données collectées via Open-Meteo (Intégration AROME/ECMWF) • © MÉTÉO-CLIMAT PRO
                 </div>
             `;
 
@@ -4577,7 +4772,7 @@
             const wasAvgChecked = showAvgCheck.checked;
             const isWeatherTemp = (param === 'weather_temp');
             const zone = document.getElementById('zone-select').value;
-            const isNational = (zone === 'france' || zone === 'cnews');
+            const isNational = (zone === 'france' || zone === 'france_pictos');
 
             const shouldDoTripleExport = isNational && (isWeatherTemp || isAutoZoningActive);
 
@@ -4619,9 +4814,9 @@
 
                     const hasStrongGusts = lastZoningGusts.some(g => g.val >= 60);
                     const hasSpecialMarkers = manualSpecialMarkers.length > 0;
-                    const isAfternoonJ3Plus = (dayIdxValue > 3) || (dayIdxValue === 3 && (periodValue === 'afternoon' || periodValue === 'evening' || periodValue === 'day'));
+                    const isJ3Plus = (dayIdxValue >= 3);
 
-                    if (hasStrongGusts || hasSpecialMarkers || isAfternoonJ3Plus) {
+                    if (hasStrongGusts || hasSpecialMarkers || isJ3Plus) {
                         document.getElementById('loading-text').innerText = "GÉNÉRATION SURCOUCHES...";
                         autoZoningCheck.checked = false;
                         hideMarkersCheck.checked = true;
@@ -4690,7 +4885,7 @@
             { name: "Toulouse", lat: 43.60, lon: 1.44 },
             { name: "Perpignan", lat: 42.69, lon: 2.89 },
             { name: "Montpellier", lat: 43.61, lon: 3.87 },
-            { name: "Marseille", lat: 43.29, lon: 5.36 },
+            { name: "Marseille", lat: 43.296, lon: 5.381 },
             { name: "Nice", lat: 43.71, lon: 7.26 },
             { name: "Bastia", lat: 42.69, lon: 9.45 },
             { name: "Ajaccio", lat: 41.92, lon: 8.73 },
@@ -4724,7 +4919,7 @@
                 const lats = MASTER_CSV_CITIES.map(c => c.lat).join(',');
                 const lons = MASTER_CSV_CITIES.map(c => c.lon).join(',');
                 const hourlyParams = "temperature_2m,wind_gusts_10m";
-                const models = "arome_france,meteofrance_arpege_world,icon_eu,ecmwf_ifs";
+                const models = "arome_france,ecmwf_ifs";
                 const forecastDays = 8;
                 
                 const fetchUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&hourly=${hourlyParams}&models=${models}&forecast_days=${forecastDays}&timezone=Europe/Paris`;
@@ -4739,69 +4934,55 @@
 
                 locations.forEach((loc, cityIdx) => {
                     const cityName = MASTER_CSV_CITIES[cityIdx].name;
-                    const modelList = ["arome_france", "meteofrance_arpege_world", "icon_eu", "ecmwf_ifs"];
                     const hLength = forecastDays * 24;
                     const mergedTemp = new Array(hLength).fill(null);
                     const mergedGusts = new Array(hLength).fill(null);
-
-                    for (const m of modelList) {
-                        const tNames = [`temperature_2m_${m}`, "temperature_2m"];
-                        const gNames = [`wind_gusts_10m_${m}`, "wind_gusts_10m"];
-                        
-                        for(const tn of tNames) {
-                            if (loc.hourly[tn]) {
-                                for (let i = 0; i < Math.min(hLength, loc.hourly[tn].length); i++) {
-                                    if (mergedTemp[i] === null && loc.hourly[tn][i] !== null) mergedTemp[i] = loc.hourly[tn][i];
-                                }
+                    
+                    for (let i = 0; i < hLength; i++) {
+                        const dIdx = Math.floor(i / 24);
+                        const modelList = ["arome_france", "ecmwf_ifs"];
+                        for (const m of modelList) {
+                            if (dIdx >= 1 && m === "arome_france") continue;
+                            const tParam = `temperature_2m_${m}`;
+                            const tVal = loc.hourly[tParam] || loc.hourly.temperature_2m;
+                            if (tVal && tVal[i] !== null) {
+                                mergedTemp[i] = tVal[i];
+                                break;
                             }
                         }
-                        for(const gn of gNames) {
-                            if (loc.hourly[gn]) {
-                                for (let i = 0; i < Math.min(hLength, loc.hourly[gn].length); i++) {
-                                    if (mergedGusts[i] === null && loc.hourly[gn][i] !== null) mergedGusts[i] = loc.hourly[gn][i];
-                                }
+                        for (const m of modelList) {
+                            if (dIdx >= 1 && m === "arome_france") continue;
+                            const gParam = `wind_gusts_10m_${m}`;
+                            const gVal = loc.hourly[gParam] || loc.hourly.wind_gusts_10m;
+                            if (gVal && gVal[i] !== null) {
+                                mergedGusts[i] = gVal[i];
+                                break;
                             }
                         }
                     }
 
-                    const dayGroups = {};
-                    loc.hourly.time.forEach((tStr, i) => {
-                        const datePart = tStr.split('T')[0];
-                        if (!dayGroups[datePart]) dayGroups[datePart] = { temps0_11: [], temps11_18: [], gusts: [] };
-                        const hourPart = parseInt(tStr.split('T')[1].split(':')[0]);
-
-                        if (mergedTemp[i] !== null) {
-                            if (hourPart >= 0 && hourPart <= 11) dayGroups[datePart].temps0_11.push(mergedTemp[i]);
-                            if (hourPart >= 11 && hourPart <= 18) dayGroups[datePart].temps11_18.push(mergedTemp[i]);
-                        }
-                        if (mergedGusts[i] !== null) dayGroups[datePart].gusts.push(mergedGusts[i]);
-                    });
-
-                    const sortedDates = Object.keys(dayGroups).sort().slice(0, 7);
-                    sortedDates.forEach((dStr, dOffset) => {
-                        const group = dayGroups[dStr];
-                        const [y, m, d] = dStr.split('-');
-                        const formattedDate = `${d}/${m}/${y}`;
+                    for (let d = 0; d < 7; d++) {
+                        const tChunk = mergedTemp.slice(d * 24, (d + 1) * 24).filter(x => x !== null);
+                        const gChunk = mergedGusts.slice(d * 24, (d + 1) * 24).filter(x => x !== null);
                         
-                        let minVal = group.temps0_11.length > 0 ? Math.min(...group.temps0_11) : null;
-                        let maxVal = group.temps11_18.length > 0 ? Math.max(...group.temps11_18) : null;
-                        const gustMax = group.gusts.length > 0 ? Math.max(...group.gusts) : 0;
+                        let minVal = tChunk.length > 0 ? Math.min(...tChunk) : null;
+                        let maxVal = tChunk.length > 0 ? Math.max(...tChunk) : null;
+                        let gustMax = gChunk.length > 0 ? Math.max(...gChunk) : 0;
                         const roundedGust = Math.round(gustMax / 5) * 5;
-
-                        // INJECTION DES OVERRIDES MANUELS DE LA CARTE POUR UNE COHÉRENCE ABSOLUE
+                        
                         const mapCityIdx = currentConfig.cities.findIndex(c => c.name.toUpperCase() === cityName.toUpperCase());
-                        if (mapCityIdx !== -1 && dOffset === dayIdxOnMap) {
-                            if (paramOnMap === 'temp_min' && manualTempOverrides[mapCityIdx] !== undefined) {
-                                minVal = manualTempOverrides[mapCityIdx];
-                            }
-                            if (paramOnMap === 'temp_max' && manualTempOverrides[mapCityIdx] !== undefined) {
-                                maxVal = manualTempOverrides[mapCityIdx];
+                        if (mapCityIdx !== -1 && d === dayIdxOnMap) {
+                            if (manualTempOverrides[mapCityIdx] !== undefined) {
+                                if (paramOnMap === 'temp_min') minVal = manualTempOverrides[mapCityIdx];
+                                else maxVal = manualTempOverrides[mapCityIdx];
                             }
                         }
 
+                        const dateObj = new Date(loc.hourly.time[d * 24]);
+                        const formattedDate = dateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
                         const formattedCityName = cityName.split('-').map(part => part.split(' ').map(s => s.charAt(0).toUpperCase() + s.substring(1).toLowerCase()).join(' ')).join('-');
                         csvLines.push(`"${formattedCityName}";${formattedDate};${minVal !== null ? Math.round(minVal) : ""};${maxVal !== null ? Math.round(maxVal) : ""};${roundedGust}`);
-                    });
+                    }
                 });
 
                 const csvContent = "\uFEFF" + csvLines.join("\n");
