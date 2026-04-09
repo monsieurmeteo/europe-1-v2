@@ -1999,26 +1999,26 @@
                 "zoom": 11,
                 "preferCenter": true,
                 "cities": [
-                    { "name": "St-Cyr-sur-Mer", "lat": 43.17, "lon": 5.7055 },
-                    { "name": "Bandol", "lat": 43.147, "lon": 5.7488 },
-                    { "name": "Sanary-sur-Mer", "lat": 43.1374, "lon": 5.7951 },
-                    { "name": "Six-Fours", "lat": 43.0843, "lon": 5.8079 },
-                    { "name": "La Seyne", "lat": 43.0837, "lon": 5.8789 },
-                    { "name": "Ollioules", "lat": 43.1385, "lon": 5.8515 },
-                    { "name": "Le Castellet", "lat": 43.2036, "lon": 5.8492 },
-                    { "name": "La Cadière-d'Azur", "lat": 43.1954, "lon": 5.7562 },
-                    { "name": "Le Beausset", "lat": 43.1983, "lon": 5.8028 },
-                    { "name": "Évenos", "lat": 43.1643, "lon": 5.8702 },
-                    { "name": "Toulon", "lat": 43.1364, "lon": 5.9334 },
-                    { "name": "Saint-Mandrier", "lat": 43.0762, "lon": 5.9272 },
-                    { "name": "La Valette-du-Var", "lat": 43.1484, "lon": 5.9893 },
-                    { "name": "La Garde", "lat": 43.129, "lon": 6.0162 },
-                    { "name": "Le Pradet", "lat": 43.0984, "lon": 6.0214 },
-                    { "name": "Carqueiranne", "lat": 43.0975, "lon": 6.0714 },
-                    { "name": "Solliès-Pont", "lat": 43.1895, "lon": 6.0625 },
-                    { "name": "Solliès-Toucas", "lat": 43.2097, "lon": 5.9836 },
-                    { "name": "Solliès-Ville", "lat": 43.1804, "lon": 6.0232 },
-                    { "name": "Belgentier", "lat": 43.2416, "lon": 5.9972 }
+                    { "name": "St-Cyr-sur-Mer", "lat": 43.17, "lon": 5.7055, "labelPos": "top" },
+                    { "name": "Bandol", "lat": 43.147, "lon": 5.7488, "labelPos": "bottom" },
+                    { "name": "Sanary-sur-Mer", "lat": 43.1374, "lon": 5.7951, "labelPos": "top" },
+                    { "name": "Six-Fours", "lat": 43.0843, "lon": 5.8079, "labelPos": "bottom" },
+                    { "name": "La Seyne", "lat": 43.0837, "lon": 5.8789, "labelPos": "top" },
+                    { "name": "Ollioules", "lat": 43.1385, "lon": 5.8515, "labelPos": "top" },
+                    { "name": "Le Castellet", "lat": 43.2036, "lon": 5.8492, "labelPos": "top" },
+                    { "name": "La Cadière-d'Azur", "lat": 43.1954, "lon": 5.7562, "labelPos": "bottom" },
+                    { "name": "Le Beausset", "lat": 43.1983, "lon": 5.8028, "labelPos": "top" },
+                    { "name": "Évenos", "lat": 43.1643, "lon": 5.8702, "labelPos": "top" },
+                    { "name": "Toulon", "lat": 43.1364, "lon": 5.9334, "labelPos": "top" },
+                    { "name": "Saint-Mandrier", "lat": 43.0762, "lon": 5.9272, "labelPos": "bottom" },
+                    { "name": "La Valette-du-Var", "lat": 43.1484, "lon": 5.9893, "labelPos": "top" },
+                    { "name": "La Garde", "lat": 43.129, "lon": 6.0162, "labelPos": "bottom" },
+                    { "name": "Le Pradet", "lat": 43.0984, "lon": 6.0214, "labelPos": "bottom" },
+                    { "name": "Carqueiranne", "lat": 43.0975, "lon": 6.0714, "labelPos": "bottom" },
+                    { "name": "Solliès-Pont", "lat": 43.1895, "lon": 6.0625, "labelPos": "top" },
+                    { "name": "Solliès-Toucas", "lat": 43.2097, "lon": 5.9836, "labelPos": "top" },
+                    { "name": "Solliès-Ville", "lat": 43.1804, "lon": 6.0232, "labelPos": "bottom" },
+                    { "name": "Belgentier", "lat": 43.2416, "lon": 5.9972, "labelPos": "top" }
                 ]
             },
             "vaucluse": {
@@ -4009,31 +4009,36 @@
             }
 
             const isSelected = selectedMarkerIndices.has(idx);
+            
+            // Logique de positionnement du label (DESSUS / DESSOUS)
+            const labelPos = city.labelPos || 'top';
+            const flexDir = labelPos === 'bottom' ? 'column-reverse' : 'column';
 
-            const html = `<div class="weather-marker ${isSmall ? 'is-small' : ''} type-${effectiveType} ${city.isAnchor ? 'is-anchor' : ''} ${isSelected ? 'is-selected' : ''}">
+            const html = `<div class="weather-marker ${isSmall ? 'is-small' : ''} type-${effectiveType} ${city.isAnchor ? 'is-anchor' : ''} ${isSelected ? 'is-selected' : ''}" style="flex-direction:${flexDir};">
                 <span class="city-label">${city.name}${city.isAnchor ? ' (PILIER)' : ''}</span>
                 <div class="marker-content-wrapper">${content}</div>
             </div>`;
 
             // CALCUL ANCRAGE DYNAMIQUE (Ultra-Précision)
-            let iconH = isSmall ? 65 : 100; // Augmenté pour éviter le décalage (était 90)
+            let iconH = isSmall ? 65 : 100;
             if (effectiveType === 'weather' || effectiveType === 'temp' || effectiveType.startsWith('precip')) {
-                iconH = isSmall ? 80 : 120; // Massive pour tous les modes solos
+                iconH = isSmall ? 80 : 120;
             }
 
             const labelH = isSmall ? 14 : 18;
             const margin = 2;
             const totalH = labelH + margin + iconH;
-            let anchorY = labelH + margin + (iconH / 2);
+            
+            let anchorY = (labelPos === 'bottom') ? (iconH / 2) : (labelH + margin + (iconH / 2));
 
             if (effectiveType.startsWith('gusts')) {
                 const isSimple = document.getElementById('simple-wind-check').checked;
                 const arrowH = isSmall ? 26 : 38;
                 const valH = isSmall ? 32 : 52;
-                if (isSimple) {
-                    anchorY = labelH + margin + valH + (arrowH / 2) - 5;
+                if (labelPos === 'bottom') {
+                    anchorY = isSimple ? (valH + arrowH / 2 - 5) : (valH + arrowH / 2);
                 } else {
-                    anchorY = labelH + margin + valH + (arrowH / 2);
+                    anchorY = isSimple ? (labelH + margin + valH + (arrowH / 2) - 5) : (labelH + margin + valH + (arrowH / 2));
                 }
             }
 
