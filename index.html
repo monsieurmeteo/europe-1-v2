@@ -1539,6 +1539,18 @@
                         <option value="gusts">🌪️ RAFALES MAXIMALES</option>
                         <option value="precip">🌧️ CUMULS DE PRÉCIPITATIONS</option>
                     </select>
+
+                    <!-- SÉLECTEUR MODÈLE TEMPÉRATURE J+1 à J+4 -->
+                    <div style="margin-top: 6px;">
+                        <div style="font-size: 10px; color: #4db8ff; font-weight: 900; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px;">🔬 MODÈLE T° (J+1 → J+4)</div>
+                        <select id="temp-model-select" onchange="onTempModelChange();" style="border: 1px solid #4db8ff; margin-bottom: 0;">
+                            <option value="ecmwf_ifs" selected>🌍 ECMWF (défaut)</option>
+                            <option value="gfs_global">🇺🇸 GFS (NCEP)</option>
+                            <option value="icon_global">🇩🇪 ICON (DWD)</option>
+                            <option value="meteofrance_arpege_europe">🇫🇷 ARPEGE (MF)</option>
+                        </select>
+                        <div id="temp-model-label" style="font-size: 9px; color: #666; text-align: center; margin-top: 3px; letter-spacing: 0.5px;">ECMWF IFS — Résolution globale</div>
+                    </div>
                 </div>
 
                 <div class="sidebar-section">
@@ -3163,15 +3175,35 @@
         }
 
         let lastFetchKey = ""; // Pour le cache des données
+        let lastTempModel = "ecmwf_ifs"; // Modèle température actif au dernier fetch
 
         const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes de validité
-        const CACHE_VERSION = "v7"; // Incrémenter pour forcer le rafraîchissement
+        const CACHE_VERSION = "v8"; // Incrémenter pour forcer le rafraîchissement
+
+        // Labels descriptifs pour chaque modèle
+        const TEMP_MODEL_LABELS = {
+            'ecmwf_ifs': 'ECMWF IFS — Résolution globale',
+            'gfs_global': 'GFS NCEP — Modèle américain',
+            'icon_global': 'ICON DWD — Modèle allemand',
+            'meteofrance_arpege_europe': 'ARPEGE MF — Modèle français'
+        };
+
+        function onTempModelChange() {
+            const sel = document.getElementById('temp-model-select');
+            const lbl = document.getElementById('temp-model-label');
+            if (lbl && sel) lbl.innerText = TEMP_MODEL_LABELS[sel.value] || sel.value;
+            // Invalider le cache et recharger les données
+            lastFetchKey = '';
+            lastTempModel = sel.value;
+            handleDayChange(true);
+        }
 
         async function fetchWeatherData(model) {
             const lats = currentConfig.cities.map(c => c.lat).join(',');
             const lons = currentConfig.cities.map(c => c.lon).join(',');
-            const fetchKey = `${lats}|${lons}`;
-            const storageKey = 'weather_cache_' + CACHE_VERSION + '_' + fetchKey;
+            const tempModel = (document.getElementById('temp-model-select')?.value) || 'ecmwf_ifs';
+            const fetchKey = `${lats}|${lons}|${tempModel}`;
+            const storageKey = 'weather_cache_' + CACHE_VERSION + '_' + fetchKey.replace(/[|,]/g, '_');
 
             const loading = document.getElementById('loading');
 
@@ -3189,9 +3221,10 @@
                     const cacheData = JSON.parse(cached);
                     const now = Date.now();
                     if (now - cacheData.timestamp < CACHE_DURATION) {
-                        console.log("Données chargées depuis le cache local (valide).");
+                        console.log("Données chargées depuis le cache local (valide). Modèle T°:", tempModel);
                         globalWeatherData = cacheData.data;
                         lastFetchKey = fetchKey;
+                        lastTempModel = tempModel;
                         if (loading) loading.style.display = 'none';
                         updateDisplay();
                         return;
@@ -3202,20 +3235,24 @@
             }
 
             if (loading) {
-                document.getElementById('loading-text').innerText = "CHARGEMENT DES DONNÉES...";
+                document.getElementById('loading-text').innerText = `CHARGEMENT DES DONNÉES (${tempModel.split('_')[0].toUpperCase()})...`;
                 loading.style.display = 'flex';
                 loading.style.backgroundColor = 'rgba(0,0,0,0.8)';
             }
 
             const hourlyParams = "temperature_2m,relativehumidity_2m,precipitation,weathercode,pressure_msl,windspeed_10m,wind_gusts_10m,winddirection_10m,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high";
-            const models = "arome_france,ecmwf_ifs"; 
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&hourly=${hourlyParams}&daily=sunrise,sunset&timezone=Europe/Paris&forecast_days=16&models=${models}`;
+            // Modèles : AROME pour J0 (météo+vent+pluie), tempModel pour les températures J+1+
+            // On demande toujours AROME + le modèle de température choisi
+            const modelsToFetch = (tempModel === 'ecmwf_ifs') ? 'arome_france,ecmwf_ifs' : `arome_france,ecmwf_ifs,${tempModel}`;
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&hourly=${hourlyParams}&daily=sunrise,sunset&timezone=Europe/Paris&forecast_days=16&models=${modelsToFetch}`;
 
             try {
                 const res = await fetch(url);
                 if (!res.ok) throw new Error("API Error: " + res.status);
                 const rawData = await res.json();
                 const locations = Array.isArray(rawData) ? rawData : [rawData];
+
+                const activeTempModel = tempModel;
 
                 globalWeatherData = locations.map((loc, i) => {
                     if (!loc || !loc.hourly || !loc.daily) {
@@ -3228,17 +3265,17 @@
                         daily: { time: loc.daily.time }
                     };
 
-                    const vars = ["temperature_2m", "relativehumidity_2m", "precipitation", "weathercode", "pressure_msl", "windspeed_10m", "wind_gusts_10m", "winddirection_10m", "cloud_cover", "cloud_cover_low", "cloud_cover_mid", "cloud_cover_high"];
-                    const modelList = ["arome_france", "ecmwf_ifs"];
+                    // Variables NON-température : fusion AROME (J0) + ECMWF (J+1+)
+                    const nonTempVars = ["relativehumidity_2m", "precipitation", "weathercode", "pressure_msl", "windspeed_10m", "wind_gusts_10m", "winddirection_10m", "cloud_cover", "cloud_cover_low", "cloud_cover_mid", "cloud_cover_high"];
+                    const modelListNonTemp = ["arome_france", "ecmwf_ifs"];
 
-                    vars.forEach(v => {
+                    nonTempVars.forEach(v => {
                         let dataTable = new Array(loc.hourly.time.length).fill(null);
-                        for (const m of modelList) {
+                        for (const m of modelListNonTemp) {
                             const modelData = loc.hourly[`${v}_${m}`] || loc.hourly[v];
                             if (modelData) {
                                 for (let i = 0; i < Math.min(dataTable.length, modelData.length); i++) {
-                                    // A partir de J+1 (24h), on ignore AROME pour ne garder que ECMWF
-                                    if (i >= 24 && m === "arome_france") continue;
+                                    if (i >= 24 && m === "arome_france") continue; // AROME uniquement pour J0
                                     if (dataTable[i] === null && modelData[i] !== null) dataTable[i] = modelData[i];
                                 }
                             }
@@ -3246,13 +3283,33 @@
                         merged.hourly[v] = dataTable;
                     });
 
+                    // Variable TEMPÉRATURE : AROME pour J0, modèle sélectionné pour J+1+
+                    {
+                        let dataTable = new Array(loc.hourly.time.length).fill(null);
+                        // J0 : AROME
+                        const aromeData = loc.hourly['temperature_2m_arome_france'] || loc.hourly['temperature_2m'];
+                        if (aromeData) {
+                            for (let i = 0; i < Math.min(24, dataTable.length, aromeData.length); i++) {
+                                if (dataTable[i] === null && aromeData[i] !== null) dataTable[i] = aromeData[i];
+                            }
+                        }
+                        // J+1 : modèle de température sélectionné
+                        const tempModelKey = `temperature_2m_${activeTempModel}`;
+                        const tempData = loc.hourly[tempModelKey] || loc.hourly['temperature_2m_ecmwf_ifs'] || loc.hourly['temperature_2m'];
+                        if (tempData) {
+                            for (let i = 24; i < Math.min(dataTable.length, tempData.length); i++) {
+                                if (dataTable[i] === null && tempData[i] !== null) dataTable[i] = tempData[i];
+                            }
+                        }
+                        merged.hourly['temperature_2m'] = dataTable;
+                    }
+
                     ["sunrise", "sunset"].forEach(v => {
                         let dailyTable = new Array(loc.daily.time.length).fill(null);
-                        for (const m of modelList) {
+                        for (const m of modelListNonTemp) {
                             const modelData = loc.daily[`${v}_${m}`] || loc.daily[v];
                             if (modelData) {
                                 for (let i = 0; i < Math.min(dailyTable.length, dailyTable.length); i++) {
-                                    // A partir de J+1 (index 1), on ignore AROME
                                     if (i >= 1 && m === "arome_france") continue;
                                     if (dailyTable[i] === null && modelData[i] !== null) dailyTable[i] = modelData[i];
                                 }
@@ -3274,11 +3331,12 @@
                     console.warn("LocalStorage saturé, suppression des anciens caches...");
                     for (let i = 0; i < localStorage.length; i++) {
                         const key = localStorage.key(i);
-                        if (key.startsWith('weather_cache_')) localStorage.removeItem(key);
+                        if (key && key.startsWith('weather_cache_')) localStorage.removeItem(key);
                     }
                 }
 
                 lastFetchKey = fetchKey;
+                lastTempModel = activeTempModel;
                 updateDisplay();
                 loading.style.display = 'none';
             } catch (e) {
@@ -5028,10 +5086,11 @@
                 const lats = MASTER_CSV_CITIES.map(c => c.lat).join(',');
                 const lons = MASTER_CSV_CITIES.map(c => c.lon).join(',');
                 const hourlyParams = "temperature_2m,wind_gusts_10m";
-                const models = "arome_france,ecmwf_ifs";
+                const activeTempModel = (document.getElementById('temp-model-select')?.value) || 'ecmwf_ifs';
+                const modelsCSV = (activeTempModel === 'ecmwf_ifs') ? 'arome_france,ecmwf_ifs' : `arome_france,ecmwf_ifs,${activeTempModel}`;
                 const forecastDays = 8;
                 
-                const fetchUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&hourly=${hourlyParams}&models=${models}&forecast_days=${forecastDays}&timezone=Europe/Paris`;
+                const fetchUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&hourly=${hourlyParams}&models=${modelsCSV}&forecast_days=${forecastDays}&timezone=Europe/Paris`;
                 const res = await fetch(fetchUrl);
                 if (!res.ok) throw new Error("API Error: " + res.status);
                 const rawData = await res.json();
@@ -5049,17 +5108,19 @@
                     
                     for (let i = 0; i < hLength; i++) {
                         const dIdx = Math.floor(i / 24);
-                        const modelList = ["arome_france", "ecmwf_ifs"];
-                        for (const m of modelList) {
-                            if (dIdx >= 1 && m === "arome_france") continue;
-                            const tParam = `temperature_2m_${m}`;
-                            const tVal = loc.hourly[tParam] || loc.hourly.temperature_2m;
-                            if (tVal && tVal[i] !== null) {
-                                mergedTemp[i] = tVal[i];
-                                break;
-                            }
+                        if (dIdx === 0) {
+                            // J0 : AROME uniquement pour la température
+                            const tVal = loc.hourly['temperature_2m_arome_france'] || loc.hourly.temperature_2m;
+                            if (tVal && tVal[i] !== null) mergedTemp[i] = tVal[i];
+                        } else {
+                            // J+1+ : modèle de température sélectionné
+                            const tKey = `temperature_2m_${activeTempModel}`;
+                            const tVal = loc.hourly[tKey] || loc.hourly['temperature_2m_ecmwf_ifs'] || loc.hourly.temperature_2m;
+                            if (tVal && tVal[i] !== null) mergedTemp[i] = tVal[i];
                         }
-                        for (const m of modelList) {
+                        // Rafales : AROME (J0) + ECMWF (J+1+) inchangé
+                        const modelListGusts = ["arome_france", "ecmwf_ifs"];
+                        for (const m of modelListGusts) {
                             if (dIdx >= 1 && m === "arome_france") continue;
                             const gParam = `wind_gusts_10m_${m}`;
                             const gVal = loc.hourly[gParam] || loc.hourly.wind_gusts_10m;
