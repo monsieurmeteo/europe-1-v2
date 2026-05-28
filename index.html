@@ -2156,18 +2156,51 @@
             <p style="margin: 0 0 10px 0; font-size: 12px; color: #cbd5e1;">Voici les liens directs que vos développeurs doivent utiliser pour récupérer toutes les données d'un coup.</p>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <!-- FRANCE -->
                 <div style="background: #1e1e24; padding: 10px; border-radius: 8px; border: 1px solid #333;">
-                    <strong style="color: #4db8ff; font-size: 12px; display: block; margin-bottom: 5px;">Toutes les Villes de France</strong>
+                    <strong style="color: #4db8ff; font-size: 12px; display: block; margin-bottom: 5px;">Toutes les Villes de la Carte France</strong>
                     <code style="font-size: 11px; color: #a0aec0; word-break: break-all; display: block; margin-bottom: 5px;">https://ubdevaemtwbzxksjlhjg.supabase.co/functions/v1/weather/region?id=france_pictos</code>
                     <button onclick="navigator.clipboard.writeText('https://ubdevaemtwbzxksjlhjg.supabase.co/functions/v1/weather/region?id=france_pictos'); alert('Lien France copié !');" style="background: #3b82f6; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 10px; cursor: pointer;">COPIER LE LIEN</button>
                 </div>
+                
+                <!-- REGIONS DROPDOWN -->
                 <div style="background: #1e1e24; padding: 10px; border-radius: 8px; border: 1px solid #333;">
-                    <strong style="color: #4db8ff; font-size: 12px; display: block; margin-bottom: 5px;">Ex: Région Ile de France</strong>
-                    <code style="font-size: 11px; color: #a0aec0; word-break: break-all; display: block; margin-bottom: 5px;">https://ubdevaemtwbzxksjlhjg.supabase.co/functions/v1/weather/region?id=fra_idf</code>
-                    <button onclick="navigator.clipboard.writeText('https://ubdevaemtwbzxksjlhjg.supabase.co/functions/v1/weather/region?id=fra_idf'); alert('Lien Ile-de-France copié !');" style="background: #3b82f6; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 10px; cursor: pointer;">COPIER LE LIEN</button>
+                    <strong style="color: #4db8ff; font-size: 12px; display: block; margin-bottom: 5px;">Sélectionnez une Région (ou Sous-Région) :</strong>
+                    <select id="quick-region-select" onchange="updateQuickRegionLink()" style="width: 100%; padding: 4px; font-size: 11px; background: #2d2d30; color: white; border: 1px solid #555; border-radius: 4px; margin-bottom: 8px;">
+                        <option value="hdf">Hauts-de-France (hdf)</option>
+                        <option value="normandie">Normandie (normandie)</option>
+                        <option value="ile-de-france" selected>Ile-de-France (ile-de-france)</option>
+                        <option value="grand-est">Grand Est (grand-est)</option>
+                        <option value="ara">Auvergne-Rhône-Alpes (ara)</option>
+                        <option value="naq">Nouvelle-Aquitaine (naq)</option>
+                        <option value="occitanie">Occitanie (occitanie)</option>
+                        <option value="paca">PACA (paca)</option>
+                        <option value="bfc">Bourgogne-Franche-Comté (bfc)</option>
+                        <option value="bretagne">Bretagne (bretagne)</option>
+                        <option value="pdl">Pays de la Loire (pdl)</option>
+                        <option value="cvl">Centre-Val de Loire (cvl)</option>
+                        <option value="corse">Corse (corse)</option>
+                        <option disabled>──────────</option>
+                        <option value="hautes-alpes">Hautes-Alpes (Zoom)</option>
+                        <option value="alpes-de-haute-provence">Alpes-de-Haute-Provence (Zoom)</option>
+                        <option value="alpes-maritimes">Alpes-Maritimes (Zoom)</option>
+                        <option value="bouches-du-rhone">Bouches-du-Rhône (Zoom)</option>
+                        <option value="var">Var (Zoom)</option>
+                        <option value="vaucluse">Vaucluse (Zoom)</option>
+                    </select>
+                    
+                    <code id="quick-region-url" style="font-size: 11px; color: #a0aec0; word-break: break-all; display: block; margin-bottom: 5px;">https://ubdevaemtwbzxksjlhjg.supabase.co/functions/v1/weather/region?id=ile-de-france</code>
+                    <button onclick="navigator.clipboard.writeText(document.getElementById('quick-region-url').innerText); alert('Lien Région copié !');" style="background: #3b82f6; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 10px; cursor: pointer;">COPIER LE LIEN</button>
+                    
+                    <script>
+                        function updateQuickRegionLink() {
+                            const val = document.getElementById('quick-region-select').value;
+                            document.getElementById('quick-region-url').innerText = `https://ubdevaemtwbzxksjlhjg.supabase.co/functions/v1/weather/region?id=${val}`;
+                        }
+                    </script>
                 </div>
             </div>
-            <p style="margin: 10px 0 0 0; font-size: 11px; color: #94a3b8; font-style: italic;">Note : Remplacez "fra_idf" par l'ID de n'importe quelle région (ex: fra_pac, fra_brt...). N'oubliez pas d'inclure la clé API (x-api-key) dans vos requêtes !</p>
+            <p style="margin: 10px 0 0 0; font-size: 11px; color: #94a3b8; font-style: italic;">N'oubliez pas d'inclure la clé API (x-api-key) dans les en-têtes (headers) de vos requêtes !</p>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
