@@ -1584,20 +1584,20 @@
                 </div>
             </div>
 
-            <!-- EXPORT FRANCE PICTOS CSV (TOUTES LES VARIABLES API) -->
+            <!-- EXPORT RÉGION ACTUELLE CSV (TOUTES LES VARIABLES API) -->
             <div class="sidebar-section" style="border: 2px solid #00bcff; background: rgba(0, 188, 255, 0.1); border-radius: 12px; padding: 10px; margin-bottom: 15px;">
                 <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button onclick="generateFrancePictosDailyCSV()" class="sidebar-btn"
+                    <button onclick="generateRegionDailyCSV()" class="sidebar-btn"
                         style="background: #00bcff; color: #fff; border: none; font-weight: 900; font-size: 13px; width: 100%; transition: transform 0.2s; margin-bottom: 0;">
-                        <i class="fas fa-file-csv"></i> CSV DAILY (FRANCE PICTOS)
+                        <i class="fas fa-file-csv"></i> CSV DAILY (RÉGION ACTUELLE)
                     </button>
-                    <button onclick="generateFrancePictosHourlyCSV()" class="sidebar-btn"
+                    <button onclick="generateRegionHourlyCSV()" class="sidebar-btn"
                         style="background: #008cc3; color: #fff; border: none; font-weight: 900; font-size: 13px; width: 100%; transition: transform 0.2s; margin-bottom: 0;">
-                        <i class="fas fa-clock"></i> CSV HOURLY (FRANCE PICTOS)
+                        <i class="fas fa-clock"></i> CSV HOURLY (RÉGION ACTUELLE)
                     </button>
                 </div>
                 <div style="font-size: 10px; color: #00bcff; margin-top: 5px; font-weight: bold; text-align: center; letter-spacing: 0.5px; text-transform: uppercase;">
-                    Export France Pictos (Toutes Variables)
+                    Export Région (Toutes Variables)
                 </div>
             </div>
 
@@ -5991,21 +5991,23 @@
             }
         }
 
-        async function generateFrancePictosDailyCSV() {
+        async function generateRegionDailyCSV() {
             if (isExporting) return;
             isExporting = true;
             closePickers();
             const loading = document.getElementById('loading');
             const loadingText = document.getElementById('loading-text');
 
+            const rKey = currentRegionKey || 'france_pictos';
+            const cities = zoneConfigs[rKey].cities;
+
             if (loading) {
-                loadingText.innerText = "GÉNÉRATION DU CSV DAILY (39 VILLES)...";
+                loadingText.innerText = "GÉNÉRATION DU CSV DAILY (" + cities.length + " VILLES)...";
                 loading.style.display = 'flex';
                 loading.style.backgroundColor = 'rgba(0,0,0,0.8)';
             }
 
             try {
-                const cities = zoneConfigs.france_pictos.cities;
                 const lats = cities.map(c => c.lat).join(',');
                 const lons = cities.map(c => c.lon).join(',');
                 const dailyParams = "weathercode,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,uv_index_max,uv_index_clear_sky_max,precipitation_sum,rain_sum,showers_sum,snowfall_sum,precipitation_hours,precipitation_probability_max,windspeed_10m_max,windgusts_10m_max,winddirection_10m_dominant,shortwave_radiation_sum";
@@ -6060,7 +6062,7 @@
                 const ts = `${yyyy}-${mm}-${dd}`;
                 
                 link.setAttribute("href", downloadUrl);
-                link.setAttribute("download", `france_pictos_daily_${ts}.csv`);
+                link.setAttribute("download", `${rKey}_daily_${ts}.csv`);
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -6074,21 +6076,23 @@
             }
         }
 
-        async function generateFrancePictosHourlyCSV() {
+        async function generateRegionHourlyCSV() {
             if (isExporting) return;
             isExporting = true;
             closePickers();
             const loading = document.getElementById('loading');
             const loadingText = document.getElementById('loading-text');
 
+            const rKey = currentRegionKey || 'france_pictos';
+            const cities = zoneConfigs[rKey].cities;
+
             if (loading) {
-                loadingText.innerText = "GÉNÉRATION DU CSV HOURLY (39 VILLES)...";
+                loadingText.innerText = "GÉNÉRATION DU CSV HOURLY (" + cities.length + " VILLES)...";
                 loading.style.display = 'flex';
                 loading.style.backgroundColor = 'rgba(0,0,0,0.8)';
             }
 
             try {
-                const cities = zoneConfigs.france_pictos.cities;
                 const lats = cities.map(c => c.lat).join(',');
                 const lons = cities.map(c => c.lon).join(',');
                 const hourlyParams = "temperature_2m,relativehumidity_2m,dewpoint_2m,apparent_temperature,precipitation_probability,precipitation,rain,showers,snowfall,snow_depth,weathercode,pressure_msl,surface_pressure,cloudcover,cloudcover_low,cloudcover_mid,cloudcover_high,visibility,evapotranspiration,vapour_pressure_deficit,windspeed_10m,windgusts_10m,winddirection_10m,soil_temperature_0cm,soil_temperature_6cm,soil_temperature_18cm,soil_temperature_54cm,soil_moisture_0_1cm,soil_moisture_1_3cm,soil_moisture_3_9cm,soil_moisture_9_27cm,soil_moisture_27_81cm";
@@ -6140,7 +6144,7 @@
                 const ts = `${yyyy}-${mm}-${dd}`;
                 
                 link.setAttribute("href", downloadUrl);
-                link.setAttribute("download", `france_pictos_hourly_${ts}.csv`);
+                link.setAttribute("download", `${rKey}_hourly_${ts}.csv`);
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
