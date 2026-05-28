@@ -5998,7 +5998,7 @@
             const loading = document.getElementById('loading');
             const loadingText = document.getElementById('loading-text');
 
-            const rKey = currentRegionKey || 'france_pictos';
+            const rKey = document.getElementById('zone-select').value || 'france_pictos';
             const cities = zoneConfigs[rKey].cities;
 
             if (loading) {
@@ -6083,7 +6083,7 @@
             const loading = document.getElementById('loading');
             const loadingText = document.getElementById('loading-text');
 
-            const rKey = currentRegionKey || 'france_pictos';
+            const rKey = document.getElementById('zone-select').value || 'france_pictos';
             const cities = zoneConfigs[rKey].cities;
 
             if (loading) {
