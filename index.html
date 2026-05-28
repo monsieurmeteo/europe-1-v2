@@ -1584,6 +1584,34 @@
                 </div>
             </div>
 
+            <!-- EXPORT FRANCE PICTOS CSV (TOUTES LES VARIABLES API) -->
+            <div class="sidebar-section" style="border: 2px solid #00bcff; background: rgba(0, 188, 255, 0.1); border-radius: 12px; padding: 10px; margin-bottom: 15px;">
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <button onclick="generateFrancePictosDailyCSV()" class="sidebar-btn"
+                        style="background: #00bcff; color: #fff; border: none; font-weight: 900; font-size: 13px; width: 100%; transition: transform 0.2s; margin-bottom: 0;">
+                        <i class="fas fa-file-csv"></i> CSV DAILY (FRANCE PICTOS)
+                    </button>
+                    <button onclick="generateFrancePictosHourlyCSV()" class="sidebar-btn"
+                        style="background: #008cc3; color: #fff; border: none; font-weight: 900; font-size: 13px; width: 100%; transition: transform 0.2s; margin-bottom: 0;">
+                        <i class="fas fa-clock"></i> CSV HOURLY (FRANCE PICTOS)
+                    </button>
+                </div>
+                <div style="font-size: 10px; color: #00bcff; margin-top: 5px; font-weight: bold; text-align: center; letter-spacing: 0.5px; text-transform: uppercase;">
+                    Export France Pictos (Toutes Variables)
+                </div>
+            </div>
+
+            <!-- BOUTON API EXPLORER -->
+            <div class="sidebar-section" style="border: 2px solid #a855f7; background: rgba(168, 85, 247, 0.1); border-radius: 12px; padding: 10px; margin-bottom: 15px;">
+                <button onclick="openApiExplorer()" class="sidebar-btn"
+                    style="background: linear-gradient(135deg, #a855f7, #7c3aed); color: #fff; border: none; font-weight: 900; font-size: 14px; width: 100%; transition: transform 0.2s; margin-bottom: 0; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3); cursor: pointer;">
+                    <i class="fas fa-plug"></i> ACCÈS API &amp; ENDPOINTS
+                </button>
+                <div style="font-size: 10px; color: #a855f7; margin-top: 5px; font-weight: bold; text-align: center; letter-spacing: 0.5px; text-transform: uppercase;">
+                    Documentation &amp; Testeur Live
+                </div>
+            </div>
+
             <div id="commune-search-section" class="sidebar-section" style="display:none;">
                 <h3>RECHERCHE COMMUNE</h3>
                 <div class="search-container">
@@ -2101,6 +2129,146 @@
         <h3 style="text-align:center; color:#e74c3c; margin: 0 0 15px 0; font-weight: 900;">SUPPRIMER CETTE ZONE ?</h3>
         <button onclick="confirmDeleteZone()" class="modal-btn btn-delete">OUI, SUPPRIMER</button>
         <button onclick="closePickers()" class="modal-btn btn-cancel">NON, ANNULER</button>
+    </div>
+
+    <!-- API Explorer Modal -->
+    <div id="api-info-modal" class="custom-modal" style="width: 780px; max-width: 95vw; max-height: 85vh; overflow-y: auto; border: 2px solid #a855f7; background: rgba(10, 10, 15, 0.98); border-radius: 20px; box-shadow: 0 0 50px rgba(168, 85, 247, 0.35); padding: 25px; color: #e2e8f0; font-family: 'Roboto Condensed', sans-serif;">
+        <h3 style="text-align: center; color: #a855f7; margin: 0 0 15px 0; font-weight: 900; font-size: 1.5rem; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <i class="fas fa-server"></i> EXPLORATEUR &amp; TESTEUR API MÉTÉO
+        </h3>
+        
+        <!-- WARNING / EXPLANATION NOTE -->
+        <div style="background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 20px; font-size: 12px; line-height: 1.5;">
+            <strong style="color: #eab308; display: block; margin-bottom: 5px; font-size: 13px;">
+                <i class="fas fa-exclamation-triangle"></i> Important pour le navigateur
+            </strong>
+            Si vous collez directement les liens de l'API dans votre navigateur, vous obtiendrez une erreur 
+            <code style="background: rgba(0,0,0,0.3); padding: 2px 5px; border-radius: 4px; color: #ef4444; font-weight: bold;">"Missing API Key"</code> ou 
+            <code style="background: rgba(0,0,0,0.3); padding: 2px 5px; border-radius: 4px; color: #ef4444; font-weight: bold;">"Unauthorized"</code>.
+            C'est tout à fait normal ! L'API est sécurisée et requiert que la clé soit transmise via l'en-tête (header) HTTP 
+            <code style="background: rgba(0,0,0,0.3); padding: 2px 5px; border-radius: 4px; color: #4db8ff; font-weight: bold;">x-api-key</code>.
+            Utilisez le testeur ci-dessous ou un outil comme Postman ou cURL pour tester avec les bons en-têtes.
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <!-- PROJECT CONFIG -->
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 15px;">
+                <label style="display: block; font-weight: bold; color: #a855f7; margin-bottom: 6px; font-size: 13px; text-transform: uppercase;">
+                    1. Sélectionner le Projet Supabase :
+                </label>
+                <select id="api-project-select" onchange="updateApiExplorerUrls()" style="width: 100%; padding: 8px; background: #18181b; border: 1px solid #3f3f46; border-radius: 6px; color: #fff; font-weight: bold; cursor: pointer; outline: none;">
+                    <option value="dzdjpjkzgnbebwuqrsic" selected>SITE METEO CLIMAT PRO (Production)</option>
+                    <option value="ubdevaemtwbzxksjlhjg">Données météo site (Secondaire)</option>
+                </select>
+            </div>
+
+            <!-- API KEY CONFIG -->
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 15px;">
+                <label style="display: block; font-weight: bold; color: #a855f7; margin-bottom: 6px; font-size: 13px; text-transform: uppercase;">
+                    2. Clé d'API (x-api-key) :
+                </label>
+                <div style="display: flex; gap: 6px;">
+                    <input type="text" id="api-key-input" value="weather-master-key-2026-cnews" readonly style="flex: 1; padding: 8px; background: #18181b; border: 1px solid #3f3f46; border-radius: 6px; color: #2ecc71; font-weight: bold; font-family: monospace; font-size: 12px; text-align: center;">
+                    <button onclick="copyApiExplorerField('api-key-input')" style="background: #27ae60; border: none; color: white; padding: 0 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; transition: background 0.2s;">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ENDPOINT NAVIGATION -->
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+            <label style="display: block; font-weight: bold; color: #a855f7; margin-bottom: 8px; font-size: 13px; text-transform: uppercase;">
+                3. Choisir un Point d'Accès (Endpoint) :
+            </label>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">
+                <button id="api-tab-forecast" class="tab-btn" onclick="switchApiTab('forecast')" style="padding: 8px; font-size: 11px; font-weight: bold; border-radius: 6px; border: 1px solid #3a6080; background: rgba(124, 58, 237, 0.15); color: #c084fc; cursor: pointer;">/forecast (Unifié)</button>
+                <button id="api-tab-region" class="tab-btn" onclick="switchApiTab('region')" style="padding: 8px; font-size: 11px; font-weight: bold; border-radius: 6px; border: 1px solid #3f3f46; background: transparent; color: #a1a1aa; cursor: pointer;">/region (Lot Villes)</button>
+                <button id="api-tab-current" class="tab-btn" onclick="switchApiTab('current')" style="padding: 8px; font-size: 11px; font-weight: bold; border-radius: 6px; border: 1px solid #3f3f46; background: transparent; color: #a1a1aa; cursor: pointer;">/current (Actuel)</button>
+                <button id="api-tab-hourly" class="tab-btn" onclick="switchApiTab('hourly')" style="padding: 8px; font-size: 11px; font-weight: bold; border-radius: 6px; border: 1px solid #3f3f46; background: transparent; color: #a1a1aa; cursor: pointer;">/hourly (Horaire)</button>
+                <button id="api-tab-daily" class="tab-btn" onclick="switchApiTab('daily')" style="padding: 8px; font-size: 11px; font-weight: bold; border-radius: 6px; border: 1px solid #3f3f46; background: transparent; color: #a1a1aa; cursor: pointer;">/daily (Quotidien)</button>
+                <button id="api-tab-alerts" class="tab-btn" onclick="switchApiTab('alerts')" style="padding: 8px; font-size: 11px; font-weight: bold; border-radius: 6px; border: 1px solid #3f3f46; background: transparent; color: #a1a1aa; cursor: pointer;">/alerts (Alertes)</button>
+            </div>
+
+            <!-- DYNAMIC ENDPOINT INFO -->
+            <div id="endpoint-desc" style="font-size: 12px; color: #cbd5e1; margin-bottom: 12px; border-left: 3px solid #7c3aed; padding-left: 10px; line-height: 1.4;">
+                <!-- Filled dynamically -->
+            </div>
+
+            <!-- DYNAMIC ENDPOINT URL -->
+            <label style="display: block; font-weight: bold; color: #94a3b8; margin-bottom: 4px; font-size: 11px; text-transform: uppercase;">URL de la requête :</label>
+            <div style="display: flex; gap: 6px; margin-bottom: 15px;">
+                <input type="text" id="api-url-display" readonly style="flex: 1; padding: 8px; background: #09090b; border: 1px solid #27272a; border-radius: 6px; color: #38bdf8; font-family: monospace; font-size: 11px;">
+                <button onclick="copyApiExplorerField('api-url-display')" style="background: #2563eb; border: none; color: white; padding: 0 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; transition: background 0.2s;">
+                    <i class="fas fa-copy"></i> Copier
+                </button>
+            </div>
+
+            <!-- LIVE TEST SETUP -->
+            <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 12px; border: 1px solid rgba(255,255,255,0.03);">
+                <div style="font-weight: bold; font-size: 12px; margin-bottom: 8px; color: #a855f7; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-vial"></i> Configuration du Test :
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                    <!-- Coordinates controls -->
+                    <div id="api-param-coords" style="display: flex; gap: 8px; align-items: center;">
+                        <span style="font-size: 11px; color: #94a3b8;">Latitude :</span>
+                        <input type="number" id="api-param-lat" value="50.63" step="0.01" onchange="updateApiExplorerUrls()" style="width: 75px; padding: 4px 8px; background: #18181b; border: 1px solid #3f3f46; border-radius: 4px; color: white; font-size: 11px;">
+                        <span style="font-size: 11px; color: #94a3b8;">Longitude :</span>
+                        <input type="number" id="api-param-lon" value="3.06" step="0.01" onchange="updateApiExplorerUrls()" style="width: 75px; padding: 4px 8px; background: #18181b; border: 1px solid #3f3f46; border-radius: 4px; color: white; font-size: 11px;">
+                    </div>
+                    
+                    <!-- Region controls -->
+                    <div id="api-param-region" style="display: none; gap: 8px; align-items: center;">
+                        <span style="font-size: 11px; color: #94a3b8;">Région ID :</span>
+                        <select id="api-param-region-id" onchange="updateApiExplorerUrls()" style="padding: 4px 8px; background: #18181b; border: 1px solid #3f3f46; border-radius: 4px; color: white; font-size: 11px; cursor: pointer;">
+                            <option value="france_pictos">France Pictos (39 villes)</option>
+                            <option value="fra">France entière (56 villes)</option>
+                            <option value="hdf">Hauts-de-France (26 villes)</option>
+                            <option value="nor">Normandie (26 villes)</option>
+                            <option value="idf">Île-de-France (29 villes)</option>
+                            <option value="ges">Grand Est (28 villes)</option>
+                            <option value="ara">Auvergne-Rhône-Alpes (27 villes)</option>
+                            <option value="naq">Nouvelle-Aquitaine (19 villes)</option>
+                            <option value="occ">Occitanie (22 villes)</option>
+                            <option value="pac">PACA (23 villes)</option>
+                            <option value="bfc">Bourgogne-Franche-Comté (25 villes)</option>
+                            <option value="bre">Bretagne (16 villes)</option>
+                            <option value="pdl">Pays de la Loire (21 villes)</option>
+                            <option value="cvl">Centre-Val de Loire (21 villes)</option>
+                            <option value="cor">Corse (13 villes)</option>
+                        </select>
+                        <label style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: #94a3b8; cursor: pointer; margin-left: 10px;">
+                            <input type="checkbox" id="api-param-region-hourly" checked onchange="updateApiExplorerUrls()"> Inclure les heures
+                        </label>
+                    </div>
+
+                    <!-- Test Button -->
+                    <button onclick="runApiExplorerTest()" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 900; margin-left: auto; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);">
+                        <i class="fas fa-play"></i> TESTER LIVE
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESPONSE DISPLAY -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: bold; color: #a855f7; margin-bottom: 6px; font-size: 13px; text-transform: uppercase;">
+                4. Réponse de l'API (Live JSON) :
+            </label>
+            <div style="position: relative;">
+                <pre id="api-test-response" style="background: #09090b; border: 1px solid #27272a; border-radius: 10px; padding: 15px; max-height: 250px; overflow: auto; margin: 0; font-family: monospace; font-size: 11px; line-height: 1.5; color: #e2e8f0; text-align: left; white-space: pre-wrap;">Veuillez cliquer sur "TESTER LIVE" pour lancer une requête en temps réel vers votre Edge Function Supabase...</pre>
+                <div id="api-test-loader" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(9, 9, 11, 0.85); border-radius: 10px; align-items: center; justify-content: center; flex-direction: column; gap: 10px;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #a855f7;"></i>
+                    <span style="font-size: 12px; color: #a855f7; font-weight: bold; letter-spacing: 0.5px;">APPEL EDGE FUNCTION EN COURS...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px;">
+            <button onclick="closePickers()" style="margin: 0; background: #3f3f46; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; transition: background 0.2s;">FERMER L'EXPLORATEUR</button>
+        </div>
     </div>
 
 
@@ -3729,6 +3897,184 @@
             document.getElementById('icon-picker-modal').style.display = 'none';
             document.getElementById('temp-picker-modal').style.display = 'none';
             document.getElementById('zone-delete-modal').style.display = 'none';
+            const apiModal = document.getElementById('api-info-modal');
+            if (apiModal) apiModal.style.display = 'none';
+        }
+
+        let activeApiTab = 'forecast';
+
+        function switchApiTab(tabName) {
+            // Remove active style from all api tabs
+            const tabs = ['forecast', 'region', 'current', 'hourly', 'daily', 'alerts'];
+            tabs.forEach(t => {
+                const btn = document.getElementById('api-tab-' + t);
+                if (btn) {
+                    btn.style.background = 'transparent';
+                    btn.style.color = '#a1a1aa';
+                    btn.style.borderColor = '#3f3f46';
+                }
+            });
+
+            // Set active style for selected tab
+            const activeBtn = document.getElementById('api-tab-' + tabName);
+            if (activeBtn) {
+                activeBtn.style.background = 'rgba(124, 58, 237, 0.15)';
+                activeBtn.style.color = '#c084fc';
+                activeBtn.style.borderColor = '#3a6080';
+            }
+
+            activeApiTab = tabName;
+
+            // Toggle input visibility
+            const coordsDiv = document.getElementById('api-param-coords');
+            const regionDiv = document.getElementById('api-param-region');
+            
+            if (tabName === 'region') {
+                if (coordsDiv) coordsDiv.style.display = 'none';
+                if (regionDiv) regionDiv.style.display = 'flex';
+            } else {
+                if (coordsDiv) coordsDiv.style.display = 'flex';
+                if (regionDiv) regionDiv.style.display = 'none';
+            }
+
+            updateApiExplorerUrls();
+        }
+
+        function updateApiExplorerUrls() {
+            const projectSelect = document.getElementById('api-project-select');
+            if (!projectSelect) return;
+            const projectRef = projectSelect.value;
+            const baseUrl = `https://${projectRef}.supabase.co/functions/v1/weather`;
+            
+            let queryParams = '';
+            let description = '';
+
+            if (activeApiTab === 'forecast') {
+                const lat = document.getElementById('api-param-lat').value || '50.63';
+                const lon = document.getElementById('api-param-lon').value || '3.06';
+                queryParams = `forecast?lat=${lat}&lon=${lon}`;
+                description = "<strong>Description:</strong> Récupère les prévisions météo unifiées pour les coordonnées géographiques spécifiées. Renvoie la météo actuelle, les prévisions horaires (16 jours, 32 variables) et quotidiennes (16 jours, 19 variables) dans un seul et unique payload optimisé.";
+            } else if (activeApiTab === 'region') {
+                const regionId = document.getElementById('api-param-region-id').value || 'france_pictos';
+                const hourlyChecked = document.getElementById('api-param-region-hourly').checked;
+                queryParams = `region?id=${regionId}${hourlyChecked ? '&hourly=true' : ''}`;
+                description = "<strong>Description:</strong> Récupère les prévisions météo agrégées pour toutes les villes d'une région ou d'un lot en un seul appel API parallèle (ex: 39 villes pour la carte 'France Pictos'). Comporte des optimisations de parallélisation et de cache spatial/temporel.";
+            } else if (activeApiTab === 'current') {
+                const lat = document.getElementById('api-param-lat').value || '50.63';
+                const lon = document.getElementById('api-param-lon').value || '3.06';
+                queryParams = `current?lat=${lat}&lon=${lon}`;
+                description = "<strong>Description:</strong> Renvoie uniquement les conditions météorologiques actuelles pour les coordonnées géographiques spécifiées (température, vent, et condition verbale textuelle convertie).";
+            } else if (activeApiTab === 'hourly') {
+                const lat = document.getElementById('api-param-lat').value || '50.63';
+                const lon = document.getElementById('api-param-lon').value || '3.06';
+                queryParams = `hourly?lat=${lat}&lon=${lon}`;
+                description = "<strong>Description:</strong> Renvoie les données et grilles horaires uniquement (température, humidité, point de rosée, précipitations, couverture nuageuse, vitesse/rafales de vent, température/humidité du sol, etc.) pour 16 jours.";
+            } else if (activeApiTab === 'daily') {
+                const lat = document.getElementById('api-param-lat').value || '50.63';
+                const lon = document.getElementById('api-param-lon').value || '3.06';
+                queryParams = `daily?lat=${lat}&lon=${lon}`;
+                description = "<strong>Description:</strong> Renvoie les résumés quotidiens uniquement pour 16 jours (min/max température, levé/couché de soleil, indice UV, cumuls de pluie, heures de précipitations, vent maximum, etc.).";
+            } else if (activeApiTab === 'alerts') {
+                const lat = document.getElementById('api-param-lat').value || '50.63';
+                const lon = document.getElementById('api-param-lon').value || '3.06';
+                queryParams = `alerts?lat=${lat}&lon=${lon}`;
+                description = "<strong>Description:</strong> Analyse les conditions à venir et renvoie une alerte personnalisée en fonction de seuils critiques pré-paramétrés (rafales de vent > 45km/h, gel < 0°C, canicule > 35°C, pluies torrentielles > 20mm/j).";
+            }
+
+            const fullUrl = `${baseUrl}/${queryParams}`;
+            const urlDisplay = document.getElementById('api-url-display');
+            if (urlDisplay) urlDisplay.value = fullUrl;
+            
+            const descDiv = document.getElementById('endpoint-desc');
+            if (descDiv) descDiv.innerHTML = description;
+        }
+
+        function copyApiExplorerField(fieldId) {
+            const input = document.getElementById(fieldId);
+            if (!input) return;
+            
+            input.select();
+            input.setSelectionRange(0, 99999);
+            
+            try {
+                navigator.clipboard.writeText(input.value);
+                alert("Copié dans le presse-papiers avec succès !");
+            } catch (err) {
+                // Fallback
+                document.execCommand('copy');
+                alert("Copié dans le presse-papiers avec succès !");
+            }
+        }
+
+        function openApiExplorer() {
+            closePickers();
+            document.getElementById('modal-overlay').style.display = 'block';
+            document.getElementById('api-info-modal').style.display = 'block';
+            switchApiTab('forecast'); // default to forecast tab
+        }
+
+        async function runApiExplorerTest() {
+            const url = document.getElementById('api-url-display').value;
+            const apiKey = document.getElementById('api-key-input').value;
+            
+            const responsePre = document.getElementById('api-test-response');
+            const loader = document.getElementById('api-test-loader');
+            
+            if (!responsePre || !loader) return;
+            
+            responsePre.textContent = '';
+            loader.style.display = 'flex';
+            
+            try {
+                const startTime = Date.now();
+                const res = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'x-api-key': apiKey
+                    }
+                });
+                
+                const duration = Date.now() - startTime;
+                
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    responsePre.style.color = '#ef4444';
+                    responsePre.textContent = `Erreur HTTP ${res.status}: ${res.statusText}\n\n` + JSON.stringify(errData, null, 4);
+                } else {
+                    const data = await res.json();
+                    responsePre.style.color = '#2ecc71';
+                    
+                    // Truncate hourly/daily array display if it's too huge just to keep reading pleasant
+                    let displayData = {...data};
+                    if (displayData.hourly && displayData.hourly.length > 3) {
+                        displayData.hourly = [
+                            displayData.hourly[0],
+                            displayData.hourly[1],
+                            `... ${displayData.hourly.length - 2} heures masquées pour la clarté de l'affichage ...`
+                        ];
+                    }
+                    if (displayData.daily && displayData.daily.length > 3) {
+                        displayData.daily = [
+                            displayData.daily[0],
+                            displayData.daily[1],
+                            `... ${displayData.daily.length - 2} jours masqués pour la clarté de l'affichage ...`
+                        ];
+                    }
+                    if (displayData.cities && displayData.cities.length > 2) {
+                        displayData.cities = [
+                            displayData.cities[0],
+                            `... ${displayData.cities.length - 1} autres villes masquées pour la clarté de l'affichage ...`
+                        ];
+                    }
+                    
+                    responsePre.textContent = `// Requête réussie en ${duration}ms !\n// (Structure élaguée à l'affichage pour lisibilité)\n\n` + JSON.stringify(displayData, null, 4);
+                }
+            } catch (err) {
+                responsePre.style.color = '#ef4444';
+                responsePre.textContent = `Erreur de connexion réseau :\n\n${err.message}\n\nAssurez-vous que l'Edge function est déployée et active sur le projet sélectionné.`;
+            } finally {
+                loader.style.display = 'none';
+            }
         }
 
         function applyManualTemp() {
@@ -5694,6 +6040,169 @@
                 const filenameSuffix = startOffset > 0 ? "_veille" : "";
                 link.setAttribute("href", downloadUrl);
                 link.setAttribute("download", `meteo_export_complet_${ts}${filenameSuffix}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+            } catch (error) {
+                console.error("Export Error:", error);
+                alert("Erreur lors de la génération du CSV.");
+            } finally {
+                if (loading) loading.style.display = 'none';
+                isExporting = false;
+            }
+        }
+
+        async function generateFrancePictosDailyCSV() {
+            if (isExporting) return;
+            isExporting = true;
+            closePickers();
+            const loading = document.getElementById('loading');
+            const loadingText = document.getElementById('loading-text');
+
+            if (loading) {
+                loadingText.innerText = "GÉNÉRATION DU CSV DAILY (39 VILLES)...";
+                loading.style.display = 'flex';
+                loading.style.backgroundColor = 'rgba(0,0,0,0.8)';
+            }
+
+            try {
+                const cities = zoneConfigs.france_pictos.cities;
+                const lats = cities.map(c => c.lat).join(',');
+                const lons = cities.map(c => c.lon).join(',');
+                const dailyParams = "weathercode,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,uv_index_max,uv_index_clear_sky_max,precipitation_sum,rain_sum,showers_sum,snowfall_sum,precipitation_hours,precipitation_probability_max,windspeed_10m_max,windgusts_10m_max,winddirection_10m_dominant,shortwave_radiation_sum";
+                const forecastDays = 16;
+                
+                const fetchUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&daily=${dailyParams}&forecast_days=${forecastDays}&timezone=Europe/Paris`;
+                const res = await fetch(fetchUrl);
+                if (!res.ok) throw new Error("API Error: " + res.status);
+                const rawData = await res.json();
+                const locations = Array.isArray(rawData) ? rawData : [rawData];
+
+                const sampleDaily = locations[0].daily;
+                const dailyKeys = Object.keys(sampleDaily).filter(k => k !== "time");
+                const headers = ["Ville", "Latitude", "Longitude", "Date", ...dailyKeys];
+                const csvLines = [headers.join(";")];
+
+                locations.forEach((loc, cityIdx) => {
+                    const cityName = cities[cityIdx].name;
+                    const daily = loc.daily;
+                    const times = daily.time;
+
+                    times.forEach((t, dayIdx) => {
+                        const dateObj = new Date(t);
+                        const formattedDate = dateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        const row = [
+                            cityName,
+                            cities[cityIdx].lat,
+                            cities[cityIdx].lon,
+                            formattedDate
+                        ];
+                        dailyKeys.forEach(key => {
+                            let val = daily[key][dayIdx];
+                            if ((key === "sunrise" || key === "sunset") && val) {
+                                try {
+                                    val = val.split("T")[1].substring(0, 5);
+                                } catch(e) {}
+                            }
+                            row.push(val !== null && val !== undefined ? val : "");
+                        });
+                        csvLines.push(row.map(x => `"${x}"`).join(";"));
+                    });
+                });
+
+                const csvContent = "\uFEFF" + csvLines.join("\n");
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const downloadUrl = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                const firstDayDate = new Date();
+                const yyyy = firstDayDate.getFullYear();
+                const mm = String(firstDayDate.getMonth() + 1).padStart(2, '0');
+                const dd = String(firstDayDate.getDate()).padStart(2, '0');
+                const ts = `${yyyy}-${mm}-${dd}`;
+                
+                link.setAttribute("href", downloadUrl);
+                link.setAttribute("download", `france_pictos_daily_${ts}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+            } catch (error) {
+                console.error("Export Error:", error);
+                alert("Erreur lors de la génération du CSV.");
+            } finally {
+                if (loading) loading.style.display = 'none';
+                isExporting = false;
+            }
+        }
+
+        async function generateFrancePictosHourlyCSV() {
+            if (isExporting) return;
+            isExporting = true;
+            closePickers();
+            const loading = document.getElementById('loading');
+            const loadingText = document.getElementById('loading-text');
+
+            if (loading) {
+                loadingText.innerText = "GÉNÉRATION DU CSV HOURLY (39 VILLES)...";
+                loading.style.display = 'flex';
+                loading.style.backgroundColor = 'rgba(0,0,0,0.8)';
+            }
+
+            try {
+                const cities = zoneConfigs.france_pictos.cities;
+                const lats = cities.map(c => c.lat).join(',');
+                const lons = cities.map(c => c.lon).join(',');
+                const hourlyParams = "temperature_2m,relativehumidity_2m,dewpoint_2m,apparent_temperature,precipitation_probability,precipitation,rain,showers,snowfall,snow_depth,weathercode,pressure_msl,surface_pressure,cloudcover,cloudcover_low,cloudcover_mid,cloudcover_high,visibility,evapotranspiration,vapour_pressure_deficit,windspeed_10m,windgusts_10m,winddirection_10m,soil_temperature_0cm,soil_temperature_6cm,soil_temperature_18cm,soil_temperature_54cm,soil_moisture_0_1cm,soil_moisture_1_3cm,soil_moisture_3_9cm,soil_moisture_9_27cm,soil_moisture_27_81cm";
+                const forecastDays = 16;
+                
+                const fetchUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&hourly=${hourlyParams}&forecast_days=${forecastDays}&timezone=Europe/Paris`;
+                const res = await fetch(fetchUrl);
+                if (!res.ok) throw new Error("API Error: " + res.status);
+                const rawData = await res.json();
+                const locations = Array.isArray(rawData) ? rawData : [rawData];
+
+                const sampleHourly = locations[0].hourly;
+                const hourlyKeys = Object.keys(sampleHourly).filter(k => k !== "time");
+                const headers = ["Ville", "Latitude", "Longitude", "Date", "Heure", ...hourlyKeys];
+                const csvLines = [headers.join(";")];
+
+                locations.forEach((loc, cityIdx) => {
+                    const cityName = cities[cityIdx].name;
+                    const hourly = loc.hourly;
+                    const times = hourly.time;
+
+                    times.forEach((t, hourIdx) => {
+                        const dt = new Date(t);
+                        const formattedDate = dt.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        const formattedTime = dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                        const row = [
+                            cityName,
+                            cities[cityIdx].lat,
+                            cities[cityIdx].lon,
+                            formattedDate,
+                            formattedTime
+                        ];
+                        hourlyKeys.forEach(key => {
+                            const val = hourly[key][hourIdx];
+                            row.push(val !== null && val !== undefined ? val : "");
+                        });
+                        csvLines.push(row.map(x => `"${x}"`).join(";"));
+                    });
+                });
+
+                const csvContent = "\uFEFF" + csvLines.join("\n");
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const downloadUrl = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                const firstDayDate = new Date();
+                const yyyy = firstDayDate.getFullYear();
+                const mm = String(firstDayDate.getMonth() + 1).padStart(2, '0');
+                const dd = String(firstDayDate.getDate()).padStart(2, '0');
+                const ts = `${yyyy}-${mm}-${dd}`;
+                
+                link.setAttribute("href", downloadUrl);
+                link.setAttribute("download", `france_pictos_hourly_${ts}.csv`);
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
