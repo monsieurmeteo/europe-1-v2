@@ -27,8 +27,10 @@ MF_API_KEY = os.environ.get('MF_RADAR_API_KEY', '')
 MF_API_URL = "https://public-api.meteofrance.fr/public/DPPaquetRadar/v1/mosaique/paquet"
 
 # Supabase Storage
-SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://ubdevaemtwbzxksjlhjg.supabase.co')
-SUPABASE_KEY = os.environ.get('SUPABASE_SERVICE_ROLE_KEY', '')
+SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://ubdevaemtwbzxksjlhjg.supabase.co').strip().lstrip('\ufeff')
+SUPABASE_KEY = os.environ.get('SUPABASE_SERVICE_ROLE_KEY', '').strip().lstrip('\ufeff').strip('"\'')
+if not SUPABASE_KEY or SUPABASE_KEY.startswith('sb_secret_'):
+    SUPABASE_KEY = 'sb_publishable_1qhA0xAnNSd3VxpoLdxYrQ_yUemEhaP'
 STORAGE_BUCKET = 'radar-mf'
 
 # Local fallback paths
@@ -50,8 +52,8 @@ if not MF_API_KEY or not SUPABASE_KEY:
                 if line.startswith('#') or '=' not in line:
                     continue
                 key, val = line.split('=', 1)
-                key = key.strip()
-                val = val.strip()
+                key = key.strip().lstrip('\ufeff')
+                val = val.strip().strip('"\'')
                 if key == 'VITE_METEO_RADAR_TOKEN' and not MF_API_KEY:
                     MF_API_KEY = val
                 elif key == 'SUPABASE_SERVICE_ROLE_KEY' and not SUPABASE_KEY:

@@ -13,7 +13,13 @@ dotenv.config({ path: '.env.local' });
 // Accepte VITE_SUPABASE_URL ou SUPABASE_URL (compatibilité GitHub Actions)
 const rawUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || 'https://ubdevaemtwbzxksjlhjg.supabase.co';
 const supabaseUrl = rawUrl.trim();
-const rawKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || 'sb_publishable_1qhA0xAnNSd3VxpoLdxYrQ_yUemEhaP';
+
+// Pour Supabase Storage, utiliser la clé publishable/anon (sb_publishable_...) 
+// Les clés sb_secret_... provoquent 'Invalid Compact JWS' sur le Gateway Storage.
+let rawKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+if (!rawKey || rawKey.trim().startsWith('sb_secret_')) {
+    rawKey = 'sb_publishable_1qhA0xAnNSd3VxpoLdxYrQ_yUemEhaP';
+}
 const supabaseKey = rawKey.trim();
 
 // Debug: afficher quelles variables sont disponibles
