@@ -53,6 +53,8 @@ const REGIONS = [
     { id: 'PAC', name: 'Provence-Alpes-Côte d\'Azur' },
 ];
 
+let uploadErrorCount = 0;
+
 async function captureAndUpload() {
     console.log('\n📸 CAPTURE VIGILANCE (FRANCE & RÉGIONS)\n');
 
@@ -151,7 +153,12 @@ async function captureAndUpload() {
         await browser.close();
     }
 
-    console.log(`\n✅ TOUTES LES CAPTURES TERMINÉES!\n`);
+    if (uploadErrorCount > 0) {
+        console.error(`\n❌ ${uploadErrorCount} upload(s) ont échoué. Vérifiez SUPABASE_SERVICE_ROLE_KEY.\n`);
+        process.exitCode = 1;
+    } else {
+        console.log(`\n✅ TOUTES LES CAPTURES TERMINÉES!\n`);
+    }
 }
 
 
@@ -228,10 +235,12 @@ async function uploadToSupabase(fileName, buffer) {
             cacheControl: '60'
         });
     if (error) {
-        // ponytail: throw pour que GitHub Actions affiche ❌ au lieu de ✅ silencieux
-        throw new Error(`Upload ${fileName} échoué: ${error.message}`);
+        // ponytail: compteur global → process.exitCode=1 à la fin, GH Actions affiche ❌
+        uploadErrorCount++;
+        console.error(`❌ Erreur Upload ${fileName}: ${error.message}`);
+    } else {
+        console.log(`✅ Upload réussi: ${fileName}`);
     }
-    console.log(`✅ Upload réussi: ${fileName}`);
 }
 
 captureAndUpload();
