@@ -227,8 +227,11 @@ async function uploadToSupabase(fileName, buffer) {
             upsert: true,
             cacheControl: '60'
         });
-    if (error) console.error(`❌ Erreur Upload ${fileName}:`, error.message);
-    else console.log(`✅ Upload réussi: ${fileName}`);
+    if (error) {
+        // ponytail: throw pour que GitHub Actions affiche ❌ au lieu de ✅ silencieux
+        throw new Error(`Upload ${fileName} échoué: ${error.message}`);
+    }
+    console.log(`✅ Upload réussi: ${fileName}`);
 }
 
 captureAndUpload();
