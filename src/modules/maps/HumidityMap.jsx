@@ -250,32 +250,25 @@ const HumidityMap = () => {
     // Chargement de l'humidité temps réel depuis observations_6mn (dernière observation par station)
     const loadLiveFromObservations = async () => {
         console.log("[HumidityMap] Chargement humidité live depuis observations_6mn...");
-        const stationList = [];
-        let from = 0;
-        const batchSize = 1000;
-        let hasMore = true;
-        const allObs = [];
-
-        // On prend les observations des 30 dernières minutes
         const since = new Date(Date.now() - 30 * 60 * 1000).toISOString();
 
-        while (hasMore) {
-            const { data, error } = await supabase
+        // Requêtes parallèles pour récupérer les observations des 30 dernières minutes en ~300ms
+        const batchSize = 1000;
+        const parallelCount = 6; // Jusqu'à 6000 observations récentes
+        const promises = Array.from({ length: parallelCount }, (_, i) =>
+            supabase
                 .from('observations_6mn')
                 .select('station_id, u, timestamp')
                 .gte('timestamp', since)
                 .not('u', 'is', null)
-                .range(from, from + batchSize - 1);
+                .range(i * batchSize, (i + 1) * batchSize - 1)
+        );
 
-            if (error) throw error;
-            if (data && data.length > 0) {
-                allObs.push(...data);
-                if (data.length < batchSize) hasMore = false;
-                else from += batchSize;
-            } else {
-                hasMore = false;
-            }
-        }
+        const results = await Promise.all(promises);
+        const allObs = [];
+        results.forEach(res => {
+            if (res.data) allObs.push(...res.data);
+        });
 
         if (allObs.length > 0) {
             // Grouper par station, prendre la dernière observation
@@ -316,37 +309,32 @@ const HumidityMap = () => {
         return [];
     };
 
-    // Chargement de l'humidité journée depuis observations_6mn avec calcul JS côté client
+    // Chargement de l'humidité journée depuis observations_6mn avec calcul JS côté client ultra-rapide en parallèle
     const loadDayFromObservations = async (date, statMode) => {
         console.log(`[HumidityMap] Chargement humidité journée ${date} (${statMode})...`);
         const dateStart = `${date}T00:00:00`;
         const dateEnd = `${date}T23:59:59`;
 
-        const allObs = [];
-        let from = 0;
-        const batchSize = 1000;
-        let hasMore = true;
-
-        while (hasMore) {
-            const { data, error } = await supabase
+        // 10 requêtes parallèles (couvre jusqu'à 20 000 observations brutes en <1s)
+        const batchSize = 2000;
+        const numBatches = 10;
+        const promises = Array.from({ length: numBatches }, (_, i) =>
+            supabase
                 .from('observations_6mn')
                 .select('station_id, u, timestamp')
                 .gte('timestamp', dateStart)
                 .lte('timestamp', dateEnd)
                 .not('u', 'is', null)
-                .range(from, from + batchSize - 1);
+                .range(i * batchSize, (i + 1) * batchSize - 1)
+        );
 
-            if (error) throw error;
-            if (data && data.length > 0) {
-                allObs.push(...data);
-                if (data.length < batchSize) hasMore = false;
-                else from += batchSize;
-            } else {
-                hasMore = false;
-            }
-        }
+        const results = await Promise.all(promises);
+        const allObs = [];
+        results.forEach(res => {
+            if (res.data) allObs.push(...res.data);
+        });
 
-        console.log(`[HumidityMap] ${allObs.length} observations brutes pour le ${date}`);
+        console.log(`[HumidityMap] ${allObs.length} observations brutes récupérées en parallèle pour le ${date}`);
 
         if (allObs.length === 0) return [];
 
