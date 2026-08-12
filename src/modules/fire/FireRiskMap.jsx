@@ -207,30 +207,24 @@ const FireRiskMap = () => {
     // Fallback : chargement temps réel depuis observations_6mn si get_france_live n'a pas l'humidité
     const loadLiveFromObservations = useCallback(async () => {
         console.log("[FireRiskMap] Chargement live depuis observations_6mn (fallback)...");
-        let from = 0;
-        const batchSize = 1000;
-        let hasMore = true;
-        const allObs = [];
         const since = new Date(Date.now() - 30 * 60 * 1000).toISOString();
-
-        while (hasMore) {
-            const { data, error } = await supabase
+        const batchSize = 1000;
+        const parallelCount = 6;
+        const promises = Array.from({ length: parallelCount }, (_, i) =>
+            supabase
                 .from('observations_6mn')
                 .select('station_id, t, u, ff, timestamp')
                 .gte('timestamp', since)
                 .not('t', 'is', null)
                 .not('u', 'is', null)
-                .range(from, from + batchSize - 1);
+                .range(i * batchSize, (i + 1) * batchSize - 1)
+        );
 
-            if (error) throw error;
-            if (data && data.length > 0) {
-                allObs.push(...data);
-                if (data.length < batchSize) hasMore = false;
-                else from += batchSize;
-            } else {
-                hasMore = false;
-            }
-        }
+        const results = await Promise.all(promises);
+        const allObs = [];
+        results.forEach(res => {
+            if (res.data) allObs.push(...res.data);
+        });
 
         if (allObs.length > 0) {
             const stationMap = new Map();

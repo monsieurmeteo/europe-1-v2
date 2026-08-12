@@ -126,30 +126,24 @@ const HumidexMap = () => {
     }, [humidexMode, dayStatMode]);
 
     const loadLiveFromObservations = async () => {
-        const allObs = [];
-        let from = 0;
-        const batchSize = 1000;
-        let hasMore = true;
         const since = new Date(Date.now() - 30 * 60 * 1000).toISOString();
-
-        while (hasMore) {
-            const { data, error } = await supabase
+        const batchSize = 1000;
+        const parallelCount = 6;
+        const promises = Array.from({ length: parallelCount }, (_, i) =>
+            supabase
                 .from('observations_6mn')
                 .select('station_id, t, u, timestamp')
                 .gte('timestamp', since)
                 .not('t', 'is', null)
                 .not('u', 'is', null)
-                .range(from, from + batchSize - 1);
+                .range(i * batchSize, (i + 1) * batchSize - 1)
+        );
 
-            if (error) throw error;
-            if (data && data.length > 0) {
-                allObs.push(...data);
-                if (data.length < batchSize) hasMore = false;
-                else from += batchSize;
-            } else {
-                hasMore = false;
-            }
-        }
+        const results = await Promise.all(promises);
+        const allObs = [];
+        results.forEach(res => {
+            if (res.data) allObs.push(...res.data);
+        });
 
         if (allObs.length === 0) return [];
 
@@ -272,35 +266,29 @@ const HumidexMap = () => {
                     stationList = await loadLiveFromObservations();
                 }
             } else {
-                // Mode journée : charger observations_6mn sur la journée pour calculer l'Humidex
+                // Mode journée : charger observations_6mn sur la journée pour calculer l'Humidex en parallèle
                 console.log(`[HumidexMap] Chargement Humidex journée ${selectedDate} depuis observations_6mn...`);
                 const dateStart = `${selectedDate}T00:00:00`;
                 const dateEnd = `${selectedDate}T23:59:59`;
 
-                const allObs = [];
-                let from = 0;
-                const batchSize = 1000;
-                let hasMore = true;
-
-                while (hasMore) {
-                    const { data, error } = await supabase
+                const batchSize = 2000;
+                const numBatches = 10;
+                const promises = Array.from({ length: numBatches }, (_, i) =>
+                    supabase
                         .from('observations_6mn')
                         .select('station_id, t, u, timestamp')
                         .gte('timestamp', dateStart)
                         .lte('timestamp', dateEnd)
                         .not('t', 'is', null)
                         .not('u', 'is', null)
-                        .range(from, from + batchSize - 1);
+                        .range(i * batchSize, (i + 1) * batchSize - 1)
+                );
 
-                    if (error) throw error;
-                    if (data && data.length > 0) {
-                        allObs.push(...data);
-                        if (data.length < batchSize) hasMore = false;
-                        else from += batchSize;
-                    } else {
-                        hasMore = false;
-                    }
-                }
+                const results = await Promise.all(promises);
+                const allObs = [];
+                results.forEach(res => {
+                    if (res.data) allObs.push(...res.data);
+                });
 
                 if (allObs.length > 0) {
                     // Grouper par station et calculer les valeurs Humidex
