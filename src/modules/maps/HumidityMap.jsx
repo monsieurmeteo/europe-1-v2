@@ -124,17 +124,6 @@ const HumidityMap = () => {
                 // Mode journée : requête sur observations_6mn pour la date sélectionnée
                 console.log(`[HumidityMap] Chargement humidité journée ${selectedDate} depuis observations_6mn...`);
                 stationList = await loadDayFromObservations(selectedDate, dayStatMode);
-                }
-            } catch (err) {
-                console.error("[HumidityMap] Erreur critique de chargement:", err);
-                // Essayer le fallback
-                try {
-                    if (humidityMode === "live") {
-                        stationList = await loadLiveFromObservations();
-                    }
-                } catch (err2) {
-                    console.error("[HumidityMap] Erreur fallback:", err2);
-                }
             }
 
             setDeptData(humidityMap);
