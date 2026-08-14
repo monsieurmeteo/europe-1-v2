@@ -117,82 +117,13 @@ const HumidityMap = () => {
             let humidityMap = {};
             let stationList = [];
 
-            try {
-                if (humidityMode === "live") {
-                    console.log("[HumidityMap] Chargement de l'humidité en temps réel via get_france_live...");
-                    let liveData = [];
-                    let from = 0;
-                    const batchSize = 1000;
-                    let hasMore = true;
-
-                    while (hasMore) {
-                        const { data, error: liveError } = await supabase
-                            .rpc('get_france_live')
-                            .range(from, from + batchSize - 1);
-
-                        if (liveError) throw liveError;
-                        if (data && data.length > 0) {
-                            liveData.push(...data);
-                            if (data.length < batchSize) hasMore = false;
-                            else from += batchSize;
-                        } else {
-                            hasMore = false;
-                        }
-                    }
-
-                    if (liveData && liveData.length > 0) {
-                        let maxTimestamp = null;
-                        liveData.forEach(item => {
-                            if (item.obs_time) {
-                                const d = new Date(item.obs_time);
-                                if (!maxTimestamp || d > maxTimestamp) {
-                                    maxTimestamp = d;
-                                }
-                            }
-                        });
-                        setLastDataTimestamp(maxTimestamp);
-
-                        const uniqueStations = new Map();
-                        liveData.forEach(s => {
-                            // Le champ humidité dans get_france_live est 'u' ou 'humidity'
-                            const humVal = s.u !== null && s.u !== undefined ? s.u : s.humidity;
-                            if (humVal !== null && humVal !== undefined && !isNaN(humVal) && humVal >= 0 && humVal <= 100) {
-                                let sid = String(s.station_id);
-                                if (sid.length === 7) sid = "0" + sid;
-
-                                const meta = stationsLookup[sid];
-                                const lat = meta?.lat;
-                                const lon = meta?.lon;
-
-                                if (lat && lon) {
-                                    const geoKey = `${(Math.round(lat * 20) / 20).toFixed(2)}_${(Math.round(lon * 20) / 20).toFixed(2)}`;
-                                    const existing = uniqueStations.get(geoKey);
-                                    if (!existing) {
-                                        uniqueStations.set(geoKey, {
-                                            id: sid,
-                                            lat,
-                                            lon,
-                                            value: humVal,
-                                            name: stationNamesData[sid] || meta?.name || sid
-                                        });
-                                    }
-                                }
-                            }
-                        });
-
-                        stationList = Array.from(uniqueStations.values());
-                        console.log(`[HumidityMap] ${stationList.length} stations temps réel uniques.`);
-
-                        // Si get_france_live ne retourne pas u/humidity, fallback sur observations_6mn
-                        if (stationList.length === 0) {
-                            console.log("[HumidityMap] Aucune humidité dans get_france_live, fallback sur observations_6mn...");
-                            stationList = await loadLiveFromObservations();
-                        }
-                    }
-                } else {
-                    // Mode journée : requête sur observations_6mn pour la date sélectionnée
-                    console.log(`[HumidityMap] Chargement humidité journée ${selectedDate} depuis observations_6mn...`);
-                    stationList = await loadDayFromObservations(selectedDate, dayStatMode);
+            if (humidityMode === "live") {
+                console.log("[HumidityMap] Chargement de l'humidité en temps réel depuis observations_6mn...");
+                stationList = await loadLiveFromObservations();
+            } else {
+                // Mode journée : requête sur observations_6mn pour la date sélectionnée
+                console.log(`[HumidityMap] Chargement humidité journée ${selectedDate} depuis observations_6mn...`);
+                stationList = await loadDayFromObservations(selectedDate, dayStatMode);
                 }
             } catch (err) {
                 console.error("[HumidityMap] Erreur critique de chargement:", err);

@@ -190,78 +190,8 @@ const HumidexMap = () => {
             let stationList = [];
 
             if (humidexMode === "live") {
-                console.log("[HumidexMap] Chargement Humidex en temps réel...");
-                let liveData = [];
-                let from = 0;
-                const batchSize = 1000;
-                let hasMore = true;
-
-                while (hasMore) {
-                    const { data, error: liveError } = await supabase
-                        .rpc('get_france_live')
-                        .range(from, from + batchSize - 1);
-
-                    if (liveError) throw liveError;
-                    if (data && data.length > 0) {
-                        liveData.push(...data);
-                        if (data.length < batchSize) hasMore = false;
-                        else from += batchSize;
-                    } else {
-                        hasMore = false;
-                    }
-                }
-
-                if (liveData && liveData.length > 0) {
-                    let maxTimestamp = null;
-                    liveData.forEach(item => {
-                        if (item.obs_time) {
-                            const d = new Date(item.obs_time);
-                            if (!maxTimestamp || d > maxTimestamp) maxTimestamp = d;
-                        }
-                    });
-                    setLastDataTimestamp(maxTimestamp);
-
-                    const uniqueStations = new Map();
-                    liveData.forEach(s => {
-                        const tempVal = s.t;
-                        const humVal = s.u !== null && s.u !== undefined ? s.u : s.humidity;
-                        
-                        if (tempVal !== null && tempVal !== undefined && !isNaN(tempVal) &&
-                            humVal !== null && humVal !== undefined && !isNaN(humVal)) {
-                            
-                            const humidexVal = calculateHumidex(tempVal, humVal);
-                            
-                            if (humidexVal !== null) {
-                                let sid = String(s.station_id);
-                                if (sid.length === 7) sid = "0" + sid;
-
-                                const meta = stationsLookup[sid];
-                                const lat = meta?.lat;
-                                const lon = meta?.lon;
-
-                                if (lat && lon) {
-                                    const geoKey = `${(Math.round(lat * 20) / 20).toFixed(2)}_${(Math.round(lon * 20) / 20).toFixed(2)}`;
-                                    if (!uniqueStations.has(geoKey)) {
-                                        uniqueStations.set(geoKey, {
-                                            id: sid, lat, lon,
-                                            value: humidexVal,
-                                            name: stationNamesData[sid] || meta?.name || sid
-                                        });
-                                    }
-                                }
-                            }
-                        }
-                    });
-
-                    stationList = Array.from(uniqueStations.values());
-                    console.log(`[HumidexMap] ${stationList.length} stations depuis get_france_live.`);
-                }
-
-                // Fallback : get_france_live sans t+u exploitables → observations_6mn (30 min)
-                if (stationList.length === 0) {
-                    console.log("[HumidexMap] Fallback sur observations_6mn (30 dernières minutes)...");
-                    stationList = await loadLiveFromObservations();
-                }
+                console.log("[HumidexMap] Chargement Humidex en temps réel depuis observations_6mn...");
+                stationList = await loadLiveFromObservations();
             } else {
                 // Mode journée : charger observations_6mn sur la journée pour calculer l'Humidex en parallèle
                 console.log(`[HumidexMap] Chargement Humidex journée ${selectedDate} depuis observations_6mn...`);
