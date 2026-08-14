@@ -37,8 +37,7 @@ const getHumidityColor = (value, scale = HUMIDITY_SCALE) => {
 
 const HumidityMap = () => {
     const navigate = useNavigate();
-    // Persistance localStorage — l'état est restauré à chaque navigation
-    const [selectedDate, setSelectedDate] = useState(() => localStorage.getItem('humidityDate') || new Date().toISOString().split('T')[0]);
+    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [geoData, setGeoData] = useState(null);
     const [regionsGeoData, setRegionsGeoData] = useState(null);
     const [deptData, setDeptData] = useState({});
@@ -46,21 +45,19 @@ const HumidityMap = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isRealTime, setIsRealTime] = useState(true);
-    const [humidityMode, setHumidityMode] = useState(() => localStorage.getItem('humidityMode') || "live"); // "live" ou "day"
+    const [humidityMode, setHumidityMode] = useState("live"); // "live" ou "day"
     const [mapTitle, setMapTitle] = useState("Humidité relative");
     const [showLabels, setShowLabels] = useState(() => localStorage.getItem('humidityShowLabels') !== 'false');
     const [showRegions, setShowRegions] = useState(true);
     const [isSmooth, setIsSmooth] = useState(true);
-    const [selectedRegionName, setSelectedRegionName] = useState("France");
+    const [selectedRegionName, setSelectedRegionName] = useState(() => localStorage.getItem('selectedRegionName') || "France");
     const [hoveredStation, setHoveredStation] = useState(null);
     const [lastDataTimestamp, setLastDataTimestamp] = useState(null);
-    const [dayStatMode, setDayStatMode] = useState(() => localStorage.getItem('humidityDayStatMode') || "avg"); // "avg", "min", "max"
+    const [dayStatMode, setDayStatMode] = useState("avg"); // "avg", "min", "max"
     const mapContainerRef = useRef(null);
 
-    // Sauvegarder l'état dans localStorage à chaque changement
-    useEffect(() => { localStorage.setItem('humidityDate', selectedDate); }, [selectedDate]);
-    useEffect(() => { localStorage.setItem('humidityMode', humidityMode); }, [humidityMode]);
-    useEffect(() => { localStorage.setItem('humidityDayStatMode', dayStatMode); }, [dayStatMode]);
+    // Sauvegarder uniquement les préférences d'affichage dans localStorage
+    useEffect(() => { localStorage.setItem('selectedRegionName', selectedRegionName); }, [selectedRegionName]);
     useEffect(() => { localStorage.setItem('humidityShowLabels', showLabels); }, [showLabels]);
 
     const WIDTH = 1000;

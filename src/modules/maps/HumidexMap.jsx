@@ -50,10 +50,10 @@ const HumidexMap = () => {
     const navigate = useNavigate();
     
     // Persistance localStorage partagée pour la région
-    const [selectedDate, setSelectedDate] = useState(() => localStorage.getItem('humidexDate') || new Date().toISOString().split('T')[0]);
+    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [selectedRegionName, setSelectedRegionName] = useState(() => localStorage.getItem('selectedRegionName') || "France");
-    const [humidexMode, setHumidexMode] = useState(() => localStorage.getItem('humidexMode') || "live"); // "live" ou "day"
-    const [dayStatMode, setDayStatMode] = useState(() => localStorage.getItem('humidexDayStatMode') || "max"); // "max", "avg", "min"
+    const [humidexMode, setHumidexMode] = useState("live"); // "live" ou "day"
+    const [dayStatMode, setDayStatMode] = useState("max"); // "max", "avg", "min"
     const [showLabels, setShowLabels] = useState(() => localStorage.getItem('humidexShowLabels') !== 'false');
 
     const [geoData, setGeoData] = useState(null);
@@ -72,11 +72,8 @@ const HumidexMap = () => {
     const WIDTH = 1000;
     const HEIGHT = 900;
 
-    // Sauvegarde des états dans le localStorage
-    useEffect(() => { localStorage.setItem('humidexDate', selectedDate); }, [selectedDate]);
+    // Sauvegarder uniquement les préférences d'affichage dans localStorage
     useEffect(() => { localStorage.setItem('selectedRegionName', selectedRegionName); }, [selectedRegionName]);
-    useEffect(() => { localStorage.setItem('humidexMode', humidexMode); }, [humidexMode]);
-    useEffect(() => { localStorage.setItem('humidexDayStatMode', dayStatMode); }, [dayStatMode]);
     useEffect(() => { localStorage.setItem('humidexShowLabels', showLabels); }, [showLabels]);
 
     const stationsLookup = useMemo(() => {
