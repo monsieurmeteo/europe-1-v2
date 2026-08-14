@@ -108,42 +108,34 @@ export const weatherAPI = {
                     const m = String(targetDate.getMonth() + 1).padStart(2, '0');
                     const d = String(targetDate.getDate()).padStart(2, '0');
 
-                    // Chargement direct des 4 slices en PARALLÈLE (évite 2-3s de délai sur fichier unifié absent)
+                    // Chargement optimisé des 4 tranches (00-06, 06-12, 12-18, 18-00)
                     const SLICES = ['00-06', '06-12', '12-18', '18-00'];
                     const slicePromises = SLICES.map(async (sliceId) => {
-                        // Tenter d'abord le fichier unifié (jours anciens), puis les slices
-                        if (sliceId === '00-06') {
-                            // Pour le premier slice, on teste aussi le fichier unifié (petits jours anciens)
-                            const singlePath = `6mn/${y}/${m}/${d}.json`;
-                            const { data: sData, error: sErr } = await supabase.storage
-                                .from('observations-archives').download(singlePath);
-                            if (!sErr && sData) {
-                                const text = await sData.text();
-                                return { unified: true, data: JSON.parse(text) };
-                            }
-                        }
                         const filePath = `6mn/${y}/${m}/${d}/${sliceId}.json`;
                         const { data: sliceData, error: sliceError } = await supabase.storage
                             .from('observations-archives').download(filePath);
                         if (!sliceError && sliceData) {
                             const text = await sliceData.text();
-                            return { unified: false, data: JSON.parse(text) };
+                            const parsed = JSON.parse(text);
+                            return parsed.filter(obs => obs.station_id === stationId);
                         }
-                        return { unified: false, data: [] };
+                        return [];
                     });
 
                     const results = await Promise.all(slicePromises);
+                    let targetDayStationData = results.flat();
 
-                    // Si le fichier unifié a été trouvé, l'utiliser directement
-                    const unifiedResult = results.find(r => r.unified);
-                    let mergedData;
-                    if (unifiedResult) {
-                        mergedData = unifiedResult.data;
-                    } else {
-                        mergedData = results.flatMap(r => r.data);
+                    // Si pas de tranches trouvées, fallback sur le fichier unifié
+                    if (targetDayStationData.length === 0) {
+                        const singlePath = `6mn/${y}/${m}/${d}.json`;
+                        const { data: sData, error: sErr } = await supabase.storage
+                            .from('observations-archives').download(singlePath);
+                        if (!sErr && sData) {
+                            const text = await sData.text();
+                            const parsed = JSON.parse(text);
+                            targetDayStationData = parsed.filter(obs => obs.station_id === stationId);
+                        }
                     }
-
-                    const targetDayStationData = mergedData.filter(obs => obs.station_id === stationId);
 
                     if (targetDayStationData.length > 0) {
                         const existingTimestamps = new Set(finalData.map(d => d.timestamp));
