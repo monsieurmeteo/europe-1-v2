@@ -127,12 +127,8 @@ function haversine(lat1, lon1, lat2, lon2) {
 // ─── Composant principal ──────────────────────────────────────────────────────
 const FireRiskMap = () => {
     const navigate = useNavigate();
-    const [selectedDate, setSelectedDate] = useState(() =>
-        localStorage.getItem('fireRiskDate') || new Date().toISOString().split('T')[0]
-    );
-    const [viewMode, setViewMode] = useState(() =>
-        localStorage.getItem('fireRiskViewMode') || 'live'
-    );
+    const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
+    const [viewMode, setViewMode] = useState('live');
     const [geoData, setGeoData] = useState(null);
     const [regionsGeoData, setRegionsGeoData] = useState(null); // GeoJSON des régions
     const [selectedRegionName, setSelectedRegionName] = useState("France"); // "France" ou nom de région
@@ -283,80 +279,8 @@ const FireRiskMap = () => {
             let processedStations = [];
 
             if (viewMode === 'live') {
-                console.log("[FireRiskMap] Chargement en direct (get_france_live)...");
-                let liveData = [];
-                let from = 0;
-                const batchSize = 1000;
-                let hasMore = true;
-
-                while (hasMore) {
-                    const { data, error: liveError } = await supabase
-                        .rpc('get_france_live')
-                        .range(from, from + batchSize - 1);
-
-                    if (liveError) throw liveError;
-                    if (data && data.length > 0) {
-                        liveData.push(...data);
-                        if (data.length < batchSize) hasMore = false;
-                        else from += batchSize;
-                    } else {
-                        hasMore = false;
-                    }
-                }
-
-                if (liveData.length > 0) {
-                    let maxTimestamp = null;
-                    liveData.forEach(item => {
-                        if (item.obs_time) {
-                            const d = new Date(item.obs_time);
-                            if (!maxTimestamp || d > maxTimestamp) {
-                                maxTimestamp = d;
-                            }
-                        }
-                    });
-                    if (maxTimestamp) setLastUpdate(maxTimestamp);
-
-                    processedStations = liveData
-                        .filter(item => item.station_id < '96000000' && !item.station_id.startsWith('SIMULATION'))
-                        .map(s => {
-                            let sid = String(s.station_id);
-                            if (sid.length === 7) sid = "0" + sid;
-
-                            const meta = stationLookup[sid];
-                            const lat = meta?.lat;
-                            const lon = meta?.lon;
-
-                            const temp = s.t; 
-                            const hum = s.u !== null && s.u !== undefined ? s.u : s.humidity;  
-                            const windSpd = s.wind; 
-
-                            const risk = computeRisk(temp, hum, windSpd);
-
-                            let dept = sid.substring(0, 2);
-                            if (dept === '20') {
-                                const num3 = parseInt(sid.substring(2, 5), 10);
-                                dept = num3 < 200 ? '2A' : '2B';
-                            }
-
-                            return {
-                                station_id: sid,
-                                name: stationNamesData[sid] || meta?.name || sid,
-                                dept,
-                                lat,
-                                lon,
-                                tempMax: temp,
-                                humMin: hum,
-                                windMean: windSpd,
-                                risk
-                            };
-                        });
-                }
-
-                // Fallback si pas de données d'humidité dans get_france_live
-                if (processedStations.filter(s => s.humMin != null).length === 0) {
-                    console.log("[FireRiskMap] Fallback sur observations_6mn...");
-                    processedStations = await loadLiveFromObservations();
-                }
+                console.log("[FireRiskMap] Chargement en direct depuis observations_6mn...");
+                processedStations = await loadLiveFromObservations();
             } else {
                 // Mode Maximums du Jour
                 console.log(`[FireRiskMap] Chargement des maximums du jour (${selectedDate})...`);
