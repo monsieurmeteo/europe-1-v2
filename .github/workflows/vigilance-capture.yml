@@ -2,8 +2,8 @@ name: Vigilance - Collect & Capture
 
 on:
   schedule:
-    # Toutes les 10 minutes (plus fréquent pour forcer GitHub à être réactif)
-    - cron: '*/10 * * * *'
+    # Toutes les heures (à la minute 00)
+    - cron: '0 * * * *'
   push:
     branches: [ master ]
   workflow_dispatch: # Permet de le lancer manuellement
