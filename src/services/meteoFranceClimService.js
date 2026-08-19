@@ -112,8 +112,8 @@ export const meteoFranceClimService = {
         for (let attempt = 1; attempt <= 15; attempt++) {
             const fileResp = await fetch(fileUrl, {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'text/plain, application/json, */*'
+                    Authorization: `Bearer ${token}`,
+                    Accept: '*/*'
                 }
             });
 
