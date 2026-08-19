@@ -1,109 +1,89 @@
-/* MeteocielArchives.css */
+/* StationArchives.css - Modern Design matching DailyExtremes */
 
 .archives-page {
+    padding: 24px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     min-height: 100vh;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    padding: 30px 20px;
-    color: white;
+    color: #1e293b;
+    font-family: inherit;
 }
 
-.archives-hero {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.archives-hero h1 {
-    font-size: 2.2rem;
-    font-weight: 800;
-    background: linear-gradient(to right, #fbbf24, #f97316);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin: 0;
-}
-
-.archives-hero p {
-    color: #94a3b8;
-    font-size: 1.1rem;
-    margin-top: 5px;
-}
-
-/* CONTROLS */
-.archives-controls {
-    max-width: 1200px;
-    margin: 0 auto 30px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 20px;
+/* Header */
+.archives-header-card {
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+    margin-bottom: 24px;
     display: flex;
+    justify-content: space-between;
+    align-items: center;
     flex-wrap: wrap;
     gap: 20px;
-    align-items: flex-end;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    border: 1px solid #e2e8f0;
 }
 
-.control-group {
+.header-title-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-icon-box {
+    background: #eff6ff;
+    color: #2563eb;
+    padding: 12px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-title-section h1 {
+    margin: 0;
+    font-size: 1.65rem;
+    color: #0f172a;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+}
+
+.header-title-section p {
+    margin: 3px 0 0 0;
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+/* Controls Bar */
+.archives-controls-bar {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    align-items: end;
+}
+
+.control-field {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    flex: 1;
-    min-width: 250px;
+    gap: 6px;
 }
 
-.control-group label {
-    font-size: 0.9rem;
+.control-field label {
+    font-size: 0.85rem;
     font-weight: 600;
-    color: #cbd5e1;
+    color: #475569;
     display: flex;
     align-items: center;
     gap: 6px;
 }
 
-.date-input-wrapper {
-    display: flex;
-    gap: 4px;
-}
-
-.archive-date-input, 
-.archive-mode-select,
-.station-select {
-    width: 100%;
+.control-select, .control-input {
     padding: 10px 14px;
-    background: #1e293b;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    color: white;
-    font-size: 0.95rem;
-    outline: none;
-    transition: all 0.2s;
-}
-
-.archive-date-input:focus, 
-.archive-mode-select:focus,
-.station-select:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-}
-
-.date-nav-btn {
-    padding: 0 10px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    color: #94a3b8;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.date-nav-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-}
-
-.control-actions {
-    display: flex;
-    gap: 12px;
     flex-wrap: wrap;
 }
 

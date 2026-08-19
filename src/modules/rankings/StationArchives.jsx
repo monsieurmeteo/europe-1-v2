@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Calendar, Search, Download, Wind, Droplets, Thermometer, Info, MapPin, Zap, Snowflake, CloudRain, Sun, Activity } from 'lucide-react';
+import { Calendar, Search, Download, Wind, Droplets, Thermometer, Info, MapPin, Zap, Snowflake, CloudRain, Sun, Activity, Trophy, ShieldCheck } from 'lucide-react';
 import { meteoFranceClimService } from '../../services/meteoFranceClimService';
 import { DEPARTMENTS } from '../../data/departments';
 import stationNames from '../../data/stationNames.json';
-import './MeteocielArchives.css';
+import './StationArchives.css';
+
+// Cache mémoire session pour navigation instantanée (ex: Valenciennes, Douai, etc.)
+const stationHistoryCache = new Map();
 
 const StationArchives = () => {
     // Dates par défaut : du 1er janvier de l'année en cours jusqu'à hier
@@ -20,6 +23,7 @@ const StationArchives = () => {
     const [loading, setLoading] = useState(false);
     const [progressMsg, setProgressMsg] = useState('');
     const [error, setError] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     // 1. Charger les stations du département sélectionné
     useEffect(() => {
@@ -39,7 +43,7 @@ const StationArchives = () => {
                     setStations([]);
                 }
             } catch (err) {
-                console.warn('[StationArchives] Erreur chargement stations DPClim, fallback liste locale:', err);
+                console.warn('[StationArchives] Fallback liste locale:', err);
                 if (!isMounted) return;
                 const fallbackStations = Object.keys(stationNames)
                     .filter(id => id.startsWith(selectedDept))
@@ -52,9 +56,17 @@ const StationArchives = () => {
         return () => { isMounted = false; };
     }, [selectedDept]);
 
-    // 2. Interroger Météo-France DPClim
+    // 2. Interroger Météo-France DPClim (avec cache mémoire session)
     const handleFetch = async () => {
         if (!startDate || !endDate || !selectedStation) return;
+
+        const cacheKey = `${selectedStation}_${startDate}_${endDate}`;
+        if (stationHistoryCache.has(cacheKey)) {
+            console.log(`[StationArchives] ⚡ Chargement instantané depuis le cache pour ${cacheKey}`);
+            setData(stationHistoryCache.get(cacheKey));
+            setError(null);
+            return;
+        }
 
         setLoading(true);
         setError(null);
@@ -72,6 +84,7 @@ const StationArchives = () => {
                 setError("Aucune donnée disponible pour cette station sur la période demandée.");
                 setData([]);
             } else {
+                stationHistoryCache.set(cacheKey, results);
                 setData(results);
             }
         } catch (err) {
@@ -150,267 +163,373 @@ const StationArchives = () => {
         return found?.nom || stationNames[selectedStation] || selectedStation;
     }, [stations, selectedStation]);
 
-    const exportToCSV = () => {
-        if (!data.length) return;
+    // Filtrage recherche locale
+    const filteredData = useMemo(() => {
+        if (!searchTerm) return data;
+        const q = searchTerm.toLowerCase();
+        return data.filter(d => d.date.includes(q));
+    }, [data, searchTerm]);
 
-        const headers = ["Poste", "Station", "Date", "TN (°C)", "Heure TN", "TX (°C)", "Heure TX", "TM (°C)", "RR (mm)", "Rafale (km/h)", "Heure Rafale", "Direction (°)"].join(";");
-        const rows = data.map(item => [
-            selectedStation,
-            currentStationName,
-            item.date,
-            item.tn ?? '',
-            item.htn ?? '',
-            item.tx ?? '',
-            item.htx ?? '',
-            item.tm ?? '',
-            item.rr ?? 0,
-            item.fxi ? Math.round(item.fxi) : '',
-            item.hxi ?? '',
-            item.dxi ?? ''
-        ].join(";")).join("\n");
+    // 4. Exports
+    const exportStandardCSV = () => {
+        if (!data || data.length === 0) return;
+        const headers = ['Date', 'TN (°C)', 'HTN', 'TX (°C)', 'HTX', 'TM (°C)', 'Pluie (mm)', 'Rafale (km/h)', 'DXI (°)', 'HXI', 'Orage', 'Neige', 'Grêle', 'Brouillard', 'Gelée'];
+        const rows = data.map(d => [
+            d.date,
+            d.tn ?? '',
+            d.htn ?? '',
+            d.tx ?? '',
+            d.htx ?? '',
+            d.tm ?? '',
+            d.rr ?? '',
+            d.fxi ?? '',
+            d.dxi ?? '',
+            d.hxi ?? '',
+            d.orag ? '1' : '0',
+            d.neig ? '1' : '0',
+            d.grele ? '1' : '0',
+            d.brou ? '1' : '0',
+            d.gelee ? '1' : '0'
+        ]);
 
-        const csvContent = "\uFEFF" + headers + "\n" + rows;
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", `meteofrance_${selectedStation}_${startDate}_${endDate}.csv`);
+        const csvContent = 'data:text/csv;charset=utf-8,﻿'
+            + [headers.join(';'), ...rows.map(e => e.join(';'))].join('\n');
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `archives_MF_${currentStationName}_${startDate}_${endDate}.csv`);
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
     };
 
-    const exportFormatLogiciel = () => {
-        if (!data.length) return;
+    const exportSoftwareCSV = () => {
+        if (!data || data.length === 0) return;
+        const headers = ['date', 'tn', 'tx', 'tm', 'rr', 'ff_rafale_ms'];
+        const rows = data.map(d => [
+            d.date,
+            d.tn ?? '',
+            d.tx ?? '',
+            d.tm ?? '',
+            d.rr ?? '',
+            d.fxi !== undefined && d.fxi !== null ? (d.fxi / 3.6).toFixed(1) : ''
+        ]);
 
-        const headers = ["POSTE", "DATE", "RR", "TN", "TX", "FXI", "HXI"].join(";");
-        const rows = data.map(item => {
-            const dateFormatted = item.date.replace(/-/g, '');
-            const fxiMS = item.fxi_ms !== undefined ? item.fxi_ms.toString().replace('.', ',') : (item.fxi ? (item.fxi / 3.6).toFixed(1).replace('.', ',') : '');
-            const tx = item.tx !== undefined ? item.tx.toString().replace('.', ',') : '';
-            const tn = item.tn !== undefined ? item.tn.toString().replace('.', ',') : '';
-            const rr = item.rr !== undefined ? item.rr.toString().replace('.', ',') : '0,0';
-            const hxi = item.hxi ? item.hxi.replace('h', '') : '1200';
+        const csvContent = 'data:text/csv;charset=utf-8,﻿'
+            + [headers.join(';'), ...rows.map(e => e.join(';'))].join('\n');
 
-            return `${selectedStation};${dateFormatted};${rr};${tn};${tx};${fxiMS};${hxi}`;
-        }).join("\n");
-
-        const csvContent = "\uFEFF" + headers + "\n" + rows;
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", `import_mf_${selectedStation}_${startDate}_${endDate}.csv`);
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `software_import_${currentStationName}_${startDate}_${endDate}.csv`);
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
+    };
+
+    const formatDateFR = (dStr) => {
+        if (!dStr || dStr.length !== 8) return dStr;
+        return `${dStr.substring(6, 8)}/${dStr.substring(4, 6)}/${dStr.substring(0, 4)}`;
     };
 
     return (
-        <div className="archives-page">
-            <header className="archives-hero">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
-                    <Activity color="#38bdf8" size={32} />
-                    <h1>Archives Officielles Météo-France</h1>
+        <div className="station-archives-page">
+            {/* 1. Header Card */}
+            <div className="station-archives-header">
+                <div className="header-title-wrap">
+                    <div className="header-icon-box">
+                        <Trophy size={28} />
+                    </div>
+                    <div>
+                        <h1>Archives Climatologiques Météo-France</h1>
+                        <p>Historique officiel certifié (1950 à hier) : Pluie (RR), Températures (TN, TX, TM), Rafales (FXI) et Phénomènes.</p>
+                    </div>
                 </div>
-                <p>Historique certifié (1950 à hier) : Pluie (RR), Températures (TN, TX, TM), Rafales max (FXI) et phéno.</p>
-            </header>
+                <div className="header-badges">
+                    <span className="badge-official">
+                        <ShieldCheck size={14} style={{ display: 'inline', marginRight: '4px' }} />
+                        Données Officielles Météo-France
+                    </span>
+                </div>
+            </div>
 
-            <div className="archives-controls">
-                <div className="control-group">
-                    <label><MapPin size={18} /> Département :</label>
+            {/* 2. Controls Bar */}
+            <div className="controls-card">
+                <div className="control-item">
+                    <label className="control-label">
+                        <MapPin size={15} color="#2563eb" /> Département
+                    </label>
                     <select
+                        className="control-input-style"
                         value={selectedDept}
                         onChange={(e) => setSelectedDept(e.target.value)}
-                        className="station-select"
                     >
                         {DEPARTMENTS.map(d => (
-                            <option key={d.code} value={d.code}>{d.code} — {d.name}</option>
+                            <option key={d.code} value={d.code}>
+                                {d.code} — {d.name}
+                            </option>
                         ))}
                     </select>
                 </div>
 
-                <div className="control-group" style={{ flex: 1.5 }}>
-                    <label><MapPin size={18} /> Station Météo :</label>
+                <div className="control-item">
+                    <label className="control-label">
+                        <Activity size={15} color="#2563eb" /> Station Météo
+                    </label>
                     <select
+                        className="control-input-style"
                         value={selectedStation}
                         onChange={(e) => setSelectedStation(e.target.value)}
-                        className="station-select"
                         disabled={stations.length === 0}
                     >
-                        {stations.length > 0 ? (
-                            stations.map(s => (
-                                <option key={s.id} value={s.id}>
-                                    {s.nom} ({s.id}) {s.posteOuvert === false ? ' [Fermé]' : ''}
-                                </option>
-                            ))
-                        ) : (
-                            <option value="">Chargement des stations…</option>
-                        )}
+                        {stations.map(s => (
+                            <option key={s.id} value={s.id}>
+                                {s.nom} ({s.id}) {!s.posteOuvert ? '— [Fermé]' : ''}
+                            </option>
+                        ))}
                     </select>
                 </div>
 
-                <div className="control-group" style={{ flex: 1.5 }}>
-                    <label><Calendar size={18} /> Période :</label>
-                    <div className="date-input-wrapper">
+                <div className="control-item control-item-dates">
+                    <label className="control-label">
+                        <Calendar size={15} color="#2563eb" /> Période d'archive
+                    </label>
+                    <div className="date-inputs-row">
                         <input
                             type="date"
-                            min="1950-01-01"
-                            max={yesterday}
+                            className="control-input-style"
                             value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                            className="archive-date-input"
-                        />
-                        <span style={{ display: 'flex', alignItems: 'center', padding: '0 5px' }}>au</span>
-                        <input
-                            type="date"
                             min="1950-01-01"
                             max={yesterday}
+                            onChange={(e) => setStartDate(e.target.value)}
+                        />
+                        <span className="date-sep-text">au</span>
+                        <input
+                            type="date"
+                            className="control-input-style"
                             value={endDate}
+                            min="1950-01-01"
+                            max={yesterday}
                             onChange={(e) => setEndDate(e.target.value)}
-                            className="archive-date-input"
                         />
                     </div>
                 </div>
 
-                <div className="control-actions">
-                    <button onClick={handleFetch} className="fetch-btn" disabled={loading || !selectedStation}>
-                        {loading ? "Interrogation…" : <><Search size={18} /> Interroger</>}
+                <div className="actions-row">
+                    <button
+                        className="btn-primary-action"
+                        onClick={handleFetch}
+                        disabled={loading}
+                    >
+                        <Search size={18} />
+                        {loading ? 'Interrogation…' : 'Interroger'}
                     </button>
-                    <button onClick={exportToCSV} className="export-btn" disabled={!data.length}>
-                        <Download size={18} /> CSV Standard
+
+                    <button
+                        className="btn-secondary-action"
+                        onClick={exportStandardCSV}
+                        disabled={!data || data.length === 0}
+                        title="Exporter en CSV Standard Météo"
+                    >
+                        <Download size={16} /> CSV Standard
                     </button>
-                    <button onClick={exportFormatLogiciel} className="export-btn" disabled={!data.length} style={{ background: '#8b5cf6' }}>
-                        <Download size={18} /> Format Logiciel (m/s)
+
+                    <button
+                        className="btn-secondary-action"
+                        onClick={exportSoftwareCSV}
+                        disabled={!data || data.length === 0}
+                        title="Exporter en format m/s pour PowerQuery / Logiciels"
+                    >
+                        <Download size={16} /> Format Logiciel (m/s)
                     </button>
                 </div>
             </div>
 
-            {loading && progressMsg && (
-                <div style={{ background: 'rgba(56, 189, 248, 0.1)', border: '1px solid #38bdf8', padding: '12px 18px', borderRadius: '8px', color: '#38bdf8', margin: '15px 0', textAlign: 'center' }}>
-                    ⏳ {progressMsg}
+            {/* 3. Messages d'état */}
+            {loading && (
+                <div className="notice-loading">
+                    <Activity size={20} className="animate-spin" />
+                    <span>{progressMsg || 'Récupération officielle en direct auprès de Météo-France…'}</span>
                 </div>
             )}
 
-            {error && <div className="archive-error">{error}</div>}
+            {error && (
+                <div className="notice-error">
+                    <span>⚠️ {error}</span>
+                </div>
+            )}
 
+            {/* 4. Station Info & KPI Summary Cards */}
             {stats && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', margin: '20px 0' }}>
-                    <div className="stat-card" style={{ background: 'rgba(15, 23, 42, 0.7)', padding: '14px', borderRadius: '10px', borderLeft: '4px solid #60a5fa' }}>
-                        <div style={{ fontSize: '0.85rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <Droplets size={16} color="#60a5fa" /> Cumul Pluie
+                <>
+                    <div className="notice-station-summary">
+                        <div className="station-title-badge">
+                            <Thermometer size={20} color="#2563eb" />
+                            {currentStationName} ({selectedStation})
                         </div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#f8fafc', margin: '4px 0' }}>
-                            {stats.totalRain} <span style={{ fontSize: '0.9rem', color: '#94a3b8' }}>mm</span>
-                        </div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{stats.rainDays} jours de pluie (≥1 mm)</div>
-                    </div>
-
-                    <div className="stat-card" style={{ background: 'rgba(15, 23, 42, 0.7)', padding: '14px', borderRadius: '10px', borderLeft: '4px solid #f59e0b' }}>
-                        <div style={{ fontSize: '0.85rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <Wind size={16} color="#f59e0b" /> Rafale Max
-                        </div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#f8fafc', margin: '4px 0' }}>
-                            {stats.maxWind ? Math.round(stats.maxWind.val) : '-'} <span style={{ fontSize: '0.9rem', color: '#94a3b8' }}>km/h</span>
-                        </div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                            {stats.maxWind ? `Le ${stats.maxWind.date.slice(5)} à ${stats.maxWind.hxi || '—'}` : 'Aucun vent'}
+                        <div className="station-days-count">
+                            {stats.totalDays} jours d'observations analysés
                         </div>
                     </div>
 
-                    <div className="stat-card" style={{ background: 'rgba(15, 23, 42, 0.7)', padding: '14px', borderRadius: '10px', borderLeft: '4px solid #38bdf8' }}>
-                        <div style={{ fontSize: '0.85rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <Thermometer size={16} color="#38bdf8" /> Tn Absolue
+                    <div className="kpi-cards-grid">
+                        <div className="summary-kpi-card kpi-border-blue">
+                            <div className="kpi-top-row">
+                                <span>Cumul Précipitations</span>
+                                <Droplets size={16} color="#3b82f6" />
+                            </div>
+                            <div className="kpi-main-metric">
+                                {stats.totalRain} <span className="kpi-unit-text">mm</span>
+                            </div>
+                            <div className="kpi-detail-text">
+                                {stats.rainDays} jours de pluie (≥ 1mm)
+                            </div>
                         </div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#38bdf8', margin: '4px 0' }}>
-                            {stats.minTn ? `${stats.minTn.val.toFixed(1)} °C` : '-'}
-                        </div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                            {stats.minTn ? `Le ${stats.minTn.date}` : ''} ({stats.frostDays} j. de gel)
-                        </div>
-                    </div>
 
-                    <div className="stat-card" style={{ background: 'rgba(15, 23, 42, 0.7)', padding: '14px', borderRadius: '10px', borderLeft: '4px solid #f87171' }}>
-                        <div style={{ fontSize: '0.85rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <Thermometer size={16} color="#f87171" /> Tx Absolue
+                        <div className="summary-kpi-card kpi-border-cyan">
+                            <div className="kpi-top-row">
+                                <span>Rafale Max</span>
+                                <Wind size={16} color="#06b6d4" />
+                            </div>
+                            <div className="kpi-main-metric">
+                                {stats.maxWind ? stats.maxWind.val : '-'} <span className="kpi-unit-text">km/h</span>
+                            </div>
+                            <div className="kpi-detail-text">
+                                {stats.maxWind ? `${formatDateFR(stats.maxWind.date)} ${stats.maxWind.hxi ? `à ${stats.maxWind.hxi}` : ''}` : 'Aucune rafale'}
+                            </div>
                         </div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#f87171', margin: '4px 0' }}>
-                            {stats.maxTx ? `${stats.maxTx.val.toFixed(1)} °C` : '-'}
+
+                        <div className="summary-kpi-card kpi-border-indigo">
+                            <div className="kpi-top-row">
+                                <span>Tn Minimale</span>
+                                <Thermometer size={16} color="#6366f1" />
+                            </div>
+                            <div className="kpi-main-metric" style={{ color: '#2563eb' }}>
+                                {stats.minTn ? stats.minTn.val : '-'} <span className="kpi-unit-text">°C</span>
+                            </div>
+                            <div className="kpi-detail-text">
+                                {stats.minTn ? formatDateFR(stats.minTn.date) : '-'} ({stats.frostDays} j. de gel)
+                            </div>
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                            {stats.maxTx ? `Le ${stats.maxTx.date}` : ''} {stats.avgTm ? `(Moy: ${stats.avgTm}°C)` : ''}
+
+                        <div className="summary-kpi-card kpi-border-red">
+                            <div className="kpi-top-row">
+                                <span>Tx Maximale</span>
+                                <Sun size={16} color="#ef4444" />
+                            </div>
+                            <div className="kpi-main-metric" style={{ color: '#dc2626' }}>
+                                {stats.maxTx ? stats.maxTx.val : '-'} <span className="kpi-unit-text">°C</span>
+                            </div>
+                            <div className="kpi-detail-text">
+                                {stats.maxTx ? formatDateFR(stats.maxTx.date) : '-'}
+                            </div>
+                        </div>
+
+                        <div className="summary-kpi-card kpi-border-purple">
+                            <div className="kpi-top-row">
+                                <span>Tm Moyenne</span>
+                                <Info size={16} color="#8b5cf6" />
+                            </div>
+                            <div className="kpi-main-metric">
+                                {stats.avgTm !== null ? stats.avgTm : '-'} <span className="kpi-unit-text">°C</span>
+                            </div>
+                            <div className="kpi-detail-text">
+                                Moyenne (Tn+Tx)/2
+                            </div>
+                        </div>
+
+                        <div className="summary-kpi-card kpi-border-amber">
+                            <div className="kpi-top-row">
+                                <span>Série Sèche Max</span>
+                                <Calendar size={16} color="#f59e0b" />
+                            </div>
+                            <div className="kpi-main-metric">
+                                {stats.maxDryRun} <span className="kpi-unit-text">jours</span>
+                            </div>
+                            <div className="kpi-detail-text">
+                                Jours consécutifs &lt; 0.1mm
+                            </div>
                         </div>
                     </div>
-                </div>
+                </>
             )}
 
-            <section className="archive-results-section">
-                <div className="ranking-table-container">
-                    <div className="ranking-table-header" style={{ borderLeftColor: '#38bdf8' }}>
-                        <Thermometer size={20} />
-                        <h3>{currentStationName} ({selectedStation})</h3>
-                        <span className="results-count">{data.length} jours récupérés</span>
+            {/* 5. Table Card */}
+            {data && data.length > 0 && (
+                <div className="table-presentation-card">
+                    <div className="table-top-bar">
+                        <div className="table-heading">
+                            <Calendar size={18} color="#2563eb" />
+                            Relevés Quotidiens ({filteredData.length} jours)
+                        </div>
+                        <input
+                            type="text"
+                            className="table-search-box"
+                            placeholder="Filtrer une date (ex: 202401)..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </div>
 
-                    <div className="ranking-table-wrapper">
-                        <table className="ranking-table">
+                    <div className="table-scroll-area">
+                        <table className="history-data-table">
                             <thead>
                                 <tr>
-                                    <th className="rank-col">Date</th>
-                                    <th className="value-col">TN (°C)</th>
-                                    <th className="value-col">TX (°C)</th>
-                                    <th className="value-col">TM (°C)</th>
-                                    <th className="value-col">Pluie (mm)</th>
-                                    <th className="value-col">Rafale (km/h)</th>
-                                    <th className="value-col">Phénomènes</th>
+                                    <th>Date</th>
+                                    <th>Tn (°C)</th>
+                                    <th>Tx (°C)</th>
+                                    <th>Tm (°C)</th>
+                                    <th>Pluie (mm)</th>
+                                    <th>Rafale (km/h)</th>
+                                    <th>Phénomènes</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {loading ? (
-                                    <tr><td colSpan="7" className="loading-row">⏳ Récupération officielle en direct auprès de Météo-France…</td></tr>
-                                ) : data.length > 0 ? (
-                                    data.map((item, idx) => (
-                                        <tr key={idx}>
-                                            <td className="rank-col" style={{ width: '130px', fontWeight: '500' }}>
-                                                {new Date(item.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                            </td>
-                                            <td className="value-col" style={{ color: item.tn <= 0 ? '#38bdf8' : '#93c5fd' }}>
-                                                {item.tn !== undefined ? (
-                                                    <span><strong>{item.tn.toFixed(1)}</strong> {item.htn && <small style={{ color: '#64748b' }}>({item.htn})</small>}</span>
-                                                ) : '-'}
-                                            </td>
-                                            <td className="value-col" style={{ color: item.tx >= 30 ? '#ef4444' : item.tx >= 25 ? '#f97316' : '#f87171' }}>
-                                                {item.tx !== undefined ? (
-                                                    <span><strong>{item.tx.toFixed(1)}</strong> {item.htx && <small style={{ color: '#64748b' }}>({item.htx})</small>}</span>
-                                                ) : '-'}
-                                            </td>
-                                            <td className="value-col" style={{ color: '#cbd5e1' }}>
-                                                {item.tm !== undefined ? item.tm.toFixed(1) : '-'}
-                                            </td>
-                                            <td className="value-col" style={{ color: item.rr >= 10 ? '#38bdf8' : '#93c5fd', fontWeight: item.rr > 0 ? '600' : 'normal' }}>
-                                                {item.rr !== undefined ? `${item.rr.toFixed(1)} mm` : '0.0 mm'}
-                                            </td>
-                                            <td className="value-col" style={{ color: item.fxi >= 80 ? '#ef4444' : item.fxi >= 60 ? '#f59e0b' : '#fbbf24' }}>
-                                                {item.fxi !== undefined ? (
-                                                    <span><strong>{Math.round(item.fxi)}</strong> {item.hxi && <small style={{ color: '#64748b' }}>({item.hxi})</small>}</span>
-                                                ) : '-'}
-                                            </td>
-                                            <td className="value-col" style={{ fontSize: '0.85rem' }}>
-                                                {item.orag && <span title="Orage" style={{ marginRight: '4px' }}>⚡</span>}
-                                                {item.grele && <span title="Grêle" style={{ marginRight: '4px' }}>⚪</span>}
-                                                {item.neig && <span title="Neige" style={{ marginRight: '4px' }}>❄️</span>}
-                                                {item.gelee && <span title="Gelée" style={{ marginRight: '4px' }}>🧊</span>}
-                                                {item.brou && <span title="Brouillard" style={{ marginRight: '4px' }}>🌫️</span>}
-                                                {!item.orag && !item.grele && !item.neig && !item.gelee && !item.brou && (
-                                                    item.rr === 0 ? <span style={{ color: '#64748b' }}>—</span> : null
+                                {filteredData.map((row, idx) => (
+                                    <tr key={idx}>
+                                        <td className="cell-date-bold">
+                                            {formatDateFR(row.date)}
+                                        </td>
+                                        <td className="cell-tn-blue">
+                                            {row.tn !== undefined && row.tn !== null ? `${row.tn} °C` : '-'}
+                                        </td>
+                                        <td className="cell-tx-red">
+                                            {row.tx !== undefined && row.tx !== null ? `${row.tx} °C` : '-'}
+                                        </td>
+                                        <td className="cell-tm-slate">
+                                            {row.tm !== undefined && row.tm !== null ? `${row.tm} °C` : '-'}
+                                        </td>
+                                        <td className="cell-rain-cyan">
+                                            {row.rr !== undefined && row.rr !== null ? `${row.rr} mm` : '-'}
+                                        </td>
+                                        <td className="cell-wind-dark">
+                                            {row.fxi !== undefined && row.fxi !== null ? (
+                                                <>
+                                                    <span>{row.fxi} km/h</span>
+                                                    {row.hxi && <span className="wind-hour-detail">({row.hxi})</span>}
+                                                </>
+                                            ) : '-'}
+                                        </td>
+                                        <td>
+                                            <div className="pheno-tags-container">
+                                                {row.orag && <span className="tag-pheno tag-orag">⚡ Orage</span>}
+                                                {row.neig && <span className="tag-pheno tag-neig">❄️ Neige</span>}
+                                                {row.grele && <span className="tag-pheno tag-grele">⚪ Grêle</span>}
+                                                {row.gelee && <span className="tag-pheno tag-gelee">🧊 Gelée</span>}
+                                                {row.brou && <span className="tag-pheno tag-brou">🌫️ Brouillard</span>}
+                                                {!row.orag && !row.neig && !row.grele && !row.gelee && !row.brou && (
+                                                    <span style={{ color: '#94a3b8' }}>-</span>
                                                 )}
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr><td colSpan="7" className="no-data">Sélectionnez un département, un poste et une période, puis cliquez sur <strong>Interroger</strong></td></tr>
-                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </section>
+            )}
         </div>
     );
 };
