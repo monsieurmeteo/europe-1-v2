@@ -136,6 +136,9 @@ export const meteoFranceClimService = {
         const idxFXI = headers.indexOf('FXI');
         const idxDXI = headers.indexOf('DXI');
         const idxHXI = headers.indexOf('HXI');
+        const idxFXI3S = headers.indexOf('FXI3S');
+        const idxDXI3S = headers.indexOf('DXI3S');
+        const idxHXI3S = headers.indexOf('HXI3S');
         const idxFF = headers.indexOf('FF');
         const idxDXY = headers.indexOf('DXY');
         const idxORAG = headers.indexOf('ORAG');
@@ -175,9 +178,14 @@ export const meteoFranceClimService = {
             const tx = parseVal(idxTX);
             const tm = parseVal(idxTM) ?? parseVal(idxTNTXM) ?? (tn !== null && tx !== null ? parseFloat(((tn + tx) / 2).toFixed(1)) : null);
             const rr = parseVal(idxRR) ?? 0;
+            
+            // Rafale normalisée OMM (3 secondes) en priorité
+            const fxi3sMS = parseVal(idxFXI3S);
             const fxiMS = parseVal(idxFXI);
-            // FXI est en m/s dans DPClim => conversion en km/h arrondie à l'entier
-            const fxiKmh = fxiMS !== null ? Math.round(fxiMS * 3.6) : null;
+            const activeFxiMS = fxi3sMS !== null ? fxi3sMS : fxiMS;
+            const fxiKmh = activeFxiMS !== null ? Math.round(activeFxiMS * 3.6) : null;
+            const hxi = parseHour(idxHXI3S) || parseHour(idxHXI);
+            const dxi = parseVal(idxDXI3S) ?? parseVal(idxDXI);
 
             results.push({
                 stationId: idxPoste !== -1 ? cols[idxPoste] : '',
@@ -191,9 +199,10 @@ export const meteoFranceClimService = {
                 tampli: parseVal(idxTAMPLI),
                 rr: rr,
                 fxi: fxiKmh,
-                fxiMS: fxiMS,
-                dxi: parseVal(idxDXI),
-                hxi: parseHour(idxHXI),
+                fxiMS: activeFxiMS,
+                fxiPeakKmh: fxiMS !== null ? Math.round(fxiMS * 3.6) : null,
+                dxi: dxi,
+                hxi: hxi,
                 ff: parseVal(idxFF),
                 dxy: parseVal(idxDXY),
                 orag: cols[idxORAG] === '1',
