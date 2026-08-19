@@ -42,6 +42,10 @@
       "destination": "https://public-api.meteofrance.fr/public/DPPaquetRadar/v1/$1"
     },
     {
+      "source": "/api-meteo-clim/(.*)",
+      "destination": "https://public-api.meteofrance.fr/public/DPClim/v1/$1"
+    },
+    {
       "source": "/mf-token",
       "destination": "https://portail-api.meteofrance.fr/token"
     },

@@ -79,6 +79,12 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api-meteo-poste/, ''),
         secure: false,
       },
+      '/api-meteo-clim': {
+        target: 'https://public-api.meteofrance.fr/public/DPClim/v1',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api-meteo-clim/, ''),
+        secure: false,
+      },
       '/mf-token': {
         target: 'https://portail-api.meteofrance.fr/token',
         changeOrigin: true,
