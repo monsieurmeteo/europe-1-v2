@@ -1,66 +1,23 @@
 /**
- * Service Climatologie officiel Météo-France (DPClim)
- * Accès direct aux archives quotidiennes (TN, TX, TM, RR, FXI, DXI, HXI, etc.) de 1950 à hier.
+ * Service d'accès à l'API Climatologique officielle Météo-France (DPClim)
+ * Permet de récupérer les archives quotidiennes (1950 - Hier) pour toutes les stations françaises.
  */
 
 import { meteoAuth } from './meteoFranceAuth';
 
-const BASE_CLIM_URL = '/api-meteo-clim';
+const BASE_CLIM_URL = 'https://public-api.meteofrance.fr/public/DPClim/v1';
 
-/**
- * Attendre un certain délai en millisecondes
- */
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-/**
- * Formater une heure Météo-France (ex: "1514" -> "15h14" ou "520" -> "05h20")
- */
-function formatTime(val) {
-    if (!val || val === '9999' || val === 'mq') return '';
-    const s = val.toString().padStart(4, '0');
-    return `${s.slice(0, 2)}h${s.slice(2, 4)}`;
-}
-
-/**
- * Parser un nombre décimal français avec virgule
- */
-function parseNum(val) {
-    if (val === null || val === undefined || val === '' || val === 'mq') return null;
-    const n = parseFloat(String(val).replace(',', '.'));
-    return isNaN(n) ? null : n;
-}
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const meteoFranceClimService = {
-    /**
-     * Récupérer la liste des stations d'un département
-     * @param {string} deptCode Code département (ex: "59", "62", "75")
-     */
-    async getStations(deptCode) {
-        if (!deptCode) return [];
-        const token = await meteoAuth.getValidToken();
-
-        const url = `${BASE_CLIM_URL}/liste-stations/quotidienne?id-departement=${deptCode}`;
-        const response = await fetch(url, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            const errText = await response.text();
-            throw new Error(`Erreur stations DPClim (${response.status}): ${errText}`);
-        }
-
-        const stations = await response.json();
-        return stations.sort((a, b) => (a.nom || '').localeCompare(b.nom || ''));
-    },
-
     /**
      * Commander et télécharger l'historique quotidien d'une station (1950 à hier)
      * @param {string} stationId Identifiant poste Météo-France (8 chiffres, ex: "59178001")
      * @param {string} startDate Date début YYYY-MM-DD
      * @param {string} endDate Date fin YYYY-MM-DD
+     * @param {function} onProgress Callback d'avancement optionnel (message)
+     */
+    async fetchStationHistory(stationId, startDate, endDate, onProgress = () => {}) {
         if (!stationId || !startDate || !endDate) {
             throw new Error('Paramètres manquants (stationId, startDate, endDate requis)');
         }
@@ -75,8 +32,8 @@ export const meteoFranceClimService = {
         }
 
         const token = await meteoAuth.getValidToken();
-        const deb = `${startDate}T00:00:00Z`;
-        const fin = `${safeEnd}T23:59:59Z`;
+        const deb = startDate + 'T00:00:00Z';
+        const fin = safeEnd + 'T23:59:59Z';
 
         onProgress('Envoi de la commande à Météo-France…');
 
@@ -85,7 +42,7 @@ export const meteoFranceClimService = {
         
         const cmdResp = await fetch(cmdUrl, {
             headers: {
-                'Authorization': `Bearer ${token}`,
+                'Authorization': 'Bearer ' + token,
                 'Accept': 'application/json'
             }
         });
@@ -112,8 +69,8 @@ export const meteoFranceClimService = {
         for (let attempt = 1; attempt <= 15; attempt++) {
             const fileResp = await fetch(fileUrl, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: '*/*'
+                    'Authorization': 'Bearer ' + token,
+                    'Accept': '*/*'
                 }
             });
 
@@ -136,90 +93,102 @@ export const meteoFranceClimService = {
         }
 
         onProgress('Traitement des données…');
-        return this.parseClimCSV(csvText, startDate, endDate);
+        return this.parseDPClimCSV(csvText);
     },
 
     /**
-     * Parser le fichier CSV climatologique officiel Météo-France
+     * Parser le CSV DPClim (séparateur point-virgule)
      */
-    parseClimCSV(csvText, startDate, endDate) {
+    parseDPClimCSV(csvText) {
         if (!csvText) return [];
 
-        const lines = csvText.trim().split('\n').filter(l => l.trim());
+        const lines = csvText.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
         if (lines.length < 2) return [];
 
-        const sep = lines[0].includes(';') ? ';' : lines[0].includes('\t') ? '\t' : ',';
-        const header = lines[0].split(sep).map(h => h.trim().replace(/"/g, '').toUpperCase());
+        const headerLine = lines[0];
+        const headers = headerLine.split(';').map(h => h.trim());
 
-        const idxPoste = header.indexOf('POSTE');
-        const idxDate = header.findIndex(h => h === 'DATE' || h === 'AAAAMMJJ');
-        const idxRR = header.indexOf('RR');
-        const idxTN = header.indexOf('TN');
-        const idxHTN = header.indexOf('HTN');
-        const idxTX = header.indexOf('TX');
-        const idxHTX = header.indexOf('HTX');
-        const idxTM = header.indexOf('TM');
-        const idxFXI = header.indexOf('FXI');
-        const idxDXI = header.indexOf('DXI');
-        const idxHXI = header.indexOf('HXI');
-        const idxINST = header.indexOf('INST');
-        const idxORAG = header.indexOf('ORAG');
-        const idxGRELE = header.indexOf('GRELE');
-        const idxNEIG = header.indexOf('NEIG');
-        const idxBROU = header.indexOf('BROU');
-        const idxGELEE = header.indexOf('GELEE');
+        const idxPoste = headers.indexOf('POSTE') !== -1 ? headers.indexOf('POSTE') : headers.indexOf('NUM_POSTE');
+        const idxDate = headers.indexOf('DATE');
+        const idxRR = headers.indexOf('RR');
+        const idxTN = headers.indexOf('TN');
+        const idxHTN = headers.indexOf('HTN');
+        const idxTX = headers.indexOf('TX');
+        const idxHTX = headers.indexOf('HTX');
+        const idxTM = headers.indexOf('TM');
+        const idxTNTXM = headers.indexOf('TNTXM');
+        const idxTAMPLI = headers.indexOf('TAMPLI');
+        const idxFXI = headers.indexOf('FXI');
+        const idxDXI = headers.indexOf('DXI');
+        const idxHXI = headers.indexOf('HXI');
+        const idxFF = headers.indexOf('FF');
+        const idxDXY = headers.indexOf('DXY');
+        const idxORAG = headers.indexOf('ORAG');
+        const idxNEIG = headers.indexOf('NEIG');
+        const idxGREL = headers.indexOf('GREL');
+        const idxBROU = headers.indexOf('BROU');
+        const idxGELE = headers.indexOf('GELE');
 
-        if (idxDate === -1) return [];
-
-        const rows = [];
-        const seenDates = new Set();
+        const results = [];
 
         for (let i = 1; i < lines.length; i++) {
-            const cols = lines[i].split(sep).map(c => c.trim().replace(/"/g, ''));
-            if (cols.length < 2) continue;
+            const cols = lines[i].split(';').map(c => c.trim());
+            if (cols.length < headers.length) continue;
 
-            let dateRaw = cols[idxDate] || '';
-            let dateISO = dateRaw;
-            if (/^\d{8}$/.test(dateRaw)) {
-                dateISO = `${dateRaw.slice(0, 4)}-${dateRaw.slice(4, 6)}-${dateRaw.slice(6, 8)}`;
-            }
+            const rawDate = idxDate !== -1 ? cols[idxDate] : '';
+            if (!rawDate || rawDate.length !== 8) continue;
 
-            if (startDate && dateISO < startDate) continue;
-            if (endDate && dateISO > endDate) continue;
-            if (seenDates.has(dateISO)) continue;
-            seenDates.add(dateISO);
+            const formattedDate = `${rawDate.substring(0, 4)}-${rawDate.substring(4, 6)}-${rawDate.substring(6, 8)}`;
 
-            const tn = idxTN !== -1 ? parseNum(cols[idxTN]) : null;
-            const tx = idxTX !== -1 ? parseNum(cols[idxTX]) : null;
-            const tm = idxTM !== -1 ? parseNum(cols[idxTM]) : null;
-            const rr = idxRR !== -1 ? parseNum(cols[idxRR]) : null;
-            const fxiMS = idxFXI !== -1 ? parseNum(cols[idxFXI]) : null;
+            const parseVal = (idx) => {
+                if (idx === -1) return null;
+                const v = cols[idx];
+                if (!v || v === '' || v === 'null') return null;
+                const num = parseFloat(v.replace(',', '.'));
+                return isNaN(num) ? null : num;
+            };
+
+            const parseHour = (idx) => {
+                if (idx === -1) return '';
+                const v = cols[idx];
+                if (!v || v.length < 3) return '';
+                const padded = v.padStart(4, '0');
+                return `${padded.substring(0, 2)}h${padded.substring(2, 4)}`;
+            };
+
+            const tn = parseVal(idxTN);
+            const tx = parseVal(idxTX);
+            const tm = parseVal(idxTM) ?? parseVal(idxTNTXM) ?? (tn !== null && tx !== null ? parseFloat(((tn + tx) / 2).toFixed(1)) : null);
+            const rr = parseVal(idxRR) ?? 0;
+            const fxiMS = parseVal(idxFXI);
+            // FXI est en m/s dans DPClim => conversion en km/h arrondie à l'entier
             const fxiKmh = fxiMS !== null ? Math.round(fxiMS * 3.6) : null;
 
-            rows.push({
-                poste: idxPoste !== -1 ? cols[idxPoste] : '',
-                date: dateISO,
-                tn: tn !== null ? tn : undefined,
-                htn: idxHTN !== -1 ? formatTime(cols[idxHTN]) : '',
-                tx: tx !== null ? tx : undefined,
-                htx: idxHTX !== -1 ? formatTime(cols[idxHTX]) : '',
-                tm: tm !== null ? tm : undefined,
-                rr: rr !== null ? rr : 0,
-                fxi: fxiKmh !== null ? fxiKmh : undefined,
-                fxi_ms: fxiMS !== null ? fxiMS : undefined,
-                dxi: idxDXI !== -1 && cols[idxDXI] ? parseInt(cols[idxDXI], 10) : undefined,
-                hxi: idxHXI !== -1 ? formatTime(cols[idxHXI]) : '',
-                inst: idxINST !== -1 ? parseNum(cols[idxINST]) : null,
-                orag: idxORAG !== -1 && cols[idxORAG] === '1',
-                grele: idxGRELE !== -1 && cols[idxGRELE] === '1',
-                neig: idxNEIG !== -1 && cols[idxNEIG] === '1',
-                brou: idxBROU !== -1 && cols[idxBROU] === '1',
-                gelee: idxGELEE !== -1 && cols[idxGELEE] === '1'
+            results.push({
+                stationId: idxPoste !== -1 ? cols[idxPoste] : '',
+                date: formattedDate,
+                rawDate: rawDate,
+                tn: tn,
+                htn: parseHour(idxHTN),
+                tx: tx,
+                htx: parseHour(idxHTX),
+                tm: tm,
+                tampli: parseVal(idxTAMPLI),
+                rr: rr,
+                fxi: fxiKmh,
+                fxiMS: fxiMS,
+                dxi: parseVal(idxDXI),
+                hxi: parseHour(idxHXI),
+                ff: parseVal(idxFF),
+                dxy: parseVal(idxDXY),
+                orag: cols[idxORAG] === '1',
+                neig: cols[idxNEIG] === '1',
+                grele: cols[idxGREL] === '1',
+                brou: cols[idxBROU] === '1',
+                gelee: cols[idxGELE] === '1'
             });
         }
 
-        return rows.sort((a, b) => b.date.localeCompare(a.date));
+        return results.sort((a, b) => a.date.localeCompare(b.date));
     }
 };
-
-export default meteoFranceClimService;
