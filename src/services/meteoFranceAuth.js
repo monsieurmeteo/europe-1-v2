@@ -44,15 +44,29 @@ class MeteoFranceAuth {
      * Générer un nouveau token OAuth
      */
     async generateToken() {
-        if (!this.consumerKey || !this.consumerSecret) {
-            throw new Error('Credentials non configurés. Utilisez initialize() d\'abord.');
-        }
-
         try {
-            // Encoder les credentials en Base64
-            const credentials = btoa(`${this.consumerKey}:${this.consumerSecret}`);
+            // 1. Essayer la fonction serverless Vercel /api/mf-token (sans risque de popup Basic Auth)
+            try {
+                const apiResp = await fetch('/api/mf-token', { method: 'POST' });
+                if (apiResp.ok) {
+                    const apiData = await apiResp.json();
+                    if (apiData.access_token) {
+                        this.currentToken = apiData.access_token;
+                        this.tokenExpiry = Date.now() + (apiData.expires_in * 1000);
+                        this.scheduleRefresh(apiData.expires_in - 300);
+                        return this.currentToken;
+                    }
+                }
+            } catch (e) {
+                console.warn('[MeteoAuth] /api/mf-token non disponible, fallback direct');
+            }
 
-            const response = await fetch(OAUTH_URL, {
+            // 2. Fallback direct avec credentials
+            const key = this.consumerKey || 'Mhar9YSs8LEluq4neXqP0YeHaaka';
+            const sec = this.consumerSecret || 'nDKPWzVr2_2o5Ej1aPZa7O6hu4Ia';
+            const credentials = btoa(`${key}:${sec}`);
+
+            const response = await fetch('/mf-token', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Basic ${credentials}`,
@@ -75,9 +89,7 @@ class MeteoFranceAuth {
             console.log(`[MeteoAuth] ✅ Nouveau token généré`);
             console.log(`[MeteoAuth] ⏰ Expire à: ${expiryDate.toLocaleTimeString('fr-FR')}`);
 
-            // Programmer le renouvellement automatique (5 min avant expiration)
-            this.scheduleRefresh(data.expires_in - 300); // 5 min avant
-
+            this.scheduleRefresh(data.expires_in - 300);
             return this.currentToken;
 
         } catch (error) {
