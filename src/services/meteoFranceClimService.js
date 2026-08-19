@@ -188,7 +188,7 @@ export const meteoFranceClimService = {
             const tm = idxTM !== -1 ? parseNum(cols[idxTM]) : null;
             const rr = idxRR !== -1 ? parseNum(cols[idxRR]) : null;
             const fxiMS = idxFXI !== -1 ? parseNum(cols[idxFXI]) : null;
-            const fxiKmh = fxiMS !== null ? fxiMS * 3.6 : null;
+            const fxiKmh = fxiMS !== null ? Math.round(fxiMS * 3.6) : null;
 
             rows.push({
                 poste: idxPoste !== -1 ? cols[idxPoste] : '',
