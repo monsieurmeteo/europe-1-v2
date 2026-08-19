@@ -61,16 +61,22 @@ export const meteoFranceClimService = {
      * @param {string} stationId Identifiant poste Météo-France (8 chiffres, ex: "59178001")
      * @param {string} startDate Date début YYYY-MM-DD
      * @param {string} endDate Date fin YYYY-MM-DD
-     * @param {function} onProgress Callback d'avancement optionnel (message)
-     */
-    async fetchStationHistory(stationId, startDate, endDate, onProgress = () => {}) {
         if (!stationId || !startDate || !endDate) {
             throw new Error('Paramètres manquants (stationId, startDate, endDate requis)');
         }
 
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        let safeEnd = endDate;
+        if (safeEnd > yesterday) {
+            safeEnd = yesterday;
+        }
+        if (startDate > yesterday) {
+            return [];
+        }
+
         const token = await meteoAuth.getValidToken();
         const deb = `${startDate}T00:00:00Z`;
-        const fin = `${endDate}T23:59:59Z`;
+        const fin = `${safeEnd}T23:59:59Z`;
 
         onProgress('Envoi de la commande à Météo-France…');
 

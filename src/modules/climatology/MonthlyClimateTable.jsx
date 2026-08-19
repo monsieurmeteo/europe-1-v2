@@ -61,9 +61,20 @@ export default function MonthlyClimateTable({ stationId, stationName }) {
         const mNum = String(selectedMonth + 1).padStart(2, '0');
         const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
         const startISO = `${selectedYear}-${mNum}-01`;
-        const endISO = `${selectedYear}-${mNum}-${String(daysInMonth).padStart(2, '0')}`;
+        let endISO = `${selectedYear}-${mNum}-${String(daysInMonth).padStart(2, '0')}`;
 
-        const cacheKey = `${stationId}_${selectedYear}_${mNum}`;
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        if (endISO > yesterday) {
+            endISO = yesterday;
+        }
+
+        if (startISO > yesterday) {
+            setMonthlyData([]);
+            setLoading(false);
+            return;
+        }
+
+        const cacheKey = `${stationId}_${selectedYear}_${mNum}_${endISO}`;
         if (monthlyClimCache.has(cacheKey)) {
             const cached = monthlyClimCache.get(cacheKey);
             setMonthlyData(cached);
