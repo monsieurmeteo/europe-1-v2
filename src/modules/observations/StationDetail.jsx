@@ -5,7 +5,7 @@ import { geoService } from '../../services/geoService';
 import {
     Thermometer, Wind, Droplets, MapPin,
     ArrowLeft, Activity, Info, Clock,
-    ChevronLeft, ChevronRight, Calendar, Table, LineChart as ChartIcon, FileDown, FileText
+    ChevronLeft, ChevronRight, Calendar, Table, LineChart as ChartIcon, FileDown, FileText, History
 } from 'lucide-react';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid,
@@ -15,6 +15,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 import MonthlyClimateTable from '../climatology/MonthlyClimateTable';
+import StationClimArchivesTab from './StationClimArchivesTab';
 import './Observations.css';
 
 export default function StationDetail() {
@@ -445,7 +446,7 @@ export default function StationDetail() {
             </header>
 
             {/* TABS NAVIGATION (TOP) */}
-            <div className="tabs-nav" style={{ marginBottom: '10px', display: 'flex', gap: '5px', paddingBottom: '15px', borderBottom: '1px solid #e2e8f0' }}>
+            <div className="tabs-nav" style={{ marginBottom: '10px', display: 'flex', gap: '8px', paddingBottom: '15px', borderBottom: '1px solid #e2e8f0', flexWrap: 'wrap' }}>
                 <button
                     className={`tab-btn ${activeTab === 'obs' ? 'active' : ''}`}
                     onClick={() => setActiveTab('obs')}
@@ -480,49 +481,68 @@ export default function StationDetail() {
                     <Calendar size={16} style={{ marginBottom: '-2px', marginRight: '6px' }} />
                     Climatologie Mensuelle
                 </button>
+                <button
+                    className={`tab-btn ${activeTab === 'archives' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('archives')}
+                    style={{
+                        padding: '8px 16px',
+                        borderRadius: '6px',
+                        border: '1px solid #e2e8f0',
+                        background: activeTab === 'archives' ? '#2563eb' : 'white',
+                        color: activeTab === 'archives' ? 'white' : '#64748b',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        boxShadow: activeTab === 'archives' ? '0 2px 4px rgba(37,99,235,0.2)' : 'none'
+                    }}
+                >
+                    <History size={16} style={{ marginBottom: '-2px', marginRight: '6px' }} />
+                    Archives Météo-France (1950 - Hier)
+                </button>
             </div>
 
-            {/* DATE SELECTOR */}
-            <div className="date-picker-row">
-                <h3>{selectedDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</h3>
-                <div className="picker-controls">
-                    <button className="date-nav-btn" onClick={() => {
-                        const newDate = new Date(selectedDate);
-                        newDate.setDate(selectedDate.getDate() - 1);
-                        setSelectedDate(newDate);
-                    }} title="Jour précédent"><ChevronLeft size={18} /></button>
+            {/* DATE SELECTOR (Only for Obs) */}
+            {activeTab === 'obs' && (
+                <div className="date-picker-row">
+                    <h3>{selectedDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</h3>
+                    <div className="picker-controls">
+                        <button className="date-nav-btn" onClick={() => {
+                            const newDate = new Date(selectedDate);
+                            newDate.setDate(selectedDate.getDate() - 1);
+                            setSelectedDate(newDate);
+                        }} title="Jour précédent"><ChevronLeft size={18} /></button>
 
-                    <div className="date-display-wrapper">
-                        <Calendar size={16} className="calendar-icon-left" />
-                        <span className="date-text-formatted">
-                            {selectedDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                        </span>
-                        <input
-                            type="date"
-                            className="hidden-date-input"
-                            value={`${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`}
-                            max={new Date().toISOString().split('T')[0]}
-                            onChange={(e) => {
-                                if (e.target.value) {
-                                    const parts = e.target.value.split('-');
-                                    const year = parseInt(parts[0], 10);
-                                    const month = parseInt(parts[1], 10) - 1;
-                                    const day = parseInt(parts[2], 10);
-                                    const newDate = new Date(year, month, day);
-                                    setSelectedDate(newDate);
-                                }
-                            }}
-                        />
+                        <div className="date-display-wrapper">
+                            <Calendar size={16} className="calendar-icon-left" />
+                            <span className="date-text-formatted">
+                                {selectedDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            </span>
+                            <input
+                                type="date"
+                                className="hidden-date-input"
+                                value={`${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`}
+                                max={new Date().toISOString().split('T')[0]}
+                                onChange={(e) => {
+                                    if (e.target.value) {
+                                        const parts = e.target.value.split('-');
+                                        const year = parseInt(parts[0], 10);
+                                        const month = parseInt(parts[1], 10) - 1;
+                                        const day = parseInt(parts[2], 10);
+                                        const newDate = new Date(year, month, day);
+                                        setSelectedDate(newDate);
+                                    }
+                                }}
+                            />
+                        </div>
+
+                        <button className="date-nav-btn" onClick={() => {
+                            const newDate = new Date(selectedDate);
+                            newDate.setDate(selectedDate.getDate() + 1);
+                            const today = new Date();
+                            if (newDate <= today) setSelectedDate(newDate);
+                        }} title="Jour suivant"><ChevronRight size={18} /></button>
                     </div>
-
-                    <button className="date-nav-btn" onClick={() => {
-                        const newDate = new Date(selectedDate);
-                        newDate.setDate(selectedDate.getDate() + 1);
-                        const today = new Date();
-                        if (newDate <= today) setSelectedDate(newDate);
-                    }} title="Jour suivant"><ChevronRight size={18} /></button>
                 </div>
-            </div>
+            )}
 
 
 
@@ -748,6 +768,14 @@ export default function StationDetail() {
             {/* CLIMATOLOGY CONTENT */}
             {activeTab === 'climatology' && (
                 <MonthlyClimateTable
+                    stationId={stationId}
+                    stationName={stationInfo?.name || stationId}
+                />
+            )}
+
+            {/* ARCHIVES CLIMATOLOGIQUES METEO-FRANCE CONTENT */}
+            {activeTab === 'archives' && (
+                <StationClimArchivesTab
                     stationId={stationId}
                     stationName={stationInfo?.name || stationId}
                 />
