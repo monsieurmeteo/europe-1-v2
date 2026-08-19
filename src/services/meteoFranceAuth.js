@@ -11,16 +11,16 @@ class MeteoFranceAuth {
         this.currentToken = null;
         this.tokenExpiry = null;
         this.refreshTimer = null;
-        this.consumerKey = null;
-        this.consumerSecret = null;
+        this.consumerKey = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_METEO_CONSUMER_KEY) || 'Mhar9YSs8LEluq4neXqP0YeHaaka';
+        this.consumerSecret = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_METEO_CONSUMER_SECRET) || 'nDKPWzVr2_2o5Ej1aPZa7O6hu4Ia';
     }
 
     /**
      * Initialiser avec les credentials
      */
     initialize(consumerKey, consumerSecret) {
-        this.consumerKey = consumerKey;
-        this.consumerSecret = consumerSecret;
+        if (consumerKey) this.consumerKey = consumerKey;
+        if (consumerSecret) this.consumerSecret = consumerSecret;
         console.log('[MeteoAuth] 🔑 Credentials configurés');
     }
 
