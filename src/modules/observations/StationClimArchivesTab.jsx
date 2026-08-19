@@ -317,7 +317,7 @@ export default function StationClimArchivesTab({ stationId, stationName }) {
             {loading && (
                 <div className="notice-loading">
                     <Activity size={20} className="animate-spin" />
-                    <span>{progressMsg || 'Interrogation de l'API Climatologie Météo-France…'}</span>
+                    <span>{progressMsg || "Interrogation de l'API Climatologie Météo-France…"}</span>
                 </div>
             )}
 
