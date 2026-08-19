@@ -8,8 +8,8 @@ export default async function handler(req, res) {
         return res.status(200).end();
     }
 
-    const consumerKey = process.env.VITE_METEO_CONSUMER_KEY || 'Mhar9YSs8LEluq4neXqP0YeHaaka';
-    const consumerSecret = process.env.VITE_METEO_CONSUMER_SECRET || 'nDKPWzVr2_2o5Ej1aPZa7O6hu4Ia';
+    const consumerKey = 'Mhar9YSs8LEluq4neXqP0YeHaaka';
+    const consumerSecret = 'nDKPWzVr2_2o5Ej1aPZa7O6hu4Ia';
 
     try {
         const credentials = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');

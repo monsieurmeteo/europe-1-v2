@@ -10,11 +10,11 @@ const MASTER_TOKEN = "eyJ4NXQiOiJZV0kxTTJZNE1qWTNOemsyTkRZeU5XTTRPV014TXpjek1UVm
 
 class MeteoFranceAuth {
     constructor() {
-        this.currentToken = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_METEO_MANUAL_TOKEN) || MASTER_TOKEN;
-        this.tokenExpiry = 1816064351 * 1000; // Valide 11 mois
+        this.currentToken = null;
+        this.tokenExpiry = null;
         this.refreshTimer = null;
-        this.consumerKey = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_METEO_CONSUMER_KEY) || 'Mhar9YSs8LEluq4neXqP0YeHaaka';
-        this.consumerSecret = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_METEO_CONSUMER_SECRET) || 'nDKPWzVr2_2o5Ej1aPZa7O6hu4Ia';
+        this.consumerKey = 'Mhar9YSs8LEluq4neXqP0YeHaaka';
+        this.consumerSecret = 'nDKPWzVr2_2o5Ej1aPZa7O6hu4Ia';
     }
 
     /**
