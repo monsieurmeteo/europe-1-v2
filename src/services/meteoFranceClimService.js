@@ -31,7 +31,7 @@ export const meteoFranceClimService = {
             return [];
         }
 
-        const token = await meteoAuth.getValidToken();
+        let token = await meteoAuth.getValidToken();
         const deb = startDate + 'T00:00:00Z';
         const fin = safeEnd + 'T23:59:59Z';
 
@@ -40,12 +40,24 @@ export const meteoFranceClimService = {
         // 1. Commande de la station
         const cmdUrl = `${BASE_CLIM_URL}/commande-station/quotidienne?id-station=${stationId}&date-deb-periode=${encodeURIComponent(deb)}&date-fin-periode=${encodeURIComponent(fin)}`;
         
-        const cmdResp = await fetch(cmdUrl, {
+        let cmdResp = await fetch(cmdUrl, {
             headers: {
                 'Authorization': 'Bearer ' + token,
                 'Accept': 'application/json'
             }
         });
+
+        // Auto-récupération en cas de 401 (token expiré ou invalidé)
+        if (cmdResp.status === 401) {
+            console.warn('[meteoFranceClimService] 401 Invalid Token reçu -> Renouvellement forcé du token...');
+            token = await meteoAuth.generateToken();
+            cmdResp = await fetch(cmdUrl, {
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Accept': 'application/json'
+                }
+            });
+        }
 
         if (!cmdResp.ok) {
             const errText = await cmdResp.text();
@@ -77,6 +89,9 @@ export const meteoFranceClimService = {
             if (fileResp.status === 200 || fileResp.status === 201) {
                 csvText = await fileResp.text();
                 break;
+            } else if (fileResp.status === 401) {
+                token = await meteoAuth.generateToken();
+                await sleep(1500);
             } else if (fileResp.status === 204) {
                 onProgress(`Génération du fichier en cours… (tentative ${attempt}/15)`);
                 await sleep(2500);
