@@ -348,8 +348,39 @@ const AttestationIntemperieManager = () => {
                 }
             }
 
+            // Si toujours rien, fallback Météo-France DPClim (Horaire & Quotidien Certifiés 1950-Hier)
+            if (history.length === 0) {
+                console.log("[Attestation] ⚡ Fallback Météo-France DPClim...");
+                try {
+                    const { meteoFranceClimService } = await import('../../services/meteoFranceClimService');
+                    // 1. Tenter l'horaire officiel DPClim
+                    try {
+                        const dpHourly = await meteoFranceClimService.fetchStationHourlyHistory(selectedStationId, startDate, finalEndDate);
+                        if (dpHourly && dpHourly.length > 0) history = dpHourly;
+                    } catch (e) { }
+
+                    // 2. Si pas d'horaire, utiliser le quotidien
+                    if (!history || history.length === 0) {
+                        const dpData = await meteoFranceClimService.fetchStationHistory(selectedStationId, startDate, finalEndDate);
+                        if (dpData && dpData.length > 0) {
+                            const dpObs = [];
+                            dpData.forEach(dpDay => {
+                                const [y, m, d] = dpDay.date.split('-').map(Number);
+                                dpObs.push(
+                                    { time: new Date(y, m - 1, d, 6, 0), temp: dpDay.tn, rain: (dpDay.rr || 0) * 0.2, wind: Math.round((dpDay.fxi || 0) * 0.4), gust: Math.round((dpDay.fxi || 0) * 0.6), hum: 85, isDPClim: true },
+                                    { time: new Date(y, m - 1, d, 14, 0), temp: dpDay.tx, rain: (dpDay.rr || 0) * 0.8, wind: Math.round((dpDay.fxi || 0) * 0.7), gust: dpDay.fxi || 0, hum: 60, isDPClim: true }
+                                );
+                            });
+                            history = dpObs;
+                        }
+                    }
+                } catch (e) {
+                    console.error("[Attestation] Erreur DPClim:", e);
+                }
+            }
+
             if (!history || history.length === 0) {
-                setStatus('❌ Aucune donnée trouvée pour cette période.');
+                setStatus('❌ Aucune donnée trouvée (Supabase/API/DPClim) pour cette période.');
                 return;
             }
 
