@@ -1,12 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Calendar, Search, Download, Wind, Droplets, Thermometer, Info, MapPin, Zap, Snowflake, CloudRain, Sun, Activity, Trophy, ShieldCheck } from 'lucide-react';
+import { Calendar, Search, Download, Wind, Droplets, Thermometer, Info, MapPin, Zap, Snowflake, CloudRain, Sun, Activity, Trophy, ShieldCheck, ChevronDown, ChevronUp, FileText, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { meteoFranceClimService } from '../../services/meteoFranceClimService';
+import { climatologyService } from '../../services/climatologyService';
 import { DEPARTMENTS } from '../../data/departments';
 import stationNames from '../../data/stationNames.json';
+import recordsData from '../../data/all_stations_records.json';
 import './StationArchives.css';
+
+const MONTHS_SHORT = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc', 'Année'];
 
 // Cache mémoire session pour navigation instantanée (ex: Valenciennes, Douai, etc.)
 const stationHistoryCache = new Map();
+const stationClimFicheCache = new Map();
 
 const StationArchives = () => {
     // Dates par défaut : du 1er janvier de l'année en cours jusqu'à hier
@@ -24,6 +30,11 @@ const StationArchives = () => {
     const [progressMsg, setProgressMsg] = useState('');
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+
+    // Climatology & Records State
+    const [stationClim, setStationClim] = useState(null);
+    const [loadingClim, setLoadingClim] = useState(false);
+    const [showNormalsTable, setShowNormalsTable] = useState(false);
 
     // 1. Charger les stations du département sélectionné
     useEffect(() => {
@@ -56,7 +67,54 @@ const StationArchives = () => {
         return () => { isMounted = false; };
     }, [selectedDept]);
 
-    // 2. Interroger Météo-France DPClim (avec cache mémoire session)
+    // 2. Charger automatiquement la fiche climatologique (Normales 1991-2020 & Records) pour la station sélectionnée
+    useEffect(() => {
+        if (!selectedStation) return;
+        let isMounted = true;
+        const fullId = selectedStation.toString().padStart(8, '0');
+
+        if (stationClimFicheCache.has(fullId)) {
+            setStationClim(stationClimFicheCache.get(fullId));
+            return;
+        }
+
+        // Base locale immédiate si disponible
+        if (recordsData[fullId]) {
+            const local = recordsData[fullId];
+            const localClim = {
+                metadata: { name: local.name, id: fullId },
+                normals: { tx: local.tx, tn: local.tn, tm: local.tx.map((v, i) => (v + local.tn[i]) / 2), pr: local.pr, sun: local.sun || [] },
+                records: local.records || {},
+                days: local.days || {}
+            };
+            setStationClim(localClim);
+        }
+
+        // Récupération de la fiche certifiée Météo-France
+        const loadOfficialFiche = async () => {
+            setLoadingClim(true);
+            try {
+                const raw = await climatologyService.fetchStationData(fullId);
+                if (!isMounted) return;
+                if (raw) {
+                    const parsed = climatologyService.parseFiche(raw);
+                    if (parsed) {
+                        stationClimFicheCache.set(fullId, parsed);
+                        setStationClim(parsed);
+                    }
+                }
+            } catch (e) {
+                console.warn('[StationArchives] Fiche climatologique distante non disponible:', e);
+            } finally {
+                if (isMounted) setLoadingClim(false);
+            }
+        };
+
+        loadOfficialFiche();
+        return () => { isMounted = false; };
+    }, [selectedStation]);
+
+    // 3. Interroger Météo-France DPClim (avec cache mémoire session)
     const handleFetch = async () => {
         if (!startDate || !endDate || !selectedStation) return;
 
@@ -346,7 +404,187 @@ const StationArchives = () => {
                 </div>
             </div>
 
-            {/* 3. Messages d'état */}
+            {/* 3. Official Station Normals & Records Banner */}
+            {stationClim && (
+                <div className="station-clim-card">
+                    <div className="clim-card-header">
+                        <div className="clim-header-left">
+                            <div className="clim-icon-circle">
+                                <Trophy size={18} color="#2563eb" />
+                            </div>
+                            <div>
+                                <h3>Normales 1991-2020 & Records Absolus : {currentStationName} ({selectedStation})</h3>
+                                <p>Données certifiées Météo-France {stationClim.records?.maxT?.period ? `(archives officielles depuis ${stationClim.records.maxT.period[0].split('-')[2]})` : ''}</p>
+                            </div>
+                        </div>
+                        <div className="clim-header-actions">
+                            <button
+                                className="btn-toggle-normals"
+                                onClick={() => setShowNormalsTable(!showNormalsTable)}
+                            >
+                                {showNormalsTable ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                <span>{showNormalsTable ? 'Masquer normales 12 mois' : 'Voir tableau des normales (12 mois)'}</span>
+                            </button>
+                            <Link to={`/climatologie?station=${selectedStation}`} className="btn-link-climatol">
+                                <ExternalLink size={14} /> Fiche Climatologie
+                            </Link>
+                            <a
+                                href={`https://object.files.data.gouv.fr/meteofrance/data/synchro_ftp/REF_STATION/FICHECLIM_${selectedStation}.pdf`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="btn-link-pdf"
+                            >
+                                <FileText size={14} /> PDF Météo-France
+                            </a>
+                        </div>
+                    </div>
+
+                    {/* 4 Records Cards */}
+                    <div className="clim-records-grid">
+                        <div className="clim-record-box rec-heat">
+                            <div className="rec-box-top">
+                                <span>Record Chaleur Absolu (TX)</span>
+                                <Sun size={15} color="#ef4444" />
+                            </div>
+                            <div className="rec-box-val" style={{ color: '#dc2626' }}>
+                                {stationClim.records?.maxT?.vals?.[12] !== undefined && stationClim.records?.maxT?.vals?.[12] !== null
+                                    ? `${stationClim.records.maxT.vals[12]} °C`
+                                    : '-'}
+                            </div>
+                            <div className="rec-box-date">
+                                {stationClim.records?.maxT?.dates?.[12] ? `Établi le ${stationClim.records.maxT.dates[12]}` : 'Non disponible'}
+                            </div>
+                        </div>
+
+                        <div className="clim-record-box rec-cold">
+                            <div className="rec-box-top">
+                                <span>Record Froid Absolu (TN)</span>
+                                <Snowflake size={15} color="#3b82f6" />
+                            </div>
+                            <div className="rec-box-val" style={{ color: '#2563eb' }}>
+                                {stationClim.records?.minT?.vals?.[12] !== undefined && stationClim.records?.minT?.vals?.[12] !== null
+                                    ? `${stationClim.records.minT.vals[12]} °C`
+                                    : '-'}
+                            </div>
+                            <div className="rec-box-date">
+                                {stationClim.records?.minT?.dates?.[12] ? `Établi le ${stationClim.records.minT.dates[12]}` : 'Non disponible'}
+                            </div>
+                        </div>
+
+                        <div className="clim-record-box rec-rain">
+                            <div className="rec-box-top">
+                                <span>Record Pluie 24h</span>
+                                <CloudRain size={15} color="#0ea5e9" />
+                            </div>
+                            <div className="rec-box-val" style={{ color: '#0284c7' }}>
+                                {stationClim.records?.maxRain?.vals?.[12] !== undefined && stationClim.records?.maxRain?.vals?.[12] !== null
+                                    ? `${stationClim.records.maxRain.vals[12]} mm`
+                                    : '-'}
+                            </div>
+                            <div className="rec-box-date">
+                                {stationClim.records?.maxRain?.dates?.[12] ? `Établi le ${stationClim.records.maxRain.dates[12]}` : 'Non disponible'}
+                            </div>
+                        </div>
+
+                        <div className="clim-record-box rec-wind">
+                            <div className="rec-box-top">
+                                <span>Record Rafale de Vent</span>
+                                <Wind size={15} color="#f59e0b" />
+                            </div>
+                            <div className="rec-box-val" style={{ color: '#d97706' }}>
+                                {stationClim.records?.maxWind?.vals?.[12] !== undefined && stationClim.records?.maxWind?.vals?.[12] !== null
+                                    ? `${Math.round(stationClim.records.maxWind.vals[12])} km/h`
+                                    : '-'}
+                            </div>
+                            <div className="rec-box-date">
+                                {stationClim.records?.maxWind?.dates?.[12] ? `Établi le ${stationClim.records.maxWind.dates[12]}` : 'Non disponible'}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Table des Normales dépliable */}
+                    {showNormalsTable && stationClim.normals && (
+                        <div className="clim-normals-table-wrap">
+                            <table className="clim-table-mini">
+                                <thead>
+                                    <tr>
+                                        <th>Paramètres (Normales 1991-2020)</th>
+                                        {MONTHS_SHORT.map(m => <th key={m}>{m}</th>)}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {stationClim.normals.tx && (
+                                        <tr>
+                                            <td className="param-title"><span style={{ color: '#ef4444' }}>●</span> Température Max Moyenne (TX en °C)</td>
+                                            {stationClim.normals.tx.map((v, i) => (
+                                                <td key={i} className={i === 12 ? 'col-annual' : ''}>{v !== null && !isNaN(v) ? v.toFixed(1) : '-'}</td>
+                                            ))}
+                                        </tr>
+                                    )}
+                                    {stationClim.normals.tm && (
+                                        <tr>
+                                            <td className="param-title"><span style={{ color: '#64748b' }}>●</span> Température Moyenne (TM en °C)</td>
+                                            {stationClim.normals.tm.map((v, i) => (
+                                                <td key={i} className={i === 12 ? 'col-annual' : ''}>{v !== null && !isNaN(v) ? v.toFixed(1) : '-'}</td>
+                                            ))}
+                                        </tr>
+                                    )}
+                                    {stationClim.normals.tn && (
+                                        <tr>
+                                            <td className="param-title"><span style={{ color: '#3b82f6' }}>●</span> Température Min Moyenne (TN en °C)</td>
+                                            {stationClim.normals.tn.map((v, i) => (
+                                                <td key={i} className={i === 12 ? 'col-annual' : ''}>{v !== null && !isNaN(v) ? v.toFixed(1) : '-'}</td>
+                                            ))}
+                                        </tr>
+                                    )}
+                                    {stationClim.normals.pr && (
+                                        <tr>
+                                            <td className="param-title"><span style={{ color: '#0ea5e9' }}>●</span> Précipitations Moyennes (mm)</td>
+                                            {stationClim.normals.pr.map((v, i) => (
+                                                <td key={i} className={i === 12 ? 'col-annual' : ''}>{v !== null && !isNaN(v) ? v.toFixed(1) : '-'}</td>
+                                            ))}
+                                        </tr>
+                                    )}
+                                    {stationClim.days?.tn0 && (
+                                        <tr>
+                                            <td className="param-title"><span style={{ color: '#6366f1' }}>●</span> Nombre de jours de gel (TN ≤ 0°C)</td>
+                                            {stationClim.days.tn0.map((v, i) => (
+                                                <td key={i} className={i === 12 ? 'col-annual' : ''}>{v !== null && !isNaN(v) ? v.toFixed(1) : '-'}</td>
+                                            ))}
+                                        </tr>
+                                    )}
+                                    {stationClim.days?.tx30 && (
+                                        <tr>
+                                            <td className="param-title"><span style={{ color: '#f59e0b' }}>●</span> Jours fortes chaleurs (TX ≥ 30°C)</td>
+                                            {stationClim.days.tx30.map((v, i) => (
+                                                <td key={i} className={i === 12 ? 'col-annual' : ''}>{v !== null && !isNaN(v) ? v.toFixed(1) : '-'}</td>
+                                            ))}
+                                        </tr>
+                                    )}
+                                    {stationClim.days?.rain1 && (
+                                        <tr>
+                                            <td className="param-title"><span style={{ color: '#0284c7' }}>●</span> Jours de pluie (RR ≥ 1mm)</td>
+                                            {stationClim.days.rain1.map((v, i) => (
+                                                <td key={i} className={i === 12 ? 'col-annual' : ''}>{v !== null && !isNaN(v) ? v.toFixed(1) : '-'}</td>
+                                            ))}
+                                        </tr>
+                                    )}
+                                    {stationClim.normals.dju && (
+                                        <tr>
+                                            <td className="param-title"><span style={{ color: '#8b5cf6' }}>●</span> Degrés Jours Unifiés (DJU)</td>
+                                            {stationClim.normals.dju.map((v, i) => (
+                                                <td key={i} className={i === 12 ? 'col-annual' : ''}>{v !== null && !isNaN(v) ? Math.round(v) : '-'}</td>
+                                            ))}
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* 4. Messages d'état */}
             {loading && (
                 <div className="notice-loading">
                     <Activity size={20} className="animate-spin" />

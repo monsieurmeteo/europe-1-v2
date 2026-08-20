@@ -465,3 +465,212 @@
 .tag-grele { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
 .tag-brou { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
 .tag-gelee { background: #ecfeff; color: #0e7490; border: 1px solid #cffafe; }
+
+/* Station Climatology & Records Card */
+.station-clim-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.clim-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.clim-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.clim-icon-circle {
+    background: #eff6ff;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.clim-header-left h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.clim-header-left p {
+    margin: 2px 0 0 0;
+    font-size: 0.82rem;
+    color: #64748b;
+}
+
+.clim-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-toggle-normals {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-toggle-normals:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.btn-link-climatol {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.btn-link-climatol:hover {
+    background: #dbeafe;
+}
+
+.btn-link-pdf {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.btn-link-pdf:hover {
+    background: #fee2e2;
+}
+
+.clim-records-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+}
+
+.clim-record-box {
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.rec-heat { border-left: 4px solid #ef4444; background: linear-gradient(to bottom, #fff5f5, #ffffff); }
+.rec-cold { border-left: 4px solid #3b82f6; background: linear-gradient(to bottom, #f0f7ff, #ffffff); }
+.rec-rain { border-left: 4px solid #0ea5e9; background: linear-gradient(to bottom, #f0f9ff, #ffffff); }
+.rec-wind { border-left: 4px solid #f59e0b; background: linear-gradient(to bottom, #fffbf0, #ffffff); }
+
+.rec-box-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #64748b;
+}
+
+.rec-box-val {
+    font-size: 1.55rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.rec-box-date {
+    font-size: 0.78rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.clim-normals-table-wrap {
+    margin-top: 18px;
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+.clim-table-mini {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    text-align: right;
+}
+
+.clim-table-mini th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    padding: 8px 10px;
+    border-bottom: 1px solid #cbd5e1;
+    white-space: nowrap;
+}
+
+.clim-table-mini th:first-child {
+    text-align: left;
+}
+
+.clim-table-mini td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    font-variant-numeric: tabular-nums;
+}
+
+.clim-table-mini td.param-title {
+    text-align: left;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.clim-table-mini td.col-annual {
+    font-weight: 800;
+    background: #f8fafc;
+    color: #0f172a;
+}
+

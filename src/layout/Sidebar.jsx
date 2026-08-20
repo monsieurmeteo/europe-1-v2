@@ -218,7 +218,7 @@ export default function Sidebar({ isOpen, onClose }) {
         </NavLink>
         <NavLink to="/climatologie" className={({ isActive }) => clsx("nav-item", { active: isActive })}>
           <Clock size={18} style={{ color: '#0ea5e9' }} />
-          <span>Fiche Climatologie</span>
+          <span>Normales & Records Postes</span>
         </NavLink>
         <NavLink to="/supervision-records" className={({ isActive }) => clsx("nav-item", { active: isActive })}>
           <Zap size={18} style={{ color: '#ef4444' }} />
@@ -242,10 +242,6 @@ export default function Sidebar({ isOpen, onClose }) {
         </NavLink>
 
         <div className="nav-divider-label">ARCHIVES</div>
-        <NavLink to="/archives-classements" className={({ isActive }) => clsx("nav-item", { active: isActive })}>
-          <Table size={18} style={{ color: '#f59e0b' }} />
-          <span>Classements Nationaux</span>
-        </NavLink>
         <NavLink to="/archives-station" className={({ isActive }) => clsx("nav-item", { active: isActive })}>
           <Clock size={18} style={{ color: '#60a5fa' }} />
           <span>Historique Station</span>
