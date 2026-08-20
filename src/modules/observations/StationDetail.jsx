@@ -16,6 +16,7 @@ import autoTable from 'jspdf-autotable';
 
 import MonthlyClimateTable from '../climatology/MonthlyClimateTable';
 import StationClimArchivesTab from './StationClimArchivesTab';
+import { MapDateNavigator } from '../../components/MapDateNavigator';
 import './Observations.css';
 
 export default function StationDetail() {
@@ -26,7 +27,11 @@ export default function StationDetail() {
     const [loading, setLoading] = useState(true);
     const [showInfra, setShowInfra] = useState(false);
     const [showComparison, setShowComparison] = useState(false); // Checkbox comparateur
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedDateStr, setSelectedDateStr] = useState(new Date().toISOString().split('T')[0]);
+    const selectedDate = useMemo(() => {
+        const [y, m, d] = selectedDateStr.split('-').map(Number);
+        return new Date(y, m - 1, d, 12, 0, 0);
+    }, [selectedDateStr]);
     const [activeTab, setActiveTab] = useState('obs'); // 'obs' or 'climatology'
     const [normals, setNormals] = useState(null);
 
@@ -34,13 +39,50 @@ export default function StationDetail() {
         async function load() {
             setLoading(true);
             try {
-                const data = await weatherAPI.getStation6mnHistory(stationId, selectedDate);
-                setFullHistory(data);
+                const todayStr = new Date().toISOString().split('T')[0];
+                const isPast = selectedDateStr < todayStr;
 
+                let data = [];
+                // 1. Si c'est aujourd'hui, charger le live 6mn
+                if (!isPast) {
+                    try {
+                        data = await weatherAPI.getStation6mnHistory(stationId, selectedDate);
+                    } catch (e) { }
+                }
+
+                // 2. Si c'est dans le passé (J-1 ou avant) ou si aucune donnée 6mn
+                if (!data || data.length === 0) {
+                    try {
+                        const { meteoFranceClimService } = await import('../../services/meteoFranceClimService');
+                        const dpHourly = await meteoFranceClimService.fetchStationHourlyHistory(stationId, selectedDateStr, selectedDateStr);
+                        if (dpHourly && dpHourly.length > 0) {
+                            data = dpHourly;
+                        }
+                    } catch (errDPClim) {
+                        console.warn("[StationDetail] Fallback DPClim horaire:", errDPClim);
+                    }
+                }
+                setFullHistory(data || []);
+
+                // 3. Données J-1 pour comparaison
                 const dY = new Date(selectedDate);
                 dY.setDate(dY.getDate() - 1);
-                const dataY = await weatherAPI.getStation6mnHistory(stationId, dY);
-                setYesterdayHistory(dataY);
+                const prevDateStr = `${dY.getFullYear()}-${String(dY.getMonth() + 1).padStart(2, '0')}-${String(dY.getDate()).padStart(2, '0')}`;
+                
+                let dataY = [];
+                if (prevDateStr === todayStr) {
+                    try { dataY = await weatherAPI.getStation6mnHistory(stationId, dY); } catch (e) { }
+                }
+                if (!dataY || dataY.length === 0) {
+                    try {
+                        const { meteoFranceClimService } = await import('../../services/meteoFranceClimService');
+                        const dpHourlyY = await meteoFranceClimService.fetchStationHourlyHistory(stationId, prevDateStr, prevDateStr);
+                        if (dpHourlyY && dpHourlyY.length > 0) {
+                            dataY = dpHourlyY;
+                        }
+                    } catch (eY) { }
+                }
+                setYesterdayHistory(dataY || []);
 
                 const { data: meta } = await supabase.from('stations').select('*').eq('id', stationId).single();
                 const cityName = meta?.name || await geoService.getCommuneName(stationId.substring(0, 5));
@@ -502,45 +544,12 @@ export default function StationDetail() {
 
             {/* DATE SELECTOR (Only for Obs) */}
             {activeTab === 'obs' && (
-                <div className="date-picker-row">
-                    <h3>{selectedDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</h3>
-                    <div className="picker-controls">
-                        <button className="date-nav-btn" onClick={() => {
-                            const newDate = new Date(selectedDate);
-                            newDate.setDate(selectedDate.getDate() - 1);
-                            setSelectedDate(newDate);
-                        }} title="Jour précédent"><ChevronLeft size={18} /></button>
-
-                        <div className="date-display-wrapper">
-                            <Calendar size={16} className="calendar-icon-left" />
-                            <span className="date-text-formatted">
-                                {selectedDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                            </span>
-                            <input
-                                type="date"
-                                className="hidden-date-input"
-                                value={`${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`}
-                                max={new Date().toISOString().split('T')[0]}
-                                onChange={(e) => {
-                                    if (e.target.value) {
-                                        const parts = e.target.value.split('-');
-                                        const year = parseInt(parts[0], 10);
-                                        const month = parseInt(parts[1], 10) - 1;
-                                        const day = parseInt(parts[2], 10);
-                                        const newDate = new Date(year, month, day);
-                                        setSelectedDate(newDate);
-                                    }
-                                }}
-                            />
-                        </div>
-
-                        <button className="date-nav-btn" onClick={() => {
-                            const newDate = new Date(selectedDate);
-                            newDate.setDate(selectedDate.getDate() + 1);
-                            const today = new Date();
-                            if (newDate <= today) setSelectedDate(newDate);
-                        }} title="Jour suivant"><ChevronRight size={18} /></button>
-                    </div>
+                <div style={{ margin: '15px 0' }}>
+                    <MapDateNavigator
+                        selectedDate={selectedDateStr}
+                        onChangeDate={(newDate) => setSelectedDateStr(newDate)}
+                        accentColor="#2563eb"
+                    />
                 </div>
             )}
 

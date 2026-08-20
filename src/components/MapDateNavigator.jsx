@@ -5,25 +5,23 @@ import { Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Spark
 import './MapDateNavigator.css';
 
 const HISTORICAL_EVENTS = [
-    { label: '🔥 Canicule Record (25 Juil 2019 - 42.6°C)', date: '2019-07-25' },
-    { label: '🔥 Canicule Ouest (18 Juil 2022 - 40°C+)', date: '2022-07-18' },
-    { label: '🔥 Canicule Historique (12 Août 2003)', date: '2003-08-12' },
-    { label: '🔥 Canicule Tardive (23 Août 2023)', date: '2023-08-23' },
-    { label: '❄️ Grand Froid National (16 Janv 1985 - -20°C)', date: '1985-01-16' },
-    { label: '❄️ Vague de Froid (07 Fév 2012)', date: '2012-02-07' },
-    { label: '❄️ Hiver Glacial (12 Janv 1987)', date: '1987-01-12' },
-    { label: '💨 Tempête du Siècle Lothar (26 Déc 1999)', date: '1999-12-26' },
-    { label: '💨 Tempête Klaus (24 Janv 2009 - 190 km/h)', date: '2009-01-24' },
-    { label: '💨 Tempête Ciaran (02 Nov 2023 - 207 km/h)', date: '2023-11-02' }
+    { label: '🔥 25/07/2019 (Record 42.6°C)', date: '2019-07-25' },
+    { label: '🔥 18/07/2022 (Canicule Ouest)', date: '2022-07-18' },
+    { label: '🔥 12/08/2003 (Canicule 2003)', date: '2003-08-12' },
+    { label: '🔥 23/08/2023 (Canicule Tardive)', date: '2023-08-23' },
+    { label: '❄️ 16/01/1985 (Grand Froid -20°C)', date: '1985-01-16' },
+    { label: '❄️ 07/02/2012 (Vague de Froid)', date: '2012-02-07' },
+    { label: '💨 26/12/1999 (Tempête Lothar)', date: '1999-12-26' },
+    { label: '💨 24/01/2009 (Tempête Klaus)', date: '2009-01-24' },
+    { label: '💨 02/11/2023 (Tempête Ciaran)', date: '2023-11-02' }
 ];
 
 export const MapDateNavigator = ({
     selectedDate,
     onChangeDate,
-    accentColor = '#ec4899',
+    accentColor = '#2563eb',
     minDate = '1950-01-01',
-    maxDate = new Date().toISOString().split('T')[0],
-    showTimelineSlider = true
+    maxDate = new Date().toISOString().split('T')[0]
 }) => {
     const [showPresets, setShowPresets] = useState(false);
 
@@ -42,7 +40,43 @@ export const MapDateNavigator = ({
     const isToday = selectedDate === todayStr;
     const isYesterday = selectedDate === yesterdayStr;
 
-    // Calculs de navigation
+    const currentYear = currentDateObj.getFullYear();
+    const currentMonth = currentDateObj.getMonth() + 1;
+    const currentDay = currentDateObj.getDate();
+
+    // Nombre de jours dans le mois sélectionné
+    const daysInMonth = useMemo(() => {
+        return new Date(currentYear, currentMonth, 0).getDate();
+    }, [currentYear, currentMonth]);
+
+    // Liste des jours 1 à 31
+    const daysList = useMemo(() => {
+        const list = [];
+        for (let d = 1; d <= daysInMonth; d++) {
+            list.push(d);
+        }
+        return list;
+    }, [daysInMonth]);
+
+    // Liste des mois
+    const monthsList = [
+        { num: 1, name: '01 - Janvier' }, { num: 2, name: '02 - Février' }, { num: 3, name: '03 - Mars' },
+        { num: 4, name: '04 - Avril' }, { num: 5, name: '05 - Mai' }, { num: 6, name: '06 - Juin' },
+        { num: 7, name: '07 - Juillet' }, { num: 8, name: '08 - Août' }, { num: 9, name: '09 - Septembre' },
+        { num: 10, name: '10 - Octobre' }, { num: 11, name: '11 - Novembre' }, { num: 12, name: '12 - Décembre' }
+    ];
+
+    // Liste des années de 1950 à aujourd'hui
+    const yearsList = useMemo(() => {
+        const maxYear = new Date().getFullYear();
+        const list = [];
+        for (let y = maxYear; y >= 1950; y--) {
+            list.push(y);
+        }
+        return list;
+    }, []);
+
+    // Décaler d'une unité
     const handleShift = (amount, unit) => {
         let newDate;
         if (unit === 'day') newDate = amount > 0 ? addDays(currentDateObj, amount) : subDays(currentDateObj, Math.abs(amount));
@@ -59,164 +93,161 @@ export const MapDateNavigator = ({
         }
     };
 
-    // Nombre de jours dans le mois sélectionné
-    const daysInMonth = useMemo(() => {
-        const year = currentDateObj.getFullYear();
-        const month = currentDateObj.getMonth() + 1;
-        return new Date(year, month, 0).getDate();
-    }, [currentDateObj]);
-
-    const currentDay = currentDateObj.getDate();
-    const currentMonth = currentDateObj.getMonth() + 1;
-    const currentYear = currentDateObj.getFullYear();
-
-    // Liste des années de 1950 à l'année courante
-    const yearsList = useMemo(() => {
-        const currentY = new Date().getFullYear();
-        const list = [];
-        for (let y = currentY; y >= 1950; y--) {
-            list.push(y);
-        }
-        return list;
-    }, []);
-
-    const monthsList = [
-        { num: 1, name: 'Janvier' }, { num: 2, name: 'Février' }, { num: 3, name: 'Mars' },
-        { num: 4, name: 'Avril' }, { num: 5, name: 'Mai' }, { num: 6, name: 'Juin' },
-        { num: 7, name: 'Juillet' }, { num: 8, name: 'Août' }, { num: 9, name: 'Septembre' },
-        { num: 10, name: 'Octobre' }, { num: 11, name: 'Novembre' }, { num: 12, name: 'Décembre' }
-    ];
-
-    const setSpecificDate = (y, m, d) => {
-        const maxD = new Date(y, m, 0).getDate();
-        const safeD = Math.min(d, maxD);
-        const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(safeD).padStart(2, '0')}`;
-        if (dateStr >= minDate && dateStr <= maxDate) {
-            onChangeDate(dateStr);
+    // Modification directe par les chiffres
+    const updateNumericDate = (newYear, newMonth, newDay) => {
+        const maxD = new Date(newYear, newMonth, 0).getDate();
+        const safeD = Math.min(newDay, maxD);
+        const formatted = `${newYear}-${String(newMonth).padStart(2, '0')}-${String(safeD).padStart(2, '0')}`;
+        
+        if (formatted < minDate) {
+            onChangeDate(minDate);
+        } else if (formatted > maxDate) {
+            onChangeDate(maxDate);
+        } else {
+            onChangeDate(formatted);
         }
     };
 
     return (
         <div className="map-date-navigator-container">
-            {/* Barre Principale de Navigation */}
-            <div className="map-date-nav-bar">
-                {/* Saut d'année et de mois */}
-                <div className="date-nav-group year-month-nav">
-                    <button
-                        className="nav-arrow-btn"
-                        onClick={() => handleShift(-1, 'year')}
-                        title="Année précédente (An -1)"
-                        disabled={selectedDate <= minDate}
-                    >
-                        <ChevronsLeft size={16} />
-                        <span>An</span>
-                    </button>
-                    <button
-                        className="nav-arrow-btn"
-                        onClick={() => handleShift(-1, 'month')}
-                        title="Mois précédent (Mois -1)"
-                    >
-                        <ChevronLeft size={16} />
-                        <span>Mois</span>
-                    </button>
+            <div className="map-date-numeric-bar">
+                {/* 1. Saisie / Sélection directe par Chiffres (Jour / Mois / Année) */}
+                <div className="numeric-dropdowns-group">
+                    <div className="numeric-field">
+                        <label>Jour</label>
+                        <select
+                            value={currentDay}
+                            onChange={(e) => updateNumericDate(currentYear, currentMonth, Number(e.target.value))}
+                            className="numeric-select day-select"
+                        >
+                            {daysList.map(d => (
+                                <option key={d} value={d}>{String(d).padStart(2, '0')}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="numeric-field">
+                        <label>Mois</label>
+                        <select
+                            value={currentMonth}
+                            onChange={(e) => updateNumericDate(currentYear, Number(e.target.value), currentDay)}
+                            className="numeric-select month-select"
+                        >
+                            {monthsList.map(m => (
+                                <option key={m.num} value={m.num}>{m.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="numeric-field">
+                        <label>Année</label>
+                        <select
+                            value={currentYear}
+                            onChange={(e) => updateNumericDate(Number(e.target.value), currentMonth, currentDay)}
+                            className="numeric-select year-select"
+                        >
+                            {yearsList.map(y => (
+                                <option key={y} value={y}>{y}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
-                {/* Date Active & Saut Jour par Jour */}
-                <div className="date-nav-active-pill" style={{ borderColor: accentColor }}>
+                {/* 2. Boutons de navigation pas à pas */}
+                <div className="step-nav-group">
                     <button
-                        className="nav-day-btn"
+                        className="step-btn"
+                        onClick={() => handleShift(-1, 'year')}
+                        title="Année -1"
+                        disabled={selectedDate <= minDate}
+                    >
+                        <ChevronsLeft size={15} />
+                        <span>-1 An</span>
+                    </button>
+                    <button
+                        className="step-btn"
+                        onClick={() => handleShift(-1, 'month')}
+                        title="Mois -1"
+                    >
+                        <ChevronLeft size={15} />
+                        <span>-1 Mois</span>
+                    </button>
+                    <button
+                        className="step-btn day-step-btn"
                         onClick={() => handleShift(-1, 'day')}
                         title="Jour précédent"
                     >
-                        <ChevronLeft size={20} />
+                        <ChevronLeft size={17} />
+                        <span>-1 Jour</span>
                     </button>
-
-                    <div className="date-active-display">
-                        <Calendar size={18} style={{ color: accentColor }} />
-                        <span className="date-text-primary">
-                            {format(currentDateObj, "EEEE d MMMM yyyy", { locale: fr })}
-                        </span>
-                        <input
-                            type="date"
-                            value={selectedDate}
-                            min={minDate}
-                            max={maxDate}
-                            onChange={(e) => e.target.value && onChangeDate(e.target.value)}
-                            className="hidden-date-input"
-                        />
-                    </div>
-
                     <button
-                        className="nav-day-btn"
+                        className="step-btn day-step-btn"
                         onClick={() => handleShift(1, 'day')}
                         title="Jour suivant"
                         disabled={selectedDate >= maxDate}
                     >
-                        <ChevronRight size={20} />
+                        <span>+1 Jour</span>
+                        <ChevronRight size={17} />
                     </button>
-                </div>
-
-                {/* Saut d'année et de mois suivant */}
-                <div className="date-nav-group year-month-nav">
                     <button
-                        className="nav-arrow-btn"
+                        className="step-btn"
                         onClick={() => handleShift(1, 'month')}
-                        title="Mois suivant (Mois +1)"
+                        title="Mois +1"
                         disabled={selectedDate >= maxDate}
                     >
-                        <span>Mois</span>
-                        <ChevronRight size={16} />
+                        <span>+1 Mois</span>
+                        <ChevronRight size={15} />
                     </button>
                     <button
-                        className="nav-arrow-btn"
+                        className="step-btn"
                         onClick={() => handleShift(1, 'year')}
-                        title="Année suivante (An +1)"
+                        title="Année +1"
                         disabled={selectedDate >= maxDate}
                     >
-                        <span>An</span>
-                        <ChevronsRight size={16} />
+                        <span>+1 An</span>
+                        <ChevronsRight size={15} />
                     </button>
                 </div>
 
-                {/* Raccourcis Aujourd'hui / Hier */}
-                <div className="date-nav-quick-actions">
+                {/* 3. Boutons Raccourcis Directs */}
+                <div className="quick-buttons-group">
                     <button
-                        className={`quick-pill-btn ${isToday ? 'active' : ''}`}
+                        className={`quick-nav-pill ${isToday ? 'active' : ''}`}
                         onClick={() => onChangeDate(todayStr)}
-                        style={isToday ? { background: accentColor, color: 'white' } : {}}
+                        style={isToday ? { background: accentColor, color: 'white', borderColor: accentColor } : {}}
                     >
                         Aujourd'hui
                     </button>
                     <button
-                        className={`quick-pill-btn ${isYesterday ? 'active' : ''}`}
+                        className={`quick-nav-pill ${isYesterday ? 'active' : ''}`}
                         onClick={() => onChangeDate(yesterdayStr)}
-                        style={isYesterday ? { background: accentColor, color: 'white' } : {}}
+                        style={isYesterday ? { background: accentColor, color: 'white', borderColor: accentColor } : {}}
                     >
                         Hier
                     </button>
                     <button
-                        className={`quick-pill-btn presets-btn ${showPresets ? 'active' : ''}`}
+                        className={`quick-nav-pill presets-pill ${showPresets ? 'active' : ''}`}
                         onClick={() => setShowPresets(!showPresets)}
-                        title="Grands événements météo historiques"
+                        title="Grands événements historiques"
                     >
-                        <Sparkles size={14} />
-                        <span>Historique</span>
+                        <Sparkles size={13} />
+                        <span>Dates Clés</span>
                     </button>
                 </div>
             </div>
 
-            {/* Menu Popover des Événements Météo Historiques */}
+            {/* Menu Popover des Événements Historiques */}
             {showPresets && (
-                <div className="historical-presets-panel">
-                    <div className="presets-header">
-                        <span>🏛️ Événements Météo Historiques Marquants</span>
+                <div className="historical-presets-popup">
+                    <div className="presets-popup-header">
+                        <span>🏛️ Événements Météo Remarquables (1950 - Aujourd'hui)</span>
                         <button onClick={() => setShowPresets(false)}>✕</button>
                     </div>
-                    <div className="presets-grid">
+                    <div className="presets-buttons-grid">
                         {HISTORICAL_EVENTS.map(ev => (
                             <button
                                 key={ev.date}
-                                className={`preset-card ${selectedDate === ev.date ? 'selected' : ''}`}
+                                className={`preset-pill-item ${selectedDate === ev.date ? 'selected' : ''}`}
                                 onClick={() => {
                                     onChangeDate(ev.date);
                                     setShowPresets(false);
@@ -225,54 +256,6 @@ export const MapDateNavigator = ({
                                 {ev.label}
                             </button>
                         ))}
-                    </div>
-                </div>
-            )}
-
-            {/* Curseur / Slider Temporel du Mois */}
-            {showTimelineSlider && (
-                <div className="month-timeline-slider">
-                    <div className="timeline-labels">
-                        <span className="month-label">
-                            📅 {format(currentDateObj, "MMMM yyyy", { locale: fr })}
-                        </span>
-                        <div className="quick-select-dropdowns">
-                            {/* Sélecteur direct de Mois */}
-                            <select
-                                value={currentMonth}
-                                onChange={(e) => setSpecificDate(currentYear, Number(e.target.value), currentDay)}
-                                className="nav-dropdown"
-                            >
-                                {monthsList.map(m => (
-                                    <option key={m.num} value={m.num}>{m.name}</option>
-                                ))}
-                            </select>
-
-                            {/* Sélecteur direct d'Année (1950 - Aujourd'hui) */}
-                            <select
-                                value={currentYear}
-                                onChange={(e) => setSpecificDate(Number(e.target.value), currentMonth, currentDay)}
-                                className="nav-dropdown year-dropdown"
-                            >
-                                {yearsList.map(y => (
-                                    <option key={y} value={y}>{y}</option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-
-                    <div className="slider-wrapper">
-                        <span className="slider-edge">J-1</span>
-                        <input
-                            type="range"
-                            min="1"
-                            max={daysInMonth}
-                            value={currentDay}
-                            onChange={(e) => setSpecificDate(currentYear, currentMonth, Number(e.target.value))}
-                            className="timeline-range-input"
-                            style={{ accentColor: accentColor }}
-                        />
-                        <span className="slider-edge">J-{daysInMonth}</span>
                     </div>
                 </div>
             )}

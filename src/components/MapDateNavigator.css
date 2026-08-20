@@ -1,16 +1,16 @@
 ﻿.map-date-navigator-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     background: #ffffff;
-    padding: 12px 16px;
-    border-radius: 18px;
+    padding: 10px 14px;
+    border-radius: 16px;
     border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     width: 100%;
 }
 
-.map-date-nav-bar {
+.map-date-numeric-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -18,109 +18,117 @@
     gap: 10px;
 }
 
-.date-nav-group {
+/* 1. Sélecteurs Numériques Directs */
+.numeric-dropdowns-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    padding: 4px 8px;
+    border-radius: 12px;
+    border: 1.5px solid #cbd5e1;
+}
+
+.numeric-field {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.numeric-field label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: 0.05em;
+    padding-left: 2px;
+}
+
+.numeric-select {
+    padding: 5px 8px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #0f172a;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.numeric-select:hover,
+.numeric-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.day-select {
+    min-width: 58px;
+    text-align: center;
+}
+
+.month-select {
+    min-width: 125px;
+}
+
+.year-select {
+    min-width: 82px;
+    text-align: center;
+}
+
+/* 2. Boutons de navigation pas à pas */
+.step-nav-group {
     display: flex;
     align-items: center;
     gap: 4px;
-    background: #f8fafc;
+    background: #f1f5f9;
     padding: 3px;
     border-radius: 12px;
     border: 1px solid #e2e8f0;
 }
 
-.nav-arrow-btn {
+.step-btn {
     display: flex;
     align-items: center;
     gap: 3px;
     background: transparent;
     border: none;
-    padding: 6px 10px;
+    padding: 6px 9px;
     border-radius: 8px;
     color: #475569;
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.15s ease;
 }
 
-.nav-arrow-btn:hover:not(:disabled) {
+.step-btn:hover:not(:disabled) {
     background: #ffffff;
     color: #0f172a;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-.nav-arrow-btn:disabled {
+.step-btn:disabled {
     opacity: 0.35;
     cursor: not-allowed;
 }
 
-.date-nav-active-pill {
-    display: flex;
-    align-items: center;
-    background: #f8fafc;
-    border-radius: 14px;
-    border: 1.5px solid #cbd5e1;
-    padding: 2px 4px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-}
-
-.nav-day-btn {
-    background: transparent;
-    border: none;
-    color: #475569;
-    cursor: pointer;
-    padding: 6px 8px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s ease;
-}
-
-.nav-day-btn:hover:not(:disabled) {
+.day-step-btn {
     background: #ffffff;
-    color: #0f172a;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-.nav-day-btn:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-}
-
-.date-active-display {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 14px;
-    cursor: pointer;
-}
-
-.date-text-primary {
-    font-size: 0.95rem;
     font-weight: 800;
-    color: #0f172a;
-    text-transform: capitalize;
-    letter-spacing: -0.01em;
+    color: #1e293b;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
-.hidden-date-input {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-}
-
-.date-nav-quick-actions {
+/* 3. Boutons Raccourcis Directs */
+.quick-buttons-group {
     display: flex;
     align-items: center;
     gap: 6px;
 }
 
-.quick-pill-btn {
+.quick-nav-pill {
     background: #f1f5f9;
     border: 1px solid #e2e8f0;
     color: #475569;
@@ -135,43 +143,50 @@
     gap: 5px;
 }
 
-.quick-pill-btn:hover {
+.quick-nav-pill:hover {
     background: #e2e8f0;
     color: #0f172a;
 }
 
-.quick-pill-btn.presets-btn {
+.quick-nav-pill.presets-pill {
     background: #faf5ff;
     color: #9333ea;
     border-color: #e9d5ff;
 }
 
-.quick-pill-btn.presets-btn:hover,
-.quick-pill-btn.presets-btn.active {
+.quick-nav-pill.presets-pill:hover,
+.quick-nav-pill.presets-pill.active {
     background: #9333ea;
     color: white;
+    border-color: #9333ea;
 }
 
-/* Menu Presets */
-.historical-presets-panel {
+/* Menu Popup des Événements Historiques */
+.historical-presets-popup {
     background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 14px;
     padding: 12px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    animation: fadeIn 0.15s ease-out;
 }
 
-.presets-header {
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.presets-popup-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 800;
     color: #1e293b;
     margin-bottom: 8px;
 }
 
-.presets-header button {
+.presets-popup-header button {
     background: transparent;
     border: none;
     font-size: 1rem;
@@ -179,17 +194,17 @@
     color: #64748b;
 }
 
-.presets-grid {
+.presets-buttons-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
     gap: 8px;
 }
 
-.preset-card {
+.preset-pill-item {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    padding: 8px 12px;
-    border-radius: 10px;
+    padding: 7px 11px;
+    border-radius: 9px;
     font-size: 0.78rem;
     font-weight: 700;
     color: #334155;
@@ -198,79 +213,14 @@
     transition: all 0.15s ease;
 }
 
-.preset-card:hover {
+.preset-pill-item:hover {
     background: #f1f5f9;
     border-color: #cbd5e1;
     transform: translateY(-1px);
 }
 
-.preset-card.selected {
-    background: #fdf2f8;
-    border-color: #ec4899;
-    color: #be185d;
-}
-
-/* Timeline Slider */
-.month-timeline-slider {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 8px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.timeline-labels {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.month-label {
-    font-size: 0.85rem;
-    font-weight: 800;
-    color: #1e293b;
-    text-transform: capitalize;
-}
-
-.quick-select-dropdowns {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.nav-dropdown {
-    padding: 4px 8px;
-    border-radius: 8px;
-    border: 1px solid #cbd5e1;
-    background: #ffffff;
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: #1e293b;
-    cursor: pointer;
-    outline: none;
-}
-
-.slider-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.slider-edge {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #64748b;
-    min-width: 24px;
-    text-align: center;
-}
-
-.timeline-range-input {
-    flex: 1;
-    height: 6px;
-    border-radius: 3px;
-    background: #cbd5e1;
-    outline: none;
-    cursor: pointer;
+.preset-pill-item.selected {
+    background: #eff6ff;
+    border-color: #3b82f6;
+    color: #1d4ed8;
 }
