@@ -1,12 +1,10 @@
-# Radar MF Auto-Refresh - Triggered at 22:45
+# Radar MF Auto-Refresh
 name: Radar MF Auto-Refresh
 
 on:
   schedule:
-    # Toutes les 5 minutes
-    - cron: '*/5 * * * *'
-  push:
-    branches: [ master ]
+    # Toutes les 15 minutes
+    - cron: '*/15 * * * *'
   workflow_dispatch:  # Permet le déclenchement manuel
 
 jobs:

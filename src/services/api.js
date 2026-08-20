@@ -256,17 +256,43 @@ export const weatherAPI = {
                 .lte('timestamp', end.toISOString())
                 .order('timestamp', { ascending: true }); // Chronological order directly
 
-            if (error) throw error;
-            return data.map(obs => ({
-                time: new Date(obs.timestamp),
-                temp: obs.t,
-                hum: obs.u,
-                rain: obs.rr1,
-                wind: obs.ff,
-                gust: obs.fxi,
-                timestamp_raw: obs.timestamp,
-                vv: obs.vv
-            }));
+            if (!error && data && data.length > 0) {
+                return data.map(obs => ({
+                    time: new Date(obs.timestamp),
+                    temp: obs.t,
+                    hum: obs.u,
+                    rain: obs.rr1,
+                    wind: obs.ff,
+                    gust: obs.fxi,
+                    timestamp_raw: obs.timestamp,
+                    vv: obs.vv
+                }));
+            }
+
+            // Fallback direct et officiel DPClim Horaire Météo-France (1950 à hier)
+            try {
+                const { meteoFranceClimService } = await import('./meteoFranceClimService');
+                const sStr = start.toISOString().split('T')[0];
+                const eStr = end.toISOString().split('T')[0];
+                const dpHourly = await meteoFranceClimService.fetchStationHourlyHistory(stationId, sStr, eStr);
+                if (dpHourly && dpHourly.length > 0) {
+                    return dpHourly.map(obs => ({
+                        time: obs.time,
+                        temp: obs.temp,
+                        hum: obs.hum,
+                        rain: obs.rain,
+                        wind: obs.wind,
+                        gust: obs.gust,
+                        pres: obs.pres,
+                        vv: obs.vv,
+                        timestamp_raw: obs.time.toISOString()
+                    }));
+                }
+            } catch (eClim) {
+                console.warn("[API] DPClim fallback in getStationHourlyHistoryRange:", eClim);
+            }
+
+            return [];
         } catch (e) {
             console.error("[API] getStationHourlyHistoryRange error:", e);
             return [];
