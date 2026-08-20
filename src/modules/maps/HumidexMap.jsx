@@ -11,6 +11,7 @@ import stationsMetadata from "../../data/stationsMetadata.json";
 import stationsListData from "../../data/stations_list.json";
 import { Delaunay } from "d3-delaunay";
 import { REGIONS } from "../../data/departments";
+import { MapDateNavigator } from "../../components/MapDateNavigator";
 
 // Échelle de couleurs officielle pour l'indice Humidex
 const HUMIDEX_SCALE = [
@@ -537,23 +538,6 @@ const HumidexMap = () => {
                             </button>
                         </div>
 
-                        {/* Date Picker */}
-                        <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', padding: '6px', borderRadius: '14px' }}>
-                            <button onClick={() => changeDate(-1)} style={navBtnStyle}><ChevronLeft size={20} /></button>
-                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', padding: '0 12px' }}>
-                                <Calendar size={18} style={{ marginRight: '10px', color: '#ec4899' }} />
-                                <span style={{ fontWeight: '700', fontSize: '1rem', color: '#1e293b' }}>{format(new Date(selectedDate), "dd MMM yyyy", { locale: fr })}</span>
-                                <input
-                                    type="date"
-                                    value={selectedDate}
-                                    max={new Date().toISOString().split('T')[0]}
-                                    onChange={(e) => setSelectedDate(e.target.value)}
-                                    style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer' }}
-                                  />
-                            </div>
-                            <button onClick={() => changeDate(1)} style={navBtnStyle} disabled={selectedDate === new Date().toISOString().split('T')[0]}><ChevronRight size={20} /></button>
-                        </div>
-
                         <button onClick={loadData} disabled={loading} style={iconBtnStyle} title="Actualiser">
                             <RefreshCw size={22} className={loading ? "animate-spin" : ""} />
                         </button>
@@ -562,6 +546,13 @@ const HumidexMap = () => {
                         </button>
                     </div>
                 </div>
+
+                {/* Navigateur & Curseur Temporel Moderne */}
+                <MapDateNavigator
+                    selectedDate={selectedDate}
+                    onChangeDate={(newDate) => setSelectedDate(newDate)}
+                    accentColor="#ec4899"
+                />
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '12px 18px', background: '#f8fafc', borderRadius: '15px', border: '1px solid #e2e8f0' }}>
                     <span style={{ fontSize: '0.9rem', fontWeight: '700', color: '#475569', minWidth: 'fit-content' }}>Titre personnalisé :</span>
