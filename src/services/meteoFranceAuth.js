@@ -27,17 +27,26 @@ class MeteoFranceAuth {
     }
 
     /**
-     * Obtenir un token valide (génère ou utilise le cache)
+     * Obtenir un token valide (génère ou utilise le cache mémoire/localStorage)
      */
     async getValidToken() {
-        // Si token existe et n'est pas expiré
+        // 1. Vérifier le cache en mémoire
         if (this.currentToken && this.tokenExpiry && Date.now() < this.tokenExpiry) {
-            const remainingMinutes = Math.floor((this.tokenExpiry - Date.now()) / 60000);
-            console.log(`[MeteoAuth] ✅ Token valide (expire dans ${remainingMinutes} min)`);
             return this.currentToken;
         }
 
-        // Sinon, générer un nouveau token
+        // 2. Vérifier localStorage pour éviter de régénérer après un rechargement de page
+        try {
+            const savedToken = localStorage.getItem('mf_access_token');
+            const savedExpiry = parseInt(localStorage.getItem('mf_token_expiry'), 10);
+            if (savedToken && savedExpiry && Date.now() < (savedExpiry - 60000)) {
+                this.currentToken = savedToken;
+                this.tokenExpiry = savedExpiry;
+                return savedToken;
+            }
+        } catch (e) {}
+
+        // 3. Sinon, générer un nouveau token
         console.log('[MeteoAuth] 🔄 Génération d\'un nouveau token...');
         return await this.generateToken();
     }
@@ -55,6 +64,10 @@ class MeteoFranceAuth {
                     if (apiData.access_token) {
                         this.currentToken = apiData.access_token;
                         this.tokenExpiry = Date.now() + (apiData.expires_in * 1000);
+                        try {
+                            localStorage.setItem('mf_access_token', this.currentToken);
+                            localStorage.setItem('mf_token_expiry', String(this.tokenExpiry));
+                        } catch (e) {}
                         this.scheduleRefresh(apiData.expires_in - 300);
                         return this.currentToken;
                     }

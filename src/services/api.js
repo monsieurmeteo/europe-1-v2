@@ -9,178 +9,88 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 export const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 
+const _stationHistoryCache = new Map();
+
 export const weatherAPI = {
     /**
-     * Get 6-minute observations for a specific station from Supabase (History)
+     * Get 6-minute observations for a specific station (Fast Direct Path + Cache + DPClim)
      */
     getStation6mnHistory: async (stationId, dateObj = null) => {
-        if (!supabase) return [];
-        try {
-            const targetDate = dateObj ? new Date(dateObj) : null;
-            let start, end;
-            let query = supabase
-                .from('observations_6mn')
-                .select('*')
-                .eq('station_id', stationId);
+        if (!stationId) return [];
+        
+        const targetDate = dateObj ? new Date(dateObj) : new Date();
+        const dateStr = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
+        const cacheKey = `${stationId}_${dateStr}`;
+        
+        // 1. Cache mémoire ultra-rapide (0 ms)
+        if (_stationHistoryCache.has(cacheKey)) {
+            return _stationHistoryCache.get(cacheKey);
+        }
 
-            if (targetDate) {
-                start = new Date(targetDate);
+        try {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const isToday = dateStr === todayStr;
+
+            let finalData = [];
+
+            // 2. Si c'est aujourd'hui, interroger Supabase observations_6mn
+            if (isToday && supabase) {
+                const start = new Date(targetDate);
                 start.setHours(0, 0, 0, 0);
-                end = new Date(targetDate);
+                const end = new Date(targetDate);
                 end.setHours(23, 59, 59, 999);
 
-                query = query
+                const { data, error } = await supabase
+                    .from('observations_6mn')
+                    .select('*')
+                    .eq('station_id', stationId)
                     .gte('timestamp', start.toISOString())
-                    .lte('timestamp', end.toISOString());
-            }
+                    .lte('timestamp', end.toISOString())
+                    .order('timestamp', { ascending: false })
+                    .limit(300);
 
-            const { data, error } = await query
-                .order('timestamp', { ascending: false })
-                .limit(400); // Réduit de 1000 à 400 pour éviter les Timeouts Supabase
-            
-            if (error) {
-                console.error(`[API] Error fetching history for ${stationId}:`, error);
-                throw error;
-            }
-
-            let finalData = data ? [...data] : [];
-            console.log(`[API] Fetched ${finalData.length} records for ${stationId}`);
-
-            // FUSION DE LA FIN DE NUIT DU JOUR PRÉCÉDENT (tranche 18-00 de J-1)
-            // Indispensable car l'archive quotidien J-1 a déjà supprimé la fin de nuit locale de la table active
-            if (targetDate) {
-                try {
-                    const prevDate = new Date(start.getTime() - 24 * 60 * 60 * 1000);
-                    const prevY = prevDate.getFullYear();
-                    const prevM = String(prevDate.getMonth() + 1).padStart(2, '0');
-                    const prevD = String(prevDate.getDate()).padStart(2, '0');
-                    
-                    let prevStationData = [];
-                    
-                    // On tente d'abord de charger le fichier journalier unifié
-                    const prevFilePathSingle = `6mn/${prevY}/${prevM}/${prevD}.json`;
-                    const { data: prevStorageData, error: prevStorageError } = await supabase.storage
-                        .from('observations-archives')
-                        .download(prevFilePathSingle);
-                        
-                    if (!prevStorageError && prevStorageData) {
-                        const text = await prevStorageData.text();
-                        const prevDataParsed = JSON.parse(text);
-                        // Conserver uniquement la station ciblée et les heures UTC >= 18h
-                        prevStationData = prevDataParsed.filter(obs => 
-                            obs.station_id === stationId && 
-                            new Date(obs.timestamp).getUTCHours() >= 18
-                        );
-                    } else {
-                        // Fallback : chargement de la tranche slice historique
-                        const prevFilePathSlice = `6mn/${prevY}/${prevM}/${prevD}/18-00.json`;
-                        const { data: prevSliceData, error: prevSliceError } = await supabase.storage
-                            .from('observations-archives')
-                            .download(prevFilePathSlice);
-                            
-                        if (!prevSliceError && prevSliceData) {
-                            const text = await prevSliceData.text();
-                            const prevDataParsed = JSON.parse(text);
-                            prevStationData = prevDataParsed.filter(obs => obs.station_id === stationId);
-                        }
-                    }
-                    
-                    if (prevStationData.length > 0) {
-                        // Fusionner en évitant les doublons
-                        const existingTimestamps = new Set(finalData.map(d => d.timestamp));
-                        prevStationData.forEach(obs => {
-                            if (!existingTimestamps.has(obs.timestamp)) {
-                                finalData.push(obs);
-                            }
-                        });
-                        
-                        finalData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                    }
-                } catch (err) {
-                    console.warn("[API] Previous day archive fallback failed:", err);
+                if (!error && data && data.length > 0) {
+                    finalData = data.map(obs => ({
+                        time: new Date(obs.timestamp),
+                        temp: obs.t,
+                        hum: obs.u,
+                        rain: obs.rr_per,
+                        rain_1h: obs.rr1,
+                        rain_3h: obs.rr3,
+                        rain_6h: obs.rr6,
+                        rain_12h: obs.rr12,
+                        rain_24h: obs.rr24,
+                        sun: obs.insolh,
+                        wind: obs.ff,
+                        gust: obs.fxi,
+                        dir: obs.dd,
+                        dewpoint: obs.td,
+                        pressure: obs.pres,
+                        vv: obs.vv,
+                        snow_depth: obs.ht_neige
+                    })).reverse();
                 }
             }
 
-            // FALLBACK ARCHIVES COMPLETES (si pas ou peu de données dans la table active, ex: jour passé)
-            if (targetDate && ((!data || data.length === 0) || data.filter(d => new Date(d.timestamp) >= start).length === 0)) {
+            // 3. Si aucune donnée ou si c'est dans le passé (J-1 ou avant) -> DPClim officiel direct
+            if (finalData.length === 0) {
                 try {
-                    const y = targetDate.getFullYear();
-                    const m = String(targetDate.getMonth() + 1).padStart(2, '0');
-                    const d = String(targetDate.getDate()).padStart(2, '0');
-
-                    // Chargement optimisé des 4 tranches (00-06, 06-12, 12-18, 18-00)
-                    const SLICES = ['00-06', '06-12', '12-18', '18-00'];
-                    const slicePromises = SLICES.map(async (sliceId) => {
-                        const filePath = `6mn/${y}/${m}/${d}/${sliceId}.json`;
-                        const { data: sliceData, error: sliceError } = await supabase.storage
-                            .from('observations-archives').download(filePath);
-                        if (!sliceError && sliceData) {
-                            const text = await sliceData.text();
-                            const parsed = JSON.parse(text);
-                            return parsed.filter(obs => obs.station_id === stationId);
-                        }
-                        return [];
-                    });
-
-                    const results = await Promise.all(slicePromises);
-                    let targetDayStationData = results.flat();
-
-                    // Si pas de tranches trouvées, fallback sur le fichier unifié
-                    if (targetDayStationData.length === 0) {
-                        const singlePath = `6mn/${y}/${m}/${d}.json`;
-                        const { data: sData, error: sErr } = await supabase.storage
-                            .from('observations-archives').download(singlePath);
-                        if (!sErr && sData) {
-                            const text = await sData.text();
-                            const parsed = JSON.parse(text);
-                            targetDayStationData = parsed.filter(obs => obs.station_id === stationId);
-                        }
+                    const { meteoFranceClimService } = await import('./meteoFranceClimService');
+                    const dpHourly = await meteoFranceClimService.fetchStationHourlyHistory(stationId, dateStr, dateStr);
+                    if (dpHourly && dpHourly.length > 0) {
+                        finalData = dpHourly;
                     }
-
-                    if (targetDayStationData.length > 0) {
-                        const existingTimestamps = new Set(finalData.map(d => d.timestamp));
-                        targetDayStationData.forEach(obs => {
-                            if (!existingTimestamps.has(obs.timestamp)) {
-                                finalData.push(obs);
-                            }
-                        });
-                        finalData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                    }
-                } catch (err) {
-                    console.warn("[API] Archive fallback failed:", err);
+                } catch (errDPClim) {
+                    console.warn("[API] Fallback DPClim horaire:", errDPClim);
                 }
             }
 
-            // Filtrage final strict selon la journée civile locale (convertie en UTC pour comparaison)
-            if (targetDate) {
-                const startTime = start.getTime();
-                const endTime = end.getTime();
-                finalData = finalData.filter(obs => {
-                    const t = new Date(obs.timestamp).getTime();
-                    return t >= startTime && t <= endTime;
-                });
+            // Mettre en cache les résultats passés
+            if (finalData.length > 0 && !isToday) {
+                _stationHistoryCache.set(cacheKey, finalData);
             }
 
-            return finalData.map(obs => ({
-                time: new Date(obs.timestamp),
-                temp: obs.t,
-                hum: obs.u,
-                rain: obs.rr_per,
-                rain_1h: obs.rr1,
-                rain_3h: obs.rr3,
-                rain_6h: obs.rr6,
-                rain_12h: obs.rr12,
-                rain_24h: obs.rr24,
-                sun: obs.insolh,
-                wind: obs.ff,
-                gust: obs.fxi,
-                dir: obs.dd,
-                dewpoint: obs.td,
-                pressure: obs.pres,
-                vv: obs.vv,
-                sun: obs.insolh,
-                snow_depth: obs.ht_neige
-            })).reverse();
+            return finalData;
         } catch (e) {
             console.error("[API] getStation6mnHistory error:", e);
             return [];
