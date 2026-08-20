@@ -17,14 +17,20 @@ import autoTable from 'jspdf-autotable';
 import MonthlyClimateTable from '../climatology/MonthlyClimateTable';
 import StationClimArchivesTab from './StationClimArchivesTab';
 import { MapDateNavigator } from '../../components/MapDateNavigator';
+import stationNamesData from '../../data/stationNames.json';
+import stationsMetadata from '../../data/stationsMetadata.json';
 import './Observations.css';
 
 export default function StationDetail() {
     const { stationId } = useParams();
     const [fullHistory, setFullHistory] = useState([]);
     const [yesterdayHistory, setYesterdayHistory] = useState([]); // Données J-1
-    const [stationInfo, setStationInfo] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [stationInfo, setStationInfo] = useState(() => ({
+        id: stationId,
+        name: stationNamesData[stationId] || stationId,
+        altitude: stationsMetadata[stationId]?.alt || null
+    }));
+    const [loading, setLoading] = useState(false);
     const [showInfra, setShowInfra] = useState(false);
     const [showComparison, setShowComparison] = useState(false); // Checkbox comparateur
     const [selectedDateStr, setSelectedDateStr] = useState(new Date().toISOString().split('T')[0]);
@@ -36,182 +42,139 @@ export default function StationDetail() {
     const [normals, setNormals] = useState(null);
 
     useEffect(() => {
+        let isCancelled = false;
         async function load() {
             setLoading(true);
             try {
                 const todayStr = new Date().toISOString().split('T')[0];
                 const isPast = selectedDateStr < todayStr;
 
-                let data = [];
-                // 1. Si c'est aujourd'hui, charger le live 6mn
-                if (!isPast) {
-                    try {
-                        data = await weatherAPI.getStation6mnHistory(stationId, selectedDate);
-                    } catch (e) { }
-                }
-
-                // 2. Si c'est dans le passé (J-1 ou avant) ou si aucune donnée 6mn
-                if (!data || data.length === 0) {
-                    try {
-                        const { meteoFranceClimService } = await import('../../services/meteoFranceClimService');
-                        const dpHourly = await meteoFranceClimService.fetchStationHourlyHistory(stationId, selectedDateStr, selectedDateStr);
-                        if (dpHourly && dpHourly.length > 0) {
-                            data = dpHourly;
-                        }
-                    } catch (errDPClim) {
-                        console.warn("[StationDetail] Fallback DPClim horaire:", errDPClim);
-                    }
-                }
-                setFullHistory(data || []);
-
-                // 3. Données J-1 pour comparaison
                 const dY = new Date(selectedDate);
                 dY.setDate(dY.getDate() - 1);
                 const prevDateStr = `${dY.getFullYear()}-${String(dY.getMonth() + 1).padStart(2, '0')}-${String(dY.getDate()).padStart(2, '0')}`;
-                
-                let dataY = [];
-                if (prevDateStr === todayStr) {
-                    try { dataY = await weatherAPI.getStation6mnHistory(stationId, dY); } catch (e) { }
+
+                // Chargement en parallèle date sélectionnée + veille J-1
+                const [dataRes, dataYRes] = await Promise.all([
+                    (async () => {
+                        let res = [];
+                        if (!isPast) {
+                            try { res = await weatherAPI.getStation6mnHistory(stationId, selectedDate); } catch (e) { }
+                        }
+                        if (!res || res.length === 0) {
+                            try {
+                                const { meteoFranceClimService } = await import('../../services/meteoFranceClimService');
+                                const dpHourly = await meteoFranceClimService.fetchStationHourlyHistory(stationId, selectedDateStr, selectedDateStr);
+                                if (dpHourly && dpHourly.length > 0) res = dpHourly;
+                            } catch (e) { }
+                        }
+                        return res || [];
+                    })(),
+                    (async () => {
+                        let res = [];
+                        if (prevDateStr === todayStr) {
+                            try { res = await weatherAPI.getStation6mnHistory(stationId, dY); } catch (e) { }
+                        }
+                        if (!res || res.length === 0) {
+                            try {
+                                const { meteoFranceClimService } = await import('../../services/meteoFranceClimService');
+                                const dpHourlyY = await meteoFranceClimService.fetchStationHourlyHistory(stationId, prevDateStr, prevDateStr);
+                                if (dpHourlyY && dpHourlyY.length > 0) res = dpHourlyY;
+                            } catch (e) { }
+                        }
+                        return res || [];
+                    })()
+                ]);
+
+                if (!isCancelled) {
+                    setFullHistory(dataRes);
+                    setYesterdayHistory(dataYRes);
                 }
-                if (!dataY || dataY.length === 0) {
+
+                // Complément métadonnées en arrière-plan
+                if (!stationInfo?.altitude) {
+                    supabase.from('stations').select('*').eq('id', stationId).single().then(({ data: meta }) => {
+                        if (meta && !isCancelled) {
+                            setStationInfo(prev => ({
+                                id: stationId,
+                                name: prev?.name || meta.name || stationId,
+                                altitude: meta.altitude || prev?.altitude
+                            }));
+                        }
+                    }).catch(() => {});
+                }
+
+                // Normales climatiques
+                if (!normals) {
                     try {
-                        const { meteoFranceClimService } = await import('../../services/meteoFranceClimService');
-                        const dpHourlyY = await meteoFranceClimService.fetchStationHourlyHistory(stationId, prevDateStr, prevDateStr);
-                        if (dpHourlyY && dpHourlyY.length > 0) {
-                            dataY = dpHourlyY;
-                        }
-                    } catch (eY) { }
-                }
-                setYesterdayHistory(dataY || []);
-
-                const { data: meta } = await supabase.from('stations').select('*').eq('id', stationId).single();
-                const cityName = meta?.name || await geoService.getCommuneName(stationId.substring(0, 5));
-                setStationInfo({ id: stationId, name: cityName, altitude: meta?.altitude });
-
-                // Load normals from dynamic source or local backup
-                try {
-                    const normalsUrl = `https://object.files.data.gouv.fr/meteofrance/data/synchro_ftp/REF_STATION/FICHECLIM_${stationId}.data`;
-                    const res = await fetch(normalsUrl);
-                    if (res.ok) {
-                        const text = await res.text();
-                        const lines = text.split('\n');
-                        const parsedNormals = {
-                            tx: [], tn: [], pr: [],
-                            records: {
-                                maxT: { vals: [], dates: [] },
-                                minT: { vals: [], dates: [] },
-                                maxRain: { vals: [], dates: [] }
-                            }
-                        };
-
-                        lines.forEach((line, idx) => {
-                            // Normals
-                            if (line.includes('Température maximale (Moyenne en °C)')) {
-                                const vals = lines[idx + 2].split(';').map(v => v.trim()).filter(v => v !== '' && !isNaN(v.replace(',', '.')));
-                                parsedNormals.tx = vals.slice(0, 12).map(v => parseFloat(v.replace(',', '.')));
-                            }
-                            if (line.includes('Température minimale (Moyenne en °C)')) {
-                                const vals = lines[idx + 2].split(';').map(v => v.trim()).filter(v => v !== '' && !isNaN(v.replace(',', '.')));
-                                parsedNormals.tn = vals.slice(0, 12).map(v => parseFloat(v.replace(',', '.')));
-                            }
-                            if (line.includes('Précipitations : Hauteur moyenne mensuelle (mm)')) {
-                                const vals = lines[idx + 2].split(';').map(v => v.trim()).filter(v => v !== '' && !isNaN(v.replace(',', '.')));
-                                parsedNormals.pr = vals.slice(0, 12).map(v => parseFloat(v.replace(',', '.')));
-                            }
-
-                            // Records TX
-                            if (line.includes('La température la plus élevée (°C)')) {
-                                const vals = lines[idx + 2].split(';').map(v => v.trim()).filter(v => v !== '' && !isNaN(v.replace(',', '.')));
-                                const dates = lines[idx + 3].split(';').map(v => v.trim()).filter(v => v !== '' && !v.includes('Date'));
-                                parsedNormals.records.maxT.vals = vals.map(v => parseFloat(v.replace(',', '.')));
-                                parsedNormals.records.maxT.dates = dates;
-                            }
-                            // Records TN
-                            if (line.includes('La température la plus basse (°C)')) {
-                                const vals = lines[idx + 2].split(';').map(v => v.trim()).filter(v => v !== '' && !isNaN(v.replace(',', '.')));
-                                const dates = lines[idx + 3].split(';').map(v => v.trim()).filter(v => v !== '' && !v.includes('Date'));
-                                parsedNormals.records.minT.vals = vals.map(v => parseFloat(v.replace(',', '.')));
-                                parsedNormals.records.minT.dates = dates;
-                            }
-                            // Records RR
-                            if (line.includes('Précipitations : Hauteur quotidienne maximale (mm)')) {
-                                const vals = lines[idx + 2].split(';').map(v => v.trim()).filter(v => v !== '' && !isNaN(v.replace(',', '.')));
-                                const dates = lines[idx + 3].split(';').map(v => v.trim()).filter(v => v !== '' && !v.includes('Date'));
-                                parsedNormals.records.maxRain.vals = vals.map(v => parseFloat(v.replace(',', '.')));
-                                parsedNormals.records.maxRain.dates = dates;
-                            }
-                            // Records Wind (FXI)
-                            if (line.includes('Vitesse maximale du vent (m/s)') || line.includes('Vitesse du vent maximale (m/s)')) {
-                                const vals = lines[idx + 2].split(';').map(v => v.trim()).filter(v => v !== '' && !isNaN(v.replace(',', '.')));
-                                const dates = lines[idx + 3].split(';').map(v => v.trim()).filter(v => v !== '' && !v.includes('Date'));
-                                parsedNormals.records.maxWind = {
-                                    vals: vals.map(v => parseFloat(v.replace(',', '.')) * 3.6), // Convert m/s to km/h
-                                    dates: dates
-                                };
-                            }
-                        });
-
-                        if (parsedNormals.tx.length === 12) {
-                            setNormals(parsedNormals);
-                        } else {
-                            // Fallback to local
-                            const normalsData = await import('../../data/normals_1991_2020.json');
-                            if (normalsData.default && normalsData.default[stationId]) {
-                                setNormals({
-                                    ...normalsData.default[stationId],
-                                    records: {
-                                        maxT: { vals: [], dates: [] },
-                                        minT: { vals: [], dates: [] },
-                                        maxRain: { vals: [], dates: [] }
-                                    }
-                                });
-                            }
-                        }
-                    } else {
-                        // Fallback to local if fetch fails
-                        const normalsData = await import('../../data/normals_1991_2020.json');
-                        if (normalsData.default && normalsData.default[stationId]) {
-                            setNormals({
-                                ...normalsData.default[stationId],
+                        const normalsUrl = `https://object.files.data.gouv.fr/meteofrance/data/synchro_ftp/REF_STATION/FICHECLIM_${stationId}.data`;
+                        const res = await fetch(normalsUrl);
+                        if (res.ok && !isCancelled) {
+                            const text = await res.text();
+                            const lines = text.split('\n');
+                            const parsedNormals = {
+                                tx: [], tn: [], pr: [],
                                 records: {
                                     maxT: { vals: [], dates: [] },
                                     minT: { vals: [], dates: [] },
                                     maxRain: { vals: [], dates: [] }
                                 }
+                            };
+
+                            lines.forEach((line, idx) => {
+                                if (line.includes('Température maximale (Moyenne en °C)')) {
+                                    const vals = lines[idx + 2].split(';').map(v => v.trim()).filter(v => v !== '' && !isNaN(v.replace(',', '.')));
+                                    parsedNormals.tx = vals.slice(0, 12).map(v => parseFloat(v.replace(',', '.')));
+                                }
+                                if (line.includes('Température minimale (Moyenne en °C)')) {
+                                    const vals = lines[idx + 2].split(';').map(v => v.trim()).filter(v => v !== '' && !isNaN(v.replace(',', '.')));
+                                    parsedNormals.tn = vals.slice(0, 12).map(v => parseFloat(v.replace(',', '.')));
+                                }
+                                if (line.includes('Précipitations : Hauteur moyenne mensuelle (mm)')) {
+                                    const vals = lines[idx + 2].split(';').map(v => v.trim()).filter(v => v !== '' && !isNaN(v.replace(',', '.')));
+                                    parsedNormals.pr = vals.slice(0, 12).map(v => parseFloat(v.replace(',', '.')));
+                                }
+                                if (line.includes('La température la plus élevée (°C)')) {
+                                    const vals = lines[idx + 2].split(';').map(v => v.trim()).filter(v => v !== '' && !isNaN(v.replace(',', '.')));
+                                    const dates = lines[idx + 3].split(';').map(v => v.trim()).filter(v => v !== '' && !v.includes('Date'));
+                                    parsedNormals.records.maxT.vals = vals.map(v => parseFloat(v.replace(',', '.')));
+                                    parsedNormals.records.maxT.dates = dates;
+                                }
+                                if (line.includes('La température la plus basse (°C)')) {
+                                    const vals = lines[idx + 2].split(';').map(v => v.trim()).filter(v => v !== '' && !isNaN(v.replace(',', '.')));
+                                    const dates = lines[idx + 3].split(';').map(v => v.trim()).filter(v => v !== '' && !v.includes('Date'));
+                                    parsedNormals.records.minT.vals = vals.map(v => parseFloat(v.replace(',', '.')));
+                                    parsedNormals.records.minT.dates = dates;
+                                }
+                                if (line.includes('Précipitations : Hauteur quotidienne maximale (mm)')) {
+                                    const vals = lines[idx + 2].split(';').map(v => v.trim()).filter(v => v !== '' && !isNaN(v.replace(',', '.')));
+                                    const dates = lines[idx + 3].split(';').map(v => v.trim()).filter(v => v !== '' && !v.includes('Date'));
+                                    parsedNormals.records.maxRain.vals = vals.map(v => parseFloat(v.replace(',', '.')));
+                                    parsedNormals.records.maxRain.dates = dates;
+                                }
                             });
+                            setNormals(parsedNormals);
                         }
-                    }
-                } catch (err) {
-                    console.error("Normals fetch error:", err);
-                    const normalsData = await import('../../data/normals_1991_2020.json');
-                    if (normalsData.default && normalsData.default[stationId]) {
-                        setNormals({
-                            ...normalsData.default[stationId],
-                            records: {
-                                maxT: { vals: [], dates: [] },
-                                minT: { vals: [], dates: [] },
-                                maxRain: { vals: [], dates: [] }
-                            }
-                        });
-                    }
+                    } catch (eNorm) { }
                 }
             } catch (e) {
                 console.error(e);
             } finally {
-                setLoading(false);
+                if (!isCancelled) setLoading(false);
             }
         }
 
         load();
 
-        // Rafraîchissement automatique toutes les 2 minutes si c'est aujourd'hui
         const isToday = selectedDate.toDateString() === new Date().toDateString();
         let interval;
         if (isToday) {
             interval = setInterval(load, 2 * 60 * 1000);
         }
-        return () => interval && clearInterval(interval);
-    }, [stationId, selectedDate]);
+        return () => {
+            isCancelled = true;
+            if (interval) clearInterval(interval);
+        };
+    }, [stationId, selectedDateStr]);
 
     const displayData = useMemo(() => {
         let base;
@@ -441,13 +404,6 @@ export default function StationDetail() {
         doc.save(`meteo_${stationName}_${dateStr.replace(/\//g, '-')}.pdf`);
     };
 
-    if (loading) return (
-        <div className="loading-container">
-            <Activity className="spin" size={48} />
-            <p>Chargement du dossier de station...</p>
-        </div>
-    );
-
     return (
         <div className="station-detail-v2 animate-fade-in">
             {/* TOP HEADER */}
@@ -456,7 +412,12 @@ export default function StationDetail() {
                     <div className="title-row">
                         <div className="blue-bar"></div>
                         <div>
-                            <h1>Observations météo à {stationInfo?.name}</h1>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <h1>Observations météo à {stationInfo?.name}</h1>
+                                {loading && (
+                                    <Activity className="spin" size={20} style={{ color: '#2563eb' }} title="Actualisation des données en arrière-plan..." />
+                                )}
+                            </div>
                             <div style={{ fontSize: '0.9rem', color: '#64748b', display: 'flex', gap: '10px', alignItems: 'center' }}>
                                 <span>Station ID: {stationId}</span>
                                 {stationInfo?.altitude && (
