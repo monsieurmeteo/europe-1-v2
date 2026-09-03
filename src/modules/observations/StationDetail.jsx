@@ -5,11 +5,12 @@ import { geoService } from '../../services/geoService';
 import {
     Thermometer, Wind, Droplets, MapPin,
     ArrowLeft, Activity, Info, Clock,
-    ChevronLeft, ChevronRight, Calendar, Table, LineChart as ChartIcon, FileDown, FileText, History
+    ChevronLeft, ChevronRight, Calendar, Table, LineChart as ChartIcon, FileDown, FileText, History,
+    Flame, Snowflake, Award, Sun
 } from 'lucide-react';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid,
-    Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar
+    Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar, ReferenceLine
 } from 'recharts';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -346,58 +347,144 @@ export default function StationDetail() {
         const maxPres = pressures.length > 0 ? Math.max(...pressures) : null;
         const minPres = pressures.length > 0 ? Math.min(...pressures) : null;
 
+        let maxTTime = null;
+        let minTTime = null;
+        let maxGustTime = null;
+        let maxGustDir = null;
+        let maxWind = 0;
+        let maxHum = null;
+        let minHum = null;
+        let maxHumidex = null;
+        let minWindchill = null;
+        let maxDewpoint = null;
+        let minDewpoint = null;
+
+        obsCivil.forEach(o => {
+            if (o.temp !== null && o.temp === tx && !maxTTime) {
+                maxTTime = o.time.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            }
+            if (o.temp !== null && o.temp === tn && !minTTime) {
+                minTTime = o.time.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            }
+            if (o.gust !== null && o.gust === maxGust && !maxGustTime) {
+                maxGustTime = o.time.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                maxGustDir = o.dir;
+            }
+            if (o.wind !== null && o.wind > maxWind) {
+                maxWind = o.wind;
+            }
+            if (o.hum !== null) {
+                if (maxHum === null || o.hum > maxHum) maxHum = o.hum;
+                if (minHum === null || o.hum < minHum) minHum = o.hum;
+            }
+            if (o.humidex !== null && o.humidex !== undefined) {
+                if (maxHumidex === null || o.humidex > maxHumidex) maxHumidex = o.humidex;
+            }
+            if (o.windchill !== null && o.windchill !== undefined) {
+                if (minWindchill === null || o.windchill < minWindchill) minWindchill = o.windchill;
+            }
+            if (o.dewpoint !== null && o.dewpoint !== undefined) {
+                if (maxDewpoint === null || o.dewpoint > maxDewpoint) maxDewpoint = o.dewpoint;
+                if (minDewpoint === null || o.dewpoint < minDewpoint) minDewpoint = o.dewpoint;
+            }
+        });
+
+        const avgTemp = (tx !== null && tn !== null) ? (tx + tn) / 2 : null;
+        const amplitude = (tx !== null && tn !== null) ? (tx - tn) : null;
+
         return {
             maxT: tx,
+            maxTTime,
             minT: tn,
+            minTTime,
+            avgTemp,
+            amplitude,
             maxGust: maxGust,
+            maxGustTime,
+            maxGustDir,
+            maxWind,
             totalRain: totalRain,
             totalSun: totalSun,
             avgHum: avgHum,
+            maxHum,
+            minHum,
+            maxHumidex,
+            minWindchill,
+            maxDewpoint,
+            minDewpoint,
             maxPres: maxPres,
             minPres: minPres,
             minVis: obsCivil.map(o => o.vv).filter(v => v !== null).length > 0 ? Math.min(...obsCivil.map(o => o.vv).filter(v => v !== null)) : null
         };
     }, [fullHistory, yesterdayHistory, selectedDate]);
 
+    // Données de Normales & Records pour le mois sélectionné
+    const monthIdx = selectedDate.getMonth(); // 0-11
+    const monthNames = [
+        'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+        'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+    ];
+    const currentMonthName = monthNames[monthIdx];
+
+    const currentNormTx = (typeof normals?.tx?.[monthIdx] === 'number' && !isNaN(normals.tx[monthIdx])) ? normals.tx[monthIdx] : null;
+    const currentNormTn = (typeof normals?.tn?.[monthIdx] === 'number' && !isNaN(normals.tn[monthIdx])) ? normals.tn[monthIdx] : null;
+    const currentNormPr = (typeof normals?.pr?.[monthIdx] === 'number' && !isNaN(normals.pr[monthIdx])) ? normals.pr[monthIdx] : null;
+
+    const diffTx = (typeof stats.maxT === 'number' && !isNaN(stats.maxT) && typeof currentNormTx === 'number' && !isNaN(currentNormTx)) ? (stats.maxT - currentNormTx) : null;
+    const diffTn = (typeof stats.minT === 'number' && !isNaN(stats.minT) && typeof currentNormTn === 'number' && !isNaN(currentNormTn)) ? (stats.minT - currentNormTn) : null;
+
+    const monthRecMaxT = (typeof normals?.records?.maxT?.vals?.[monthIdx] === 'number' && !isNaN(normals.records.maxT.vals[monthIdx])) ? normals.records.maxT.vals[monthIdx] : null;
+    const monthRecMaxTDate = normals?.records?.maxT?.dates?.[monthIdx] ?? null;
+
+    const monthRecMinT = (typeof normals?.records?.minT?.vals?.[monthIdx] === 'number' && !isNaN(normals.records.minT.vals[monthIdx])) ? normals.records.minT.vals[monthIdx] : null;
+    const monthRecMinTDate = normals?.records?.minT?.dates?.[monthIdx] ?? null;
+
+    const monthRecRain = (typeof normals?.records?.maxRain?.vals?.[monthIdx] === 'number' && !isNaN(normals.records.maxRain.vals[monthIdx])) ? normals.records.maxRain.vals[monthIdx] : null;
+    const monthRecRainDate = normals?.records?.maxRain?.dates?.[monthIdx] ?? null;
+
+    const [chartMode, setChartMode] = useState('temp'); // 'temp' | 'wind' | 'rain_pres'
+    const [showNormalsTable, setShowNormalsTable] = useState(false);
+
+    // Formateur ultra-sécurisé anti-crash
+    const fmt = (v, precision = 1, unit = '') => {
+        if (typeof v === 'number' && !isNaN(v)) {
+            return `${precision === 0 ? Math.round(v) : v.toFixed(precision)}${unit}`;
+        }
+        return '--';
+    };
+
     const handleDownloadPDF = () => {
         const doc = new jsPDF();
         const stationName = stationInfo?.name || stationId;
         const dateStr = selectedDate.toLocaleDateString('fr-FR');
 
-        // Title
-        doc.setFontSize(18);
-        doc.text(`Rapport Météo - ${stationName}`, 14, 20);
-        doc.setFontSize(12);
-        doc.text(`Date : ${dateStr}`, 14, 30);
-        doc.text(`Station ID : ${stationId}`, 14, 36);
+        doc.setFontSize(16);
+        doc.text(`Rapport Météo : ${stationName}`, 14, 20);
+        doc.setFontSize(11);
+        doc.text(`Date : ${dateStr} - Station ID : ${stationId}`, 14, 28);
 
         // Summary Stats
-        doc.setFontSize(14);
-        doc.text('Résumé de la journée', 14, 48);
         doc.setFontSize(10);
-        doc.text(`Température Max : ${stats.maxT?.toFixed(1) || '--'} °C`, 14, 56);
-        doc.text(`Température Min : ${stats.minT?.toFixed(1) || '--'} °C`, 70, 56);
-        doc.text(`Rafale Max : ${stats.maxGust?.toFixed(0) || '--'} km/h`, 14, 62);
-        doc.text(`Précipitations : ${stats.totalRain?.toFixed(1) || '--'} mm`, 70, 62);
+        doc.text(`Tx : ${fmt(stats.maxT, 1)}°C (${stats.maxTTime || '--'}) | Tn : ${fmt(stats.minT, 1)}°C (${stats.minTTime || '--'}) | Rafale Max : ${stats.maxGust || '--'} km/h | Pluie 24h : ${fmt(stats.totalRain, 1)} mm`, 14, 38);
 
-        // Data Table
-        const tableData = displayData.slice().reverse().map(h => [
+        const tableData = displayData.map(h => [
             h.time.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-            (h.temp ?? 0).toFixed(1),
-            (h.dewpoint ?? 0).toFixed(1),
-            (h.hum ?? '--') + '%',
-            (h.gust || 0).toFixed(0),
-            (h.rain ?? 0).toFixed(1),
-            (h.pressure ?? 0).toFixed(1),
-            (h.vv ? (h.vv / 1000).toFixed(1) : '--')
+            fmt(h.temp, 1),
+            fmt(h.dewpoint, 1),
+            (h.hum != null ? `${h.hum}%` : '--'),
+            (h.wind != null ? `${Math.round(h.wind)} km/h` : '--'),
+            (h.gust != null ? `${Math.round(h.gust)} km/h` : '--'),
+            fmt(h.rain, 1),
+            fmt(h.pressure, 1),
+            (h.vv != null && !isNaN(h.vv) ? fmt(h.vv / 1000, 1) : '--')
         ]);
 
         autoTable(doc, {
-            startY: 70,
+            startY: 48,
             head: [['Heure', 'Temp. (°C)', 'Pt. Rosée', 'Hum.', 'Vent', 'Raf.', 'Pluie', 'Pres.', 'Vis. (km)']],
             body: tableData,
             theme: 'striped',
-            headStyles: { fillColor: [59, 130, 246] }, // Blue header
+            headStyles: { fillColor: [59, 130, 246] },
             styles: { fontSize: 9 },
         });
 
@@ -441,62 +528,32 @@ export default function StationDetail() {
                         <FileText size={16} style={{ marginRight: '8px' }} />
                         Fiche Climatologique (PDF)
                     </a>
-                    <button className="btn-outline" onClick={handleDownloadPDF}>
+                    <button className="btn-outline" onClick={handleDownloadPDF} style={{ display: 'flex', alignItems: 'center' }}>
                         <FileDown size={16} style={{ marginRight: '8px' }} />
-                        Rapport du Jour (PDF)
+                        Exporter Rapport PDF
                     </button>
                 </div>
             </header>
 
-            {/* TABS NAVIGATION (TOP) */}
-            <div className="tabs-nav" style={{ marginBottom: '10px', display: 'flex', gap: '8px', paddingBottom: '15px', borderBottom: '1px solid #e2e8f0', flexWrap: 'wrap' }}>
+            {/* TAB SELECTOR */}
+            <div className="detail-tabs">
                 <button
                     className={`tab-btn ${activeTab === 'obs' ? 'active' : ''}`}
                     onClick={() => setActiveTab('obs')}
-                    style={{
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        border: '1px solid #e2e8f0',
-                        background: activeTab === 'obs' ? '#2563eb' : 'white',
-                        color: activeTab === 'obs' ? 'white' : '#64748b',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        boxShadow: activeTab === 'obs' ? '0 2px 4px rgba(37,99,235,0.2)' : 'none'
-                    }}
                 >
-                    <Activity size={16} style={{ marginBottom: '-2px', marginRight: '6px' }} />
-                    Détail Quotidien
+                    <Table size={16} style={{ marginBottom: '-2px', marginRight: '6px' }} />
+                    Relevés & Graphiques du Jour
                 </button>
                 <button
                     className={`tab-btn ${activeTab === 'climatology' ? 'active' : ''}`}
                     onClick={() => setActiveTab('climatology')}
-                    style={{
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        border: '1px solid #e2e8f0',
-                        background: activeTab === 'climatology' ? '#2563eb' : 'white',
-                        color: activeTab === 'climatology' ? 'white' : '#64748b',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        boxShadow: activeTab === 'climatology' ? '0 2px 4px rgba(37,99,235,0.2)' : 'none'
-                    }}
                 >
                     <Calendar size={16} style={{ marginBottom: '-2px', marginRight: '6px' }} />
-                    Climatologie Mensuelle
+                    Bilan Climatologique Mensuel
                 </button>
                 <button
                     className={`tab-btn ${activeTab === 'archives' ? 'active' : ''}`}
                     onClick={() => setActiveTab('archives')}
-                    style={{
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        border: '1px solid #e2e8f0',
-                        background: activeTab === 'archives' ? '#2563eb' : 'white',
-                        color: activeTab === 'archives' ? 'white' : '#64748b',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        boxShadow: activeTab === 'archives' ? '0 2px 4px rgba(37,99,235,0.2)' : 'none'
-                    }}
                 >
                     <History size={16} style={{ marginBottom: '-2px', marginRight: '6px' }} />
                     Archives Météo-France (1950 - Hier)
@@ -519,80 +576,249 @@ export default function StationDetail() {
             {/* OBS CONTENT */}
             {activeTab === 'obs' && (
                 <>
-                    <div className="summary-grid">
-                        <div className="stat-card">
-                            <span className="label">Température maximale</span>
-                            <span className="value red">
-                                {typeof stats.maxT === 'number' && !isNaN(stats.maxT) ? stats.maxT.toFixed(1) : '--'}°C
-                            </span>
-                            <span className="sub">Aujourd'hui</span>
-                        </div>
-                        <div className="stat-card">
-                            <span className="label">Température minimale</span>
-                            <span className="value blue">
-                                {typeof stats.minT === 'number' && !isNaN(stats.minT) ? stats.minT.toFixed(1) : '--'}°C
-                            </span>
-                            <span className="sub">Aujourd'hui</span>
-                        </div>
-                        <div className="stat-card">
-                            <span className="label">Rafale maximale</span>
-                            <span className="value orange">{typeof stats.maxGust === 'number' && !isNaN(stats.maxGust) ? stats.maxGust.toFixed(0) : '--'} km/h</span>
-                            <span className="sub">Aujourd'hui</span>
-                        </div>
-                        <div className="stat-card">
-                            <span className="label">Cumul Pluie</span>
-                            <span className="value" style={{ color: '#0ea5e9' }}>
-                                {typeof stats.totalRain === 'number' && !isNaN(stats.totalRain) ? stats.totalRain.toFixed(1) : '--'} mm
-                            </span>
-                            <span className="sub">Cumul 24h</span>
-                        </div>
-                        <div className="stat-card">
-                            <span className="label">Ensoleillement</span>
-                            <span className="value" style={{ color: '#eab308' }}>
-                                {typeof stats.totalSun === 'number' && !isNaN(stats.totalSun) ? (stats.totalSun / 60).toFixed(1) : '--'} h
-                            </span>
-                            <span className="sub">Aujourd'hui</span>
-                        </div>
-                        <div className="stat-card">
-                            <span className="label">Humidité Moyenne</span>
-                            <span className="value" style={{ color: '#10b981' }}>
-                                {typeof stats.avgHum === 'number' && !isNaN(stats.avgHum) ? Math.round(stats.avgHum) : '--'}%
-                            </span>
-                            <span className="sub">Aujourd'hui</span>
-                        </div>
-                        <div className="stat-card">
-                            <span className="label">Pression (min/max)</span>
-                            <div className="value-range" style={{ fontSize: '1rem', fontWeight: 'bold', color: '#64748b' }}>
-                                <span>{stats.minPres?.toFixed(1) || '--'}</span>
-                                <small style={{ margin: '0 4px', opacity: 0.5 }}>/</small>
-                                <span>{stats.maxPres?.toFixed(1) || '--'}</span>
+                    {/* SECTION 1 : 4 SUPER-CARDS CLIMATOLOGIQUES AVEC NORMALES & RECORDS */}
+                    <div className="climat-pro-grid">
+                        {/* CARTE TX */}
+                        <div className="climat-pro-card red-theme">
+                            <div className="card-top">
+                                <span className="card-title">Température Maximale (Tx)</span>
+                                <Flame size={20} className="icon-badge red" />
                             </div>
-                            <span className="sub">hPa aujourd'hui</span>
+                            <div className="main-metric">
+                                <span className="metric-val red">
+                                    {fmt(stats.maxT, 1)}
+                                </span>
+                                <span className="metric-unit">°C</span>
+                                {stats.maxTTime && (
+                                    <span className="metric-time">à {stats.maxTTime}</span>
+                                )}
+                            </div>
+                            <div className="card-sub-stats">
+                                <div className="sub-stat-row">
+                                    <span className="sub-label">Normale 1991-2020 ({currentMonthName}) :</span>
+                                    <span className="sub-value">{currentNormTx !== null ? `${fmt(currentNormTx, 1)}°C` : '--'}</span>
+                                </div>
+                                {diffTx !== null && (
+                                    <div className="sub-stat-row">
+                                        <span className="sub-label">Écart à la normale :</span>
+                                        <span className={`diff-badge ${diffTx >= 0 ? 'hot' : 'cold'}`}>
+                                            {diffTx >= 0 ? `+${fmt(diffTx, 1)}°C` : `${fmt(diffTx, 1)}°C`}
+                                        </span>
+                                    </div>
+                                )}
+                                {monthRecMaxT !== null && (
+                                    <div className="sub-stat-row record-row">
+                                        <span className="sub-label">Record {currentMonthName} :</span>
+                                        <span className="sub-value record-val">{fmt(monthRecMaxT, 1)}°C <small>({monthRecMaxTDate || '--'})</small></span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                        <div className="stat-card">
-                            <span className="label">Visibilité minimale</span>
-                            <span className="value" style={{ color: '#6366f1' }}>
-                                {stats.minVis !== null && stats.minVis !== undefined ? (stats.minVis / 1000).toFixed(1) : 'N/A'} km
-                            </span>
-                            <span className="sub">Aujourd'hui</span>
+
+                        {/* CARTE TN */}
+                        <div className="climat-pro-card blue-theme">
+                            <div className="card-top">
+                                <span className="card-title">Température Minimale (Tn)</span>
+                                <Snowflake size={20} className="icon-badge blue" />
+                            </div>
+                            <div className="main-metric">
+                                <span className="metric-val blue">
+                                    {fmt(stats.minT, 1)}
+                                </span>
+                                <span className="metric-unit">°C</span>
+                                {stats.minTTime && (
+                                    <span className="metric-time">à {stats.minTTime}</span>
+                                )}
+                            </div>
+                            <div className="card-sub-stats">
+                                <div className="sub-stat-row">
+                                    <span className="sub-label">Normale 1991-2020 ({currentMonthName}) :</span>
+                                    <span className="sub-value">{currentNormTn !== null ? `${fmt(currentNormTn, 1)}°C` : '--'}</span>
+                                </div>
+                                {diffTn !== null && (
+                                    <div className="sub-stat-row">
+                                        <span className="sub-label">Écart à la normale :</span>
+                                        <span className={`diff-badge ${diffTn >= 0 ? 'hot' : 'cold'}`}>
+                                            {diffTn >= 0 ? `+${fmt(diffTn, 1)}°C` : `${fmt(diffTn, 1)}°C`}
+                                        </span>
+                                    </div>
+                                )}
+                                {monthRecMinT !== null && (
+                                    <div className="sub-stat-row record-row">
+                                        <span className="sub-label">Record {currentMonthName} :</span>
+                                        <span className="sub-value record-val">{fmt(monthRecMinT, 1)}°C <small>({monthRecMinTDate || '--'})</small></span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* CARTE RAFALE */}
+                        <div className="climat-pro-card orange-theme">
+                            <div className="card-top">
+                                <span className="card-title">Rafale Maximale (FXI)</span>
+                                <Wind size={20} className="icon-badge orange" />
+                            </div>
+                            <div className="main-metric">
+                                <span className="metric-val orange">
+                                    {stats.hasWind && typeof stats.maxGust === 'number' && !isNaN(stats.maxGust) ? Math.round(stats.maxGust) : <span style={{ fontSize: '1.2rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>}
+                                </span>
+                                {stats.hasWind && <span className="metric-unit">km/h</span>}
+                                {stats.hasWind && stats.maxGustTime && (
+                                    <span className="metric-time">à {stats.maxGustTime}</span>
+                                )}
+                            </div>
+                            <div className="card-sub-stats">
+                                <div className="sub-stat-row">
+                                    <span className="sub-label">Vent moyen maximal :</span>
+                                    <span className="sub-value">{stats.hasWind && stats.maxWind ? `${Math.round(stats.maxWind)} km/h` : (stats.hasWind ? '--' : 'Non mesuré')}</span>
+                                </div>
+                                <div className="sub-stat-row">
+                                    <span className="sub-label">Direction de la rafale :</span>
+                                    <span className="sub-value">{stats.hasWind && stats.maxGustDir !== null ? `${stats.maxGustDir}°` : (stats.hasWind ? '--' : 'Non mesuré')}</span>
+                                </div>
+                                <div className="sub-stat-row">
+                                    <span className="sub-label">Poste anémomètre :</span>
+                                    <span className="sub-value">{stats.hasWind ? 'Opérationnel' : 'Non équipé'}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* CARTE PLUIE */}
+                        <div className="climat-pro-card cyan-theme">
+                            <div className="card-top">
+                                <span className="card-title">Précipitations (24h)</span>
+                                <Droplets size={20} className="icon-badge cyan" />
+                            </div>
+                            <div className="main-metric">
+                                <span className="metric-val cyan">
+                                    {stats.hasRain && typeof stats.totalRain === 'number' && !isNaN(stats.totalRain) ? fmt(stats.totalRain, 1) : <span style={{ fontSize: '1.2rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>}
+                                </span>
+                                {stats.hasRain && <span className="metric-unit">mm</span>}
+                                {stats.hasRain && <span className="metric-time">Cumul 24h</span>}
+                            </div>
+                            <div className="card-sub-stats">
+                                <div className="sub-stat-row">
+                                    <span className="sub-label">Normale Mensuelle ({currentMonthName}) :</span>
+                                    <span className="sub-value">{currentNormPr !== null ? `${fmt(currentNormPr, 1)} mm` : '--'}</span>
+                                </div>
+                                {monthRecRain !== null && (
+                                    <div className="sub-stat-row record-row">
+                                        <span className="sub-label">Record 24h ({currentMonthName}) :</span>
+                                        <span className="sub-value record-val">{fmt(monthRecRain, 1)} mm <small>({monthRecRainDate || '--'})</small></span>
+                                    </div>
+                                )}
+                                <div className="sub-stat-row">
+                                    <span className="sub-label">Humidité moyenne :</span>
+                                    <span className="sub-value">{stats.avgHum ? `${Math.round(stats.avgHum)}%` : '--'}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="climatology-passport-link card" style={{ marginBottom: '2rem', padding: '1.5rem', background: '#f0f9ff', border: '1px solid #bae6fd', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                            <h3 style={{ margin: 0, color: '#0369a1', fontSize: '1rem' }}>Passeport Climatologique complet</h3>
-                            <p style={{ margin: '4px 0 0', color: '#0ea5e9', fontSize: '0.85rem' }}>Consulter les normales 1991-2020, records historiques et statistiques de cette station.</p>
+                    {/* SECTION 2 : 8 INDICATEURS COMPLÉMENTAIRES D'EXPERTISE */}
+                    <div className="indicators-compact-row">
+                        <div className="ind-pill">
+                            <span className="ind-label">T° Moyenne</span>
+                            <span className="ind-val">{fmt(stats.avgTemp, 1, '°C')}</span>
                         </div>
-                        <Link to={`/climatologie?station=${stationId}`} className="btn-primary" style={{ textDecoration: 'none', background: '#0ea5e9', color: 'white', padding: '8px 16px', borderRadius: '8px', fontWeight: 700 }}>
-                            Accéder au Passeport <ChevronRight size={18} />
-                        </Link>
+                        <div className="ind-pill">
+                            <span className="ind-label">Amplitude</span>
+                            <span className="ind-val">{fmt(stats.amplitude, 1, '°C')}</span>
+                        </div>
+                        <div className="ind-pill">
+                            <span className="ind-label">Humidex Max</span>
+                            <span className="ind-val" style={{ color: stats.maxHumidex > 30 ? '#ea580c' : 'inherit' }}>
+                                {fmt(stats.maxHumidex, 1)}
+                            </span>
+                        </div>
+                        <div className="ind-pill">
+                            <span className="ind-label">Windchill Min</span>
+                            <span className="ind-val" style={{ color: stats.minWindchill < 10 ? '#2563eb' : 'inherit' }}>
+                                {fmt(stats.minWindchill, 1)}
+                            </span>
+                        </div>
+                        <div className="ind-pill">
+                            <span className="ind-label">Humidité Min/Max</span>
+                            <span className="ind-val">{stats.minHum !== null && stats.maxHum !== null ? `${stats.minHum}% / ${stats.maxHum}%` : '--'}</span>
+                        </div>
+                        <div className="ind-pill">
+                            <span className="ind-label">Pt Rosée Min/Max</span>
+                            <span className="ind-val">{stats.minDewpoint !== null && stats.maxDewpoint !== null ? `${fmt(stats.minDewpoint, 1)}° / ${fmt(stats.maxDewpoint, 1)}°` : '--'}</span>
+                        </div>
+                        <div className="ind-pill">
+                            <span className="ind-label">Pression Min/Max</span>
+                            <span className="ind-val">{stats.hasPres && stats.minPres !== null && stats.maxPres !== null ? `${fmt(stats.minPres, 0)} / ${fmt(stats.maxPres, 0)} hPa` : (stats.hasPres ? '--' : <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>Non mesuré</span>)}</span>
+                        </div>
+                        <div className="ind-pill">
+                            <span className="ind-label">Ensoleillement</span>
+                            <span className="ind-val" style={{ color: '#eab308' }}>
+                                {stats.hasSun && typeof stats.totalSun === 'number' && !isNaN(stats.totalSun) ? `${fmt(stats.totalSun / 60, 1)} h` : (stats.hasSun ? '--' : <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>Non mesuré</span>)}
+                            </span>
+                        </div>
                     </div>
+
+                    {/* SECTION 3 : TABLEAU CLIMATOLOGIQUE DÉPLIABLE DES NORMALES & RECORDS 12 MOIS */}
+                    {normals && (
+                        <div className="normals-toggle-box">
+                            <button
+                                className="btn-normals-toggle"
+                                onClick={() => setShowNormalsTable(!showNormalsTable)}
+                            >
+                                <Award size={18} style={{ color: '#2563eb' }} />
+                                <span>{showNormalsTable ? 'Masquer' : 'Afficher'} le tableau officiel des Normales 1991-2020 & Records Météo-France (12 mois)</span>
+                                <ChevronRight size={18} style={{ transform: showNormalsTable ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }} />
+                            </button>
+
+                            {showNormalsTable && (
+                                <div className="normals-table-wrapper animate-fade-in card">
+                                    <table className="normals-full-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Mois</th>
+                                                <th>Tn Normale</th>
+                                                <th>Tx Normale</th>
+                                                <th>Précip. Norm.</th>
+                                                <th>Record Chaud (Tx)</th>
+                                                <th>Record Froid (Tn)</th>
+                                                <th>Record Pluie (24h)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {monthNames.map((mName, i) => (
+                                                <tr key={i} className={i === monthIdx ? 'active-month-row' : ''}>
+                                                    <td className="month-name-col">
+                                                        <strong>{mName}</strong>
+                                                        {i === monthIdx && <span className="active-badge">Mois actuel</span>}
+                                                    </td>
+                                                    <td className="blue-val">{typeof normals.tn?.[i] === 'number' && !isNaN(normals.tn[i]) ? `${normals.tn[i].toFixed(1)}°C` : '--'}</td>
+                                                    <td className="red-val">{typeof normals.tx?.[i] === 'number' && !isNaN(normals.tx[i]) ? `${normals.tx[i].toFixed(1)}°C` : '--'}</td>
+                                                    <td className="cyan-val">{typeof normals.pr?.[i] === 'number' && !isNaN(normals.pr[i]) ? `${normals.pr[i].toFixed(1)} mm` : '--'}</td>
+                                                    <td className="record-col">
+                                                        <strong>{typeof normals.records?.maxT?.vals?.[i] === 'number' && !isNaN(normals.records.maxT.vals[i]) ? `${normals.records.maxT.vals[i].toFixed(1)}°C` : '--'}</strong>
+                                                        <small>{normals.records?.maxT?.dates?.[i] || ''}</small>
+                                                    </td>
+                                                    <td className="record-col">
+                                                        <strong>{typeof normals.records?.minT?.vals?.[i] === 'number' && !isNaN(normals.records.minT.vals[i]) ? `${normals.records.minT.vals[i].toFixed(1)}°C` : '--'}</strong>
+                                                        <small>{normals.records?.minT?.dates?.[i] || ''}</small>
+                                                    </td>
+                                                    <td className="record-col">
+                                                        <strong>{typeof normals.records?.maxRain?.vals?.[i] === 'number' && !isNaN(normals.records.maxRain.vals[i]) ? `${normals.records.maxRain.vals[i].toFixed(1)} mm` : '--'}</strong>
+                                                        <small>{normals.records?.maxRain?.dates?.[i] || ''}</small>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     <div className="main-obs-layout">
                         {/* LEFT COLUMN: TABLE */}
                         <div className="data-column table-section">
                             <div className="section-head">
-                                <h3><Table size={18} /> Relevés météo</h3>
+                                <h3><Table size={18} /> Relevés météo détaillés</h3>
                                 <div className="table-filters">
                                     <label className="switch-label">
                                         <span>Données 6 mins</span>
@@ -701,35 +927,125 @@ export default function StationDetail() {
                             </div>
                         </div>
 
-                        {/* RIGHT COLUMN: CHARTS */}
+                        {/* RIGHT COLUMN: PROFESSIONAL CHARTS */}
                         <div className="data-column charts-section">
-                            {/* TEMP CHART */}
-                            <div className="mini-chart-card card">
-                                <h4>TEMPÉRATURE (°C)</h4>
-                                <ResponsiveContainer width="100%" height={220}>
-                                    <AreaChart data={displayData}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
-                                        <XAxis dataKey="time" tickFormatter={(t) => t.getHours() + 'h'} fontSize={10} minTickGap={40} />
-                                        <YAxis fontSize={10} domain={['auto', 'auto']} unit="°" />
-                                        <Tooltip labelFormatter={(t) => t.toLocaleString()} />
-                                        <Area type="monotone" dataKey="temp" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.05} strokeWidth={2} dot={false} name="T° Actuelle" />
-                                    </AreaChart>
-                                </ResponsiveContainer>
+                            <div className="chart-mode-tabs">
+                                <button
+                                    className={`chart-tab-btn ${chartMode === 'temp' ? 'active' : ''}`}
+                                    onClick={() => setChartMode('temp')}
+                                >
+                                    <Thermometer size={14} /> Températures & Ressenti
+                                </button>
+                                <button
+                                    className={`chart-tab-btn ${chartMode === 'wind' ? 'active' : ''}`}
+                                    onClick={() => setChartMode('wind')}
+                                >
+                                    <Wind size={14} /> Vent & Rafales
+                                </button>
+                                <button
+                                    className={`chart-tab-btn ${chartMode === 'rain_pres' ? 'active' : ''}`}
+                                    onClick={() => setChartMode('rain_pres')}
+                                >
+                                    <Droplets size={14} /> Pluie & Pression
+                                </button>
                             </div>
 
-                            {/* RAIN CHART */}
-                            <div className="mini-chart-card card" style={{ marginTop: '1.5rem' }}>
-                                <h4>PRÉCIPITATIONS (mm)</h4>
-                                <ResponsiveContainer width="100%" height={220}>
-                                    <BarChart data={fullHistory}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
-                                        <XAxis dataKey="time" tickFormatter={(t) => t.getHours() + 'h'} fontSize={10} minTickGap={40} />
-                                        <YAxis fontSize={10} unit=" mm" />
-                                        <Tooltip labelFormatter={(t) => t.toLocaleString()} />
-                                        <Bar dataKey="rain" fill="#3b82f6" />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
+                            {/* CHART 1: TEMP & HUMIDEX & DEWPOINT */}
+                            {chartMode === 'temp' && (
+                                <div className="mini-chart-card card animate-fade-in">
+                                    <div className="chart-header-row">
+                                        <h4>ÉVOLUTION DE LA TEMPÉRATURE (°C)</h4>
+                                        <div className="chart-legend-pills">
+                                            <span className="legend-dot temp"></span> Température
+                                            <span className="legend-dot humidex"></span> Humidex
+                                            <span className="legend-dot dew"></span> Pt Rosée
+                                        </div>
+                                    </div>
+                                    <ResponsiveContainer width="100%" height={340}>
+                                        <AreaChart data={displayData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                            <defs>
+                                                <linearGradient id="tempGradient" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.4} />
+                                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.05} />
+                                                </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                            <XAxis dataKey="time" tickFormatter={(t) => t.getHours() + 'h'} fontSize={11} minTickGap={30} stroke="#94a3b8" />
+                                            <YAxis fontSize={11} domain={['auto', 'auto']} unit="°" stroke="#94a3b8" />
+                                            <Tooltip
+                                                contentStyle={{ background: '#0f172a', borderRadius: '8px', color: '#fff', border: 'none', fontSize: '0.85rem' }}
+                                                labelFormatter={(t) => t.toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                                            />
+                                            {typeof currentNormTx === 'number' && !isNaN(currentNormTx) && (
+                                                <ReferenceLine y={currentNormTx} stroke="#ef4444" strokeDasharray="4 4" label={{ value: `Normale Tx (${currentNormTx.toFixed(1)}°)`, fill: '#ef4444', fontSize: 10, position: 'insideTopRight' }} />
+                                            )}
+                                            {typeof currentNormTn === 'number' && !isNaN(currentNormTn) && (
+                                                <ReferenceLine y={currentNormTn} stroke="#3b82f6" strokeDasharray="4 4" label={{ value: `Normale Tn (${currentNormTn.toFixed(1)}°)`, fill: '#3b82f6', fontSize: 10, position: 'insideBottomRight' }} />
+                                            )}
+                                            <Area type="monotone" dataKey="temp" stroke="#ef4444" fill="url(#tempGradient)" strokeWidth={2.5} dot={false} name="Température" />
+                                            <Line type="monotone" dataKey="humidex" stroke="#f97316" strokeWidth={1.5} dot={false} strokeDasharray="3 3" name="Humidex" />
+                                            <Line type="monotone" dataKey="dewpoint" stroke="#06b6d4" strokeWidth={1.5} dot={false} name="Pt Rosée" />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            )}
+
+                            {/* CHART 2: WIND & GUSTS */}
+                            {chartMode === 'wind' && (
+                                <div className="mini-chart-card card animate-fade-in">
+                                    <div className="chart-header-row">
+                                        <h4>VENT MOYEN ET RAFALES MAXIMALES (KM/H)</h4>
+                                        <div className="chart-legend-pills">
+                                            <span className="legend-dot gust"></span> Rafales
+                                            <span className="legend-dot wind"></span> Vent moyen
+                                        </div>
+                                    </div>
+                                    <ResponsiveContainer width="100%" height={340}>
+                                        <AreaChart data={displayData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                            <defs>
+                                                <linearGradient id="gustGradient" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#f97316" stopOpacity={0.35} />
+                                                    <stop offset="95%" stopColor="#f97316" stopOpacity={0.02} />
+                                                </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                            <XAxis dataKey="time" tickFormatter={(t) => t.getHours() + 'h'} fontSize={11} minTickGap={30} stroke="#94a3b8" />
+                                            <YAxis fontSize={11} domain={[0, 'auto']} unit=" km/h" stroke="#94a3b8" />
+                                            <Tooltip
+                                                contentStyle={{ background: '#0f172a', borderRadius: '8px', color: '#fff', border: 'none', fontSize: '0.85rem' }}
+                                                labelFormatter={(t) => t.toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                                            />
+                                            <Area type="monotone" dataKey="gust" stroke="#f97316" fill="url(#gustGradient)" strokeWidth={2} dot={false} name="Rafale Max" />
+                                            <Line type="monotone" dataKey="wind" stroke="#475569" strokeWidth={2} dot={false} name="Vent Moyen" />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            )}
+
+                            {/* CHART 3: RAIN & PRESSURE */}
+                            {chartMode === 'rain_pres' && (
+                                <div className="mini-chart-card card animate-fade-in">
+                                    <div className="chart-header-row">
+                                        <h4>PRÉCIPITATIONS (MM) & PRESSION BAROMÉTRIQUE (HPA)</h4>
+                                        <div className="chart-legend-pills">
+                                            <span className="legend-dot rain"></span> Pluie
+                                            <span className="legend-dot pressure"></span> Pression
+                                        </div>
+                                    </div>
+                                    <ResponsiveContainer width="100%" height={340}>
+                                        <BarChart data={displayData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                            <XAxis dataKey="time" tickFormatter={(t) => t.getHours() + 'h'} fontSize={11} minTickGap={30} stroke="#94a3b8" />
+                                            <YAxis yAxisId="rain" fontSize={11} unit=" mm" stroke="#0ea5e9" orientation="left" />
+                                            <Tooltip
+                                                contentStyle={{ background: '#0f172a', borderRadius: '8px', color: '#fff', border: 'none', fontSize: '0.85rem' }}
+                                                labelFormatter={(t) => t.toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                                            />
+                                            <Bar yAxisId="rain" dataKey="rain" fill="#0ea5e9" name="Pluie" radius={[4, 4, 0, 0]} />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </>

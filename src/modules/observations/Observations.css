@@ -623,3 +623,376 @@ input:checked+.slider:before {
         justify-content: center !important;
     }
 }
+
+/* ========================================================
+   BROADCAST-GRADE CLIMATOLOGY & RECORDS STYLING (PRO V2)
+   ======================================================== */
+
+.climat-pro-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 1200px) {
+    .climat-pro-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .climat-pro-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.climat-pro-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06), 0 2px 4px -1px rgba(15, 23, 42, 0.04);
+    border: 1px solid #e2e8f0;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.climat-pro-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.1);
+}
+
+.climat-pro-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.climat-pro-card.red-theme::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+.climat-pro-card.blue-theme::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.climat-pro-card.orange-theme::before { background: linear-gradient(90deg, #f97316, #fb923c); }
+.climat-pro-card.cyan-theme::before { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.card-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.icon-badge {
+    padding: 4px;
+    border-radius: 6px;
+}
+
+.icon-badge.red { color: #ef4444; background: #fee2e2; }
+.icon-badge.blue { color: #3b82f6; background: #dbeafe; }
+.icon-badge.orange { color: #f97316; background: #ffedd5; }
+.icon-badge.cyan { color: #0ea5e9; background: #e0f2fe; }
+
+.main-metric {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin: 0.25rem 0 0.75rem;
+}
+
+.metric-val {
+    font-size: 2.25rem;
+    font-weight: 900;
+    line-height: 1;
+    font-feature-settings: "tnum";
+}
+
+.metric-val.red { color: #dc2626; }
+.metric-val.blue { color: #2563eb; }
+.metric-val.orange { color: #ea580c; }
+.metric-val.cyan { color: #0284c7; }
+
+.metric-unit {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #64748b;
+}
+
+.metric-time {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-left: 6px;
+    font-weight: 600;
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.card-sub-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 0.75rem;
+    font-size: 0.8rem;
+}
+
+.sub-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sub-label {
+    color: #64748b;
+}
+
+.sub-value {
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.diff-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 0.75rem;
+}
+
+.diff-badge.hot {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.diff-badge.cold {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.record-row {
+    background: #f8fafc;
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px dashed #cbd5e1;
+}
+
+.record-val {
+    color: #b45309;
+    font-size: 0.78rem;
+}
+
+.record-val small {
+    color: #94a3b8;
+    font-weight: normal;
+}
+
+/* Indicators Compact Row */
+.indicators-compact-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.ind-pill {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.5rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1 1 120px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.ind-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+}
+
+.ind-val {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+/* Normals Table Toggle */
+.normals-toggle-box {
+    margin-bottom: 1.5rem;
+}
+
+.btn-normals-toggle {
+    width: 100%;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: #1e40af;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-normals-toggle:hover {
+    background: #dbeafe;
+    border-color: #93c5fd;
+}
+
+.normals-table-wrapper {
+    margin-top: 0.75rem;
+    overflow-x: auto;
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+}
+
+.normals-full-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+.normals-full-table th {
+    background: #f8fafc;
+    padding: 8px 12px;
+    color: #64748b;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.normals-full-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.active-month-row {
+    background: #f0fdf4 !important;
+    font-weight: 700;
+}
+
+.month-name-col {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.active-badge {
+    background: #22c55e;
+    color: white;
+    font-size: 0.65rem;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.cyan-val {
+    color: #0284c7;
+    font-weight: 700;
+}
+
+.record-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.record-col small {
+    color: #94a3b8;
+    font-size: 0.7rem;
+}
+
+/* Chart Mode Tabs */
+.chart-mode-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 0.75rem;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 8px;
+}
+
+.chart-tab-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.chart-tab-btn.active {
+    background: white;
+    color: #2563eb;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.chart-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chart-header-row h4 {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #334155;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.chart-legend-pills {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.legend-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 4px;
+}
+
+.legend-dot.temp { background: #ef4444; }
+.legend-dot.humidex { background: #f97316; }
+.legend-dot.dew { background: #06b6d4; }
+.legend-dot.gust { background: #f97316; }
+.legend-dot.wind { background: #475569; }
+.legend-dot.rain { background: #0ea5e9; }
+.legend-dot.pressure { background: #8b5cf6; }

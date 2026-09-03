@@ -568,7 +568,7 @@ Voici les données brutes :`;
         setGlobalData({}); // Reset current data
 
         try {
-            // 1. Tenter l'historique horaire direct Supabase
+            // 1. Tenter l'historique horaire & DPClim direct
             let history = await weatherAPI.getStationHourlyHistoryRange(selectedStationId, startDate, endDate);
 
             const getLocalDateString = (date) => {
@@ -578,149 +578,6 @@ Voici les données brutes :`;
                 return `${d}/${m}/${y}`;
             };
 
-            // 2. Vérifier si des jours manquent dans la période demandée
-            const checkMissingDays = (data) => {
-                const found = new Set(data.map(obs => getLocalDateString(obs.time)));
-                let curr = new Date(startDate);
-                const stop = new Date(endDate);
-                const missing = [];
-                while (curr <= stop) {
-                    const ds = getLocalDateString(curr);
-                    if (!found.has(ds)) missing.push(new Date(curr));
-                    curr.setDate(curr.getDate() + 1);
-                }
-                return missing;
-            };
-
-            let missingDays = checkMissingDays(history);
-
-            // 3. Si des jours manquent, tenter de les combler via Météo-France API (Archives / En direct)
-            if (missingDays.length > 0) {
-                console.log(`[BTP] Il manque ${missingDays.length} jours. Tentative Météo France...`);
-
-                // On utilise le service Météo-France Poste
-                try {
-                    const apiData = await meteoFrancePosteService.getStationHourlyHistory(selectedStationId, startDate, endDate);
-                    if (apiData && apiData.length > 0) {
-                        const existingTimes = new Set(history.map(h => h.time.getTime()));
-                        const newObs = apiData.filter(obs => !existingTimes.has(obs.time.getTime()));
-                        history = [...history, ...newObs].sort((a, b) => a.time - b.time);
-                        missingDays = checkMissingDays(history);
-                    }
-                } catch (e) { }
-
-                // Tentative via DPClim Horaire officiel (Archives certifiées heure par heure)
-                if (missingDays.length > 0) {
-                    try {
-                        const dpHourly = await meteoFranceClimService.fetchStationHourlyHistory(selectedStationId, startDate, endDate);
-                        if (dpHourly && dpHourly.length > 0) {
-                            const existingTimes = new Set(history.map(h => h.time.getTime()));
-                            const newObs = dpHourly.filter(obs => !existingTimes.has(obs.time.getTime()));
-                            history = [...history, ...newObs].sort((a, b) => a.time - b.time);
-                            missingDays = checkMissingDays(history);
-                        }
-                    } catch (e) {
-                        console.warn("[BTP] Erreur DPClim horaire:", e);
-                    }
-                }
-            }
-
-            // 4. Si encore vide ou incomplet, essayer le 6mn Supabase
-            if (missingDays.length > 0) {
-                for (const day of missingDays) {
-                    const dayData6mn = await weatherAPI.getStation6mnHistory(selectedStationId, day);
-                    if (dayData6mn && dayData6mn.length > 0) {
-                        const exactHourlyData = dayData6mn.filter(h => h.time.getMinutes() === 0);
-                        const allHoursStr = new Set(exactHourlyData.map(h => h.time.getHours()));
-                        const hourlyMap = new Map();
-                        dayData6mn.forEach(h => {
-                            const hr = h.time.getHours();
-                            if (h.time.getMinutes() === 0) {
-                                hourlyMap.set(hr, h);
-                            } else if (!allHoursStr.has(hr)) {
-                                const existing = hourlyMap.get(hr);
-                                if (!existing) hourlyMap.set(hr, h);
-                                else {
-                                    const distH = Math.min(h.time.getMinutes(), 60 - h.time.getMinutes());
-                                    const distE = Math.min(existing.time.getMinutes(), 60 - existing.time.getMinutes());
-                                    if (distH < distE) hourlyMap.set(hr, h);
-                                }
-                            }
-                        });
-                        // On calcule le cumul de pluie AVANT d'altérer l'heure pour garantir 60 min de cumul
-                        const dayHourly = Array.from(hourlyMap.values()).map(item => {
-                            const endTime = item.time.getTime();
-                            const startTime = endTime - (60 * 60 * 1000);
-                            const hourlyRain = dayData6mn
-                                .filter(d => d.time.getTime() > startTime && d.time.getTime() <= endTime)
-                                .reduce((sum, d) => sum + (d.rain || 0), 0);
-
-                            // Nettoyage de l'heure pour l'affichage (ex: 16:06 -> 16:00)
-                            let cleanTime = item.time;
-                            if (item.time.getMinutes() !== 0) {
-                                cleanTime = new Date(item.time);
-                                if (cleanTime.getMinutes() > 30) cleanTime.setHours(cleanTime.getHours() + 1);
-                                cleanTime.setMinutes(0);
-                                cleanTime.setSeconds(0);
-                            }
-
-                            const hourlySegment = dayData6mn.filter(d => d.time.getTime() > startTime && d.time.getTime() <= endTime);
-                            const hourlyGust = hourlySegment.length > 0
-                                ? Math.max(...hourlySegment.map(d => d.gust || 0))
-                                : (item.gust || 0);
-
-                            const hourlyWindMax = hourlySegment.length > 0
-                                ? Math.max(...hourlySegment.map(d => d.wind || 0))
-                                : (item.wind || 0);
-
-                            const hourlyTempMax = hourlySegment.length > 0
-                                ? Math.max(...hourlySegment.map(d => d.temp !== null ? d.temp : -999))
-                                : (item.temp || -999);
-
-                            const finalTemp = hourlyTempMax > -900 ? hourlyTempMax : item.temp;
-
-                            return {
-                                time: cleanTime,
-                                temp: finalTemp,
-                                rain: hourlyRain,
-                                wind: hourlyWindMax,
-                                gust: hourlyGust,
-                                hum: item.hum
-                            };
-                        });
-                        history = [...history, ...dayHourly].sort((a, b) => a.time - b.time);
-                    }
-                }
-            }
-
-            // 5. Fallback ULTIME Météo-France DPClim (Extrêmes & Relevés Certifiés 1950-Hier)
-            missingDays = checkMissingDays(history);
-            if (missingDays.length > 0) {
-                console.log(`[BTP] ⚡ Appel Météo-France DPClim pour combler ${missingDays.length} jours...`);
-                try {
-                    const dpClimData = await meteoFranceClimService.fetchStationHistory(selectedStationId, startDate, endDate);
-                    if (dpClimData && dpClimData.length > 0) {
-                        const existingDates = new Set(history.map(h => getLocalDateString(h.time)));
-                        dpClimData.forEach(dpDay => {
-                            const [y, m, d] = dpDay.date.split('-').map(Number);
-                            const ds = `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
-                            if (!existingDates.has(ds)) {
-                                const dayObs = [
-                                    { time: new Date(y, m - 1, d, 6, 0), temp: dpDay.tn, rain: (dpDay.rr || 0) * 0.2, wind: Math.round((dpDay.fxi || 0) * 0.4), gust: Math.round((dpDay.fxi || 0) * 0.6), hum: 85, isDPClim: true },
-                                    { time: new Date(y, m - 1, d, 10, 0), temp: dpDay.tm !== null ? dpDay.tm : (dpDay.tn !== null ? dpDay.tn + 3 : 15), rain: (dpDay.rr || 0) * 0.3, wind: Math.round((dpDay.fxi || 0) * 0.6), gust: Math.round((dpDay.fxi || 0) * 0.8), hum: 75, isDPClim: true },
-                                    { time: new Date(y, m - 1, d, 14, 0), temp: dpDay.tx, rain: (dpDay.rr || 0) * 0.3, wind: Math.round((dpDay.fxi || 0) * 0.7), gust: dpDay.fxi || 0, hum: 60, isDPClim: true },
-                                    { time: new Date(y, m - 1, d, 18, 0), temp: dpDay.tm !== null ? dpDay.tm : (dpDay.tx !== null ? dpDay.tx - 3 : 15), rain: (dpDay.rr || 0) * 0.2, wind: Math.round((dpDay.fxi || 0) * 0.5), gust: Math.round((dpDay.fxi || 0) * 0.7), hum: 70, isDPClim: true }
-                                ];
-                                history.push(...dayObs);
-                            }
-                        });
-                        history.sort((a, b) => a.time - b.time);
-                    }
-                } catch (errDPClim) {
-                    console.warn("[BTP] Erreur fallback DPClim:", errDPClim);
-                }
-            }
-
             if (!history || history.length === 0) {
                 setStatus('❌ Aucune donnée trouvée (Supabase/API/DPClim) pour cette période.');
                 return;
@@ -729,6 +586,8 @@ Voici les données brutes :`;
 
             const grouped = {};
             history.forEach(obs => {
+                const dayCA = new Date(obs.time).toLocaleDateString('fr-CA');
+                if (dayCA < startDate || dayCA > endDate) return;
                 const dayKey = getLocalDateString(obs.time);
                 if (!grouped[dayKey]) grouped[dayKey] = [];
 

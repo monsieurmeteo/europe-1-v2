@@ -10,8 +10,8 @@ const MASTER_TOKEN = "eyJ4NXQiOiJZV0kxTTJZNE1qWTNOemsyTkRZeU5XTTRPV014TXpjek1UVm
 
 class MeteoFranceAuth {
     constructor() {
-        this.currentToken = null;
-        this.tokenExpiry = null;
+        this.currentToken = MASTER_TOKEN;
+        this.tokenExpiry = Date.now() + (300 * 24 * 3600 * 1000); // 11 mois
         this.refreshTimer = null;
         this.consumerKey = 'Mhar9YSs8LEluq4neXqP0YeHaaka';
         this.consumerSecret = 'nDKPWzVr2_2o5Ej1aPZa7O6hu4Ia';
@@ -30,25 +30,18 @@ class MeteoFranceAuth {
      * Obtenir un token valide (génère ou utilise le cache mémoire/localStorage)
      */
     async getValidToken() {
-        // 1. Vérifier le cache en mémoire
-        if (this.currentToken && this.tokenExpiry && Date.now() < this.tokenExpiry) {
+        // Si token déjà généré et valide (< 45 minutes)
+        if (this.currentToken && this.tokenExpiry && Date.now() < (this.tokenExpiry - 300000)) {
             return this.currentToken;
         }
 
-        // 2. Vérifier localStorage pour éviter de régénérer après un rechargement de page
+        // Essayer de générer un jeton d'accès frais via OAuth Météo-France
         try {
-            const savedToken = localStorage.getItem('mf_access_token');
-            const savedExpiry = parseInt(localStorage.getItem('mf_token_expiry'), 10);
-            if (savedToken && savedExpiry && Date.now() < (savedExpiry - 60000)) {
-                this.currentToken = savedToken;
-                this.tokenExpiry = savedExpiry;
-                return savedToken;
-            }
-        } catch (e) {}
-
-        // 3. Sinon, générer un nouveau token
-        console.log('[MeteoAuth] 🔄 Génération d\'un nouveau token...');
-        return await this.generateToken();
+            return await this.generateToken();
+        } catch (e) {
+            console.warn('[MeteoAuth] OAuth direct échoué, fallback sur MASTER_TOKEN');
+            return MASTER_TOKEN;
+        }
     }
 
     /**

@@ -291,92 +291,35 @@ const AttestationIntemperieManager = () => {
         setGlobalData(null);
 
         try {
-            const { meteoFrancePosteService } = await import('../../services/meteoFrancePosteService');
-
-            // Stratégie hybride (6mn pour période <= 31 jours, sinon Horaire)
-            const d1 = new Date(startDate);
-            const d2 = new Date(finalEndDate);
-            const diffDays = Math.ceil(Math.abs(d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
-
-            console.log(`[Attestation] Période: ${diffDays} jours (${startDate} au ${finalEndDate})`);
+            const todayStr = new Date().toISOString().split('T')[0];
+            const isSingleDayToday = startDate === todayStr && finalEndDate === todayStr;
 
             let history = [];
 
-            if (diffDays <= 31) {
-                console.log("[Attestation] Tentative via données 6mn (Haute Précision)...");
-                let curr = new Date(d1);
-                while (curr <= d2) {
-                    try {
-                        const day6mn = await weatherAPI.getStation6mnHistory(selectedStationId, new Date(curr));
-                        if (day6mn && day6mn.length > 0) {
-                            // On agrège par heure pour correspondre au format attendu par la suite
-                            for (let h = 0; h < 24; h++) {
-                                const sub = day6mn.filter(d => d.time.getHours() === h);
-                                if (sub.length > 0) {
-                                    history.push({
-                                        time: sub[sub.length - 1].time,
-                                        temp: Math.max(...sub.map(d => d.temp ?? -99)),
-                                        rain: sub.reduce((acc, d) => acc + (d.rain || 0), 0),
-                                        wind: Math.max(...sub.map(d => d.wind || 0)),
-                                        gust: Math.max(...sub.map(d => d.gust || 0)),
-                                        hum: sub[sub.length - 1].hum,
-                                        pres: sub[sub.length - 1].pressure
-                                    });
-                                }
-                            }
-                        }
-                    } catch (errDay) {
-                        console.warn(`[Attestation] Erreur sur le jour ${curr.toLocaleDateString()}:`, errDay);
-                    }
-                    curr.setDate(curr.getDate() + 1);
-                }
-            }
-
-            // Si toujours rien ou période trop longue (> 31j)
-            if (history.length === 0) {
-                console.log("[Attestation] Fallback via données Horaires Supabase...");
-                history = await weatherAPI.getStationHourlyHistoryRange(selectedStationId, startDate, finalEndDate);
-            }
-
-            // Si toujours rien, fallback Météo-France Poste (Archives)
-            if (history.length === 0) {
-                console.log("[Attestation] Fallback via Archives Météo-France...");
-                try {
-                    history = await meteoFrancePosteService.getStationHourlyHistory(selectedStationId, startDate, finalEndDate);
-                } catch (e) {
-                    console.error("[Attestation] Erreur MF Poste:", e);
-                }
-            }
-
-            // Si toujours rien, fallback Météo-France DPClim (Horaire & Quotidien Certifiés 1950-Hier)
-            if (history.length === 0) {
-                console.log("[Attestation] ⚡ Fallback Météo-France DPClim...");
-                try {
-                    const { meteoFranceClimService } = await import('../../services/meteoFranceClimService');
-                    // 1. Tenter l'horaire officiel DPClim
-                    try {
-                        const dpHourly = await meteoFranceClimService.fetchStationHourlyHistory(selectedStationId, startDate, finalEndDate);
-                        if (dpHourly && dpHourly.length > 0) history = dpHourly;
-                    } catch (e) { }
-
-                    // 2. Si pas d'horaire, utiliser le quotidien
-                    if (!history || history.length === 0) {
-                        const dpData = await meteoFranceClimService.fetchStationHistory(selectedStationId, startDate, finalEndDate);
-                        if (dpData && dpData.length > 0) {
-                            const dpObs = [];
-                            dpData.forEach(dpDay => {
-                                const [y, m, d] = dpDay.date.split('-').map(Number);
-                                dpObs.push(
-                                    { time: new Date(y, m - 1, d, 6, 0), temp: dpDay.tn, rain: (dpDay.rr || 0) * 0.2, wind: Math.round((dpDay.fxi || 0) * 0.4), gust: Math.round((dpDay.fxi || 0) * 0.6), hum: 85, isDPClim: true },
-                                    { time: new Date(y, m - 1, d, 14, 0), temp: dpDay.tx, rain: (dpDay.rr || 0) * 0.8, wind: Math.round((dpDay.fxi || 0) * 0.7), gust: dpDay.fxi || 0, hum: 60, isDPClim: true }
-                                );
+            // Si c'est aujourd'hui : données 6mn haute précision en temps réel
+            if (isSingleDayToday) {
+                const day6mn = await weatherAPI.getStation6mnHistory(selectedStationId, new Date(startDate));
+                if (day6mn && day6mn.length > 0) {
+                    for (let h = 0; h < 24; h++) {
+                        const sub = day6mn.filter(d => d.time.getHours() === h);
+                        if (sub.length > 0) {
+                            history.push({
+                                time: sub[sub.length - 1].time,
+                                temp: Math.max(...sub.map(d => d.temp ?? -99)),
+                                rain: sub.reduce((acc, d) => acc + (d.rain || 0), 0),
+                                wind: Math.max(...sub.map(d => d.wind || 0)),
+                                gust: Math.max(...sub.map(d => d.gust || 0)),
+                                hum: sub[sub.length - 1].hum,
+                                pres: sub[sub.length - 1].pressure
                             });
-                            history = dpObs;
                         }
                     }
-                } catch (e) {
-                    console.error("[Attestation] Erreur DPClim:", e);
                 }
+            }
+
+            // Pour toute période historique (ex: Janvier 2026, 1950 à hier) : appel direct global rapide
+            if (history.length === 0) {
+                history = await weatherAPI.getStationHourlyHistoryRange(selectedStationId, startDate, finalEndDate);
             }
 
             if (!history || history.length === 0) {
@@ -388,6 +331,7 @@ const AttestationIntemperieManager = () => {
             const days = {};
             history.forEach(obs => {
                 const dateKey = new Date(obs.time).toLocaleDateString('fr-CA');
+                if (dateKey < startDate || dateKey > finalEndDate) return;
                 if (!days[dateKey]) {
                     days[dateKey] = {
                         rows: [],

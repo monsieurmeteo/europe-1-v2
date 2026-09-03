@@ -216,6 +216,10 @@ const StationArchives = () => {
         };
     }, [data]);
 
+    const hasWind = useMemo(() => data.some(d => d.fxi !== undefined && d.fxi !== null), [data]);
+    const hasRain = useMemo(() => data.some(d => d.rr !== undefined && d.rr !== null), [data]);
+    const hasTemp = useMemo(() => data.some(d => (d.tx !== undefined && d.tx !== null) || (d.tn !== undefined && d.tn !== null)), [data]);
+
     const currentStationName = useMemo(() => {
         const found = stations.find(s => s.id === selectedStation);
         return found?.nom || stationNames[selectedStation] || selectedStation;
@@ -234,13 +238,13 @@ const StationArchives = () => {
         const headers = ['Date', 'TN (°C)', 'HTN', 'TX (°C)', 'HTX', 'TM (°C)', 'Pluie (mm)', 'Rafale (km/h)', 'DXI (°)', 'HXI', 'Orage', 'Neige', 'Grêle', 'Brouillard', 'Gelée'];
         const rows = data.map(d => [
             d.date,
-            d.tn ?? '',
+            d.tn ?? (hasTemp ? '' : 'Non mesuré'),
             d.htn ?? '',
-            d.tx ?? '',
+            d.tx ?? (hasTemp ? '' : 'Non mesuré'),
             d.htx ?? '',
-            d.tm ?? '',
-            d.rr ?? '',
-            d.fxi ?? '',
+            d.tm ?? (hasTemp ? '' : 'Non mesuré'),
+            d.rr ?? (hasRain ? '' : 'Non mesuré'),
+            d.fxi ?? (hasWind ? '' : 'Non mesuré'),
             d.dxi ?? '',
             d.hxi ?? '',
             d.orag ? '1' : '0',
@@ -262,16 +266,19 @@ const StationArchives = () => {
         document.body.removeChild(link);
     };
 
-    const exportSoftwareCSV = () => {
+    const exportTechnicalMS_CSV = () => {
         if (!data || data.length === 0) return;
-        const headers = ['date', 'tn', 'tx', 'tm', 'rr', 'ff_rafale_ms'];
+        const headers = ['date', 'tn', 'tx', 'tm', 'rr', 'fxi_ms', 'ff_ms', 'dxi', 'hxi'];
         const rows = data.map(d => [
             d.date,
             d.tn ?? '',
             d.tx ?? '',
             d.tm ?? '',
             d.rr ?? '',
-            d.fxi !== undefined && d.fxi !== null ? (d.fxi / 3.6).toFixed(1) : ''
+            d.fxi !== undefined && d.fxi !== null ? (d.fxi / 3.6).toFixed(1) : '',
+            d.ff !== undefined && d.ff !== null ? (d.ff / 3.6).toFixed(1) : '',
+            d.dxi ?? '',
+            d.hxi ?? ''
         ]);
 
         const csvContent = 'data:text/csv;charset=utf-8,﻿'
@@ -280,7 +287,7 @@ const StationArchives = () => {
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement('a');
         link.setAttribute('href', encodedUri);
-        link.setAttribute('download', `software_import_${currentStationName}_${startDate}_${endDate}.csv`);
+        link.setAttribute('download', `technique_ms_${currentStationName}_${startDate}_${endDate}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -395,7 +402,7 @@ const StationArchives = () => {
 
                     <button
                         className="btn-secondary-action"
-                        onClick={exportSoftwareCSV}
+                        onClick={exportTechnicalMS_CSV}
                         disabled={!data || data.length === 0}
                         title="Exporter en format m/s pour PowerQuery / Logiciels"
                     >
@@ -618,10 +625,10 @@ const StationArchives = () => {
                                 <Droplets size={16} color="#3b82f6" />
                             </div>
                             <div className="kpi-main-metric">
-                                {stats.totalRain} <span className="kpi-unit-text">mm</span>
+                                {hasRain ? `${stats.totalRain} mm` : <span style={{ fontSize: '1.1rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>}
                             </div>
                             <div className="kpi-detail-text">
-                                {stats.rainDays} jours de pluie (≥ 1mm)
+                                {hasRain ? `${stats.rainDays} jours de pluie (≥ 1mm)` : 'Poste sans pluviomètre'}
                             </div>
                         </div>
 
@@ -631,10 +638,10 @@ const StationArchives = () => {
                                 <Wind size={16} color="#06b6d4" />
                             </div>
                             <div className="kpi-main-metric">
-                                {stats.maxWind ? stats.maxWind.val : '-'} <span className="kpi-unit-text">km/h</span>
+                                {hasWind && stats.maxWind ? `${stats.maxWind.val} km/h` : (hasWind ? '-' : <span style={{ fontSize: '1.1rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>)}
                             </div>
                             <div className="kpi-detail-text">
-                                {stats.maxWind ? `${formatDateFR(stats.maxWind.date)} ${stats.maxWind.hxi ? `à ${stats.maxWind.hxi}` : ''}` : 'Aucune rafale'}
+                                {hasWind && stats.maxWind ? `${formatDateFR(stats.maxWind.date)} ${stats.maxWind.hxi ? `à ${stats.maxWind.hxi}` : ''}` : (hasWind ? 'Aucune rafale' : 'Poste sans anémomètre')}
                             </div>
                         </div>
 
@@ -644,10 +651,10 @@ const StationArchives = () => {
                                 <Thermometer size={16} color="#6366f1" />
                             </div>
                             <div className="kpi-main-metric" style={{ color: '#2563eb' }}>
-                                {stats.minTn ? stats.minTn.val : '-'} <span className="kpi-unit-text">°C</span>
+                                {hasTemp && stats.minTn ? `${stats.minTn.val} °C` : (hasTemp ? '-' : <span style={{ fontSize: '1.1rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>)}
                             </div>
                             <div className="kpi-detail-text">
-                                {stats.minTn ? formatDateFR(stats.minTn.date) : '-'} ({stats.frostDays} j. de gel)
+                                {hasTemp && stats.minTn ? `${formatDateFR(stats.minTn.date)} (${stats.frostDays} j. de gel)` : (hasTemp ? '-' : 'Poste sans thermomètre')}
                             </div>
                         </div>
 
@@ -657,10 +664,10 @@ const StationArchives = () => {
                                 <Sun size={16} color="#ef4444" />
                             </div>
                             <div className="kpi-main-metric" style={{ color: '#dc2626' }}>
-                                {stats.maxTx ? stats.maxTx.val : '-'} <span className="kpi-unit-text">°C</span>
+                                {hasTemp && stats.maxTx ? `${stats.maxTx.val} °C` : (hasTemp ? '-' : <span style={{ fontSize: '1.1rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>)}
                             </div>
                             <div className="kpi-detail-text">
-                                {stats.maxTx ? formatDateFR(stats.maxTx.date) : '-'}
+                                {hasTemp && stats.maxTx ? formatDateFR(stats.maxTx.date) : (hasTemp ? '-' : 'Poste sans thermomètre')}
                             </div>
                         </div>
 
@@ -670,7 +677,7 @@ const StationArchives = () => {
                                 <Info size={16} color="#8b5cf6" />
                             </div>
                             <div className="kpi-main-metric">
-                                {stats.avgTm !== null ? stats.avgTm : '-'} <span className="kpi-unit-text">°C</span>
+                                {hasTemp && stats.avgTm !== null ? `${stats.avgTm} °C` : (hasTemp ? '-' : <span style={{ fontSize: '1.1rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>)}
                             </div>
                             <div className="kpi-detail-text">
                                 Moyenne (Tn+Tx)/2
@@ -683,10 +690,10 @@ const StationArchives = () => {
                                 <Calendar size={16} color="#f59e0b" />
                             </div>
                             <div className="kpi-main-metric">
-                                {stats.maxDryRun} <span className="kpi-unit-text">jours</span>
+                                {hasRain ? `${stats.maxDryRun} jours` : <span style={{ fontSize: '1.1rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>}
                             </div>
                             <div className="kpi-detail-text">
-                                Jours consécutifs &lt; 0.1mm
+                                {hasRain ? 'Jours consécutifs < 0.1mm' : 'Poste sans pluviomètre'}
                             </div>
                         </div>
                     </div>
@@ -730,16 +737,16 @@ const StationArchives = () => {
                                             {formatDateFR(row.date)}
                                         </td>
                                         <td className="cell-tn-blue">
-                                            {row.tn !== undefined && row.tn !== null ? `${row.tn} °C` : '-'}
+                                            {row.tn !== undefined && row.tn !== null ? `${row.tn} °C` : (!hasTemp ? <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>Non mesuré</span> : '-')}
                                         </td>
                                         <td className="cell-tx-red">
-                                            {row.tx !== undefined && row.tx !== null ? `${row.tx} °C` : '-'}
+                                            {row.tx !== undefined && row.tx !== null ? `${row.tx} °C` : (!hasTemp ? <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>Non mesuré</span> : '-')}
                                         </td>
                                         <td className="cell-tm-slate">
-                                            {row.tm !== undefined && row.tm !== null ? `${row.tm} °C` : '-'}
+                                            {row.tm !== undefined && row.tm !== null ? `${row.tm} °C` : (!hasTemp ? <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>Non mesuré</span> : '-')}
                                         </td>
                                         <td className="cell-rain-cyan">
-                                            {row.rr !== undefined && row.rr !== null ? `${row.rr} mm` : '-'}
+                                            {row.rr !== undefined && row.rr !== null ? `${row.rr} mm` : (!hasRain ? <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>Non mesuré</span> : '-')}
                                         </td>
                                         <td className="cell-wind-dark">
                                             {row.fxi !== undefined && row.fxi !== null ? (
@@ -747,7 +754,7 @@ const StationArchives = () => {
                                                     <span>{row.fxi} km/h</span>
                                                     {row.hxi && <span className="wind-hour-detail">({row.hxi})</span>}
                                                 </>
-                                            ) : '-'}
+                                            ) : (!hasWind ? <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>Non mesuré</span> : '-')}
                                         </td>
                                         <td>
                                             <div className="pheno-tags-container">

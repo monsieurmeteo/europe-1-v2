@@ -829,132 +829,43 @@ const CertificatMeteoManager = () => {
 
         try {
             const finalEndDate = isPeriod ? endDate : startDate;
+            const todayStr = new Date().toISOString().split('T')[0];
+            const isSingleDayToday = startDate === todayStr && finalEndDate === todayStr;
+
             let history = [];
 
-            // Calcul durée pour décider stratégie
-            const d1 = new Date(startDate);
-            const d2 = new Date(finalEndDate);
-            const diffTime = Math.abs(d2 - d1);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            const useHighPrecision = diffDays <= 31;
+            // STRATÉGIE 1 : Si aujourd'hui, données 6mn temps réel haute précision
+            if (isSingleDayToday) {
+                const dayData6mn = await weatherAPI.getStation6mnHistory(selectedStationId, new Date(startDate));
+                if (dayData6mn && dayData6mn.length > 0) {
+                    for (let h = 0; h < 24; h++) {
+                        const hourlySegment = dayData6mn.filter(d => d.time.getHours() === h);
+                        if (hourlySegment.length > 0) {
+                            const lastMeas = hourlySegment.find(d => d.time.getMinutes() === 0) || hourlySegment[hourlySegment.length - 1];
+                            const hourlyRain = hourlySegment.reduce((sum, d) => sum + (d.rain || 0), 0);
+                            const hourlyGust = Math.max(...hourlySegment.map(d => d.gust || 0));
+                            const hourlyWindMax = Math.max(...hourlySegment.map(d => d.wind || 0));
+                            const hourlyTempMax = Math.max(...hourlySegment.map(d => d.temp !== null ? d.temp : -999));
+                            const finalTemp = hourlyTempMax > -900 ? hourlyTempMax : lastMeas.temp;
 
-            // STRATÉGIE 1 : HAUTE PRÉCISION (6mn -> Horaire Agrégé)
-            // Prioritaire pour les courtes durées afin de capturer les pics intra-horaires réels
-            if (useHighPrecision) {
-                console.log("[Certificat] Stratégie Haute Précision activée (6mn agreg)...");
-                try {
-                    const startD = new Date(startDate); startD.setHours(0, 0, 0, 0);
-                    const endD = new Date(finalEndDate); endD.setHours(23, 59, 59, 999);
-                    const aggregatedHistory = [];
-                    const currentD = new Date(startD);
-
-                    while (currentD <= endD) {
-                        const dayData6mn = await weatherAPI.getStation6mnHistory(selectedStationId, new Date(currentD));
-                        if (dayData6mn && dayData6mn.length > 0) {
-                            // On filtre pour ne garder que les piles (indiquant la fin de l'heure)
-                            // et on agrège ce qui précède
-                            const dayHourly = [];
-                            // On génère 24h
-                            for (let h = 0; h < 24; h++) {
-                                const hourTarget = new Date(currentD); hourTarget.setHours(h, 0, 0, 0);
-                                // On cherche les données de l'heure écoulée [H-59mn, H]
-                                // Ex: pour 10h00, on prend 09h01 -> 10h00. 
-                                // Note: getStation6mnHistory retourne timestamps exacts.
-
-                                // Simplification : On groupe par heure.
-                                // On prend toutes les données dont l'heure est 'h'.
-                                const hourlySegment = dayData6mn.filter(d => d.time.getHours() === h);
-
-                                if (hourlySegment.length > 0) {
-                                    // On prend la dernière mesure pour les vals instantanées (temp, press)
-                                    // Ou la mesure pile à l'heure si elle existe
-                                    const lastMeas = hourlySegment.find(d => d.time.getMinutes() === 0) || hourlySegment[hourlySegment.length - 1];
-
-                                    const hourlyRain = hourlySegment.reduce((sum, d) => sum + (d.rain || 0), 0);
-
-                                    // Rafale Max
-                                    const hourlyGust = Math.max(...hourlySegment.map(d => d.gust || 0));
-
-                                    // Vent Moyen Max (le max des vents moyens relevés toutes les 6mn)
-                                    const hourlyWindMax = Math.max(...hourlySegment.map(d => d.wind || 0));
-
-                                    // Température Max
-                                    const hourlyTempMax = Math.max(...hourlySegment.map(d => d.temp !== null ? d.temp : -999));
-                                    const finalTemp = hourlyTempMax > -900 ? hourlyTempMax : lastMeas.temp;
-
-                                    dayHourly.push({
-                                        time: lastMeas.time, // Timestamp de l'heure
-                                        temp: finalTemp, // Max sur l'heure
-                                        rain: hourlyRain, // Somme
-                                        wind: hourlyWindMax, // Max des moyens
-                                        gust: hourlyGust > 0 ? hourlyGust : lastMeas.gust, // Max
-                                        hum: lastMeas.hum,
-                                        vv: lastMeas.vv,
-                                        pres: lastMeas.pressure
-                                    });
-                                }
-                            }
-                            aggregatedHistory.push(...dayHourly);
-                        }
-                        currentD.setDate(currentD.getDate() + 1);
-                    }
-
-                    if (aggregatedHistory.length > 0) {
-                        history = aggregatedHistory.sort((a, b) => a.time - b.time);
-                        console.log(`[Certificat] ${history.length} heures récupérées via 6mn.`);
-                    }
-                } catch (e) {
-                    console.warn("Echec stratégie haute précision", e);
-                }
-            }
-
-            // STRATÉGIE 2 : STANDARD (Horaire BDD)
-            // Si stratégie 1 échouée ou période longue
-            if (!history || history.length === 0) {
-                console.log("[Certificat] Fallback Standard Horaire...");
-                history = await weatherAPI.getStationHourlyHistoryRange(selectedStationId, startDate, finalEndDate);
-            }
-
-            // STRATÉGIE 3 : ARCHIVES MF
-            if (!history || history.length === 0) {
-                const { meteoFrancePosteService } = await import('../../services/meteoFrancePosteService');
-                try {
-                    const apiData = await meteoFrancePosteService.getStationHourlyHistory(selectedStationId, startDate, finalEndDate);
-                    if (apiData && apiData.length > 0) history = apiData;
-                } catch (e) {
-                    console.warn("Echec fallback MF", e);
-                }
-            }
-
-            // STRATÉGIE 4 : DPCLIM OFFICIEL CERTIFIÉ METEO-FRANCE (HORAIRE & QUOTIDIEN)
-            if (!history || history.length === 0) {
-                console.log("[Certificat] ⚡ Fallback Météo-France DPClim...");
-                try {
-                    const { meteoFranceClimService } = await import('../../services/meteoFranceClimService');
-                    // 1. Tenter l'horaire DPClim
-                    try {
-                        const dpHourly = await meteoFranceClimService.fetchStationHourlyHistory(selectedStationId, startDate, finalEndDate);
-                        if (dpHourly && dpHourly.length > 0) history = dpHourly;
-                    } catch (e) { }
-
-                    // 2. Si pas d'horaire, utiliser le quotidien officiel
-                    if (!history || history.length === 0) {
-                        const dpData = await meteoFranceClimService.fetchStationHistory(selectedStationId, startDate, finalEndDate);
-                        if (dpData && dpData.length > 0) {
-                            const dpObs = [];
-                            dpData.forEach(dpDay => {
-                                const [y, m, d] = dpDay.date.split('-').map(Number);
-                                dpObs.push(
-                                    { time: new Date(y, m - 1, d, 6, 0), temp: dpDay.tn, rain: (dpDay.rr || 0) * 0.2, wind: Math.round((dpDay.fxi || 0) * 0.4), gust: Math.round((dpDay.fxi || 0) * 0.6), hum: 85, isDPClim: true },
-                                    { time: new Date(y, m - 1, d, 14, 0), temp: dpDay.tx, rain: (dpDay.rr || 0) * 0.8, wind: Math.round((dpDay.fxi || 0) * 0.7), gust: dpDay.fxi || 0, hum: 60, isDPClim: true }
-                                );
+                            history.push({
+                                time: lastMeas.time,
+                                temp: finalTemp,
+                                rain: hourlyRain,
+                                wind: hourlyWindMax,
+                                gust: hourlyGust > 0 ? hourlyGust : lastMeas.gust,
+                                hum: lastMeas.hum,
+                                vv: lastMeas.vv,
+                                pres: lastMeas.pressure
                             });
-                            history = dpObs;
                         }
                     }
-                } catch (e) {
-                    console.warn("Echec fallback DPClim", e);
                 }
+            }
+
+            // STRATÉGIE 2 : Pour toute période passée (ex: Janvier 2026, 1950 à hier), appel direct global ultra-rapide
+            if (history.length === 0) {
+                history = await weatherAPI.getStationHourlyHistoryRange(selectedStationId, startDate, finalEndDate);
             }
 
             if (!history || history.length === 0) {
@@ -964,7 +875,12 @@ const CertificatMeteoManager = () => {
 
             // Formatage des données
             // On garde le timestamp complet pour identifier le jour/heure exact
-            const rows = history.map(obs => ({
+            const rows = history
+                .filter(obs => {
+                    const d = obs.date || (obs.time ? new Date(obs.time).toLocaleDateString('fr-CA') : '');
+                    return d >= startDate && d <= finalEndDate;
+                })
+                .map(obs => ({
                 time: new Date(obs.time),
                 h: new Date(obs.time).getHours(),
                 temp: obs.temp,

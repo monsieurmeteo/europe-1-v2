@@ -347,10 +347,10 @@ export default function StationClimArchivesTab({ stationId, stationName }) {
                                 <Droplets size={16} color="#3b82f6" />
                             </div>
                             <div className="kpi-main-metric">
-                                {stats.totalRain} <span className="kpi-unit-text">mm</span>
+                                {hasRain ? `${stats.totalRain} mm` : <span style={{ fontSize: '1.1rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>}
                             </div>
                             <div className="kpi-detail-text">
-                                {stats.rainDays} jours ≥ 1mm
+                                {hasRain ? `${stats.rainDays} jours ≥ 1mm` : 'Poste sans pluviomètre'}
                             </div>
                         </div>
 
@@ -360,10 +360,10 @@ export default function StationClimArchivesTab({ stationId, stationName }) {
                                 <Wind size={16} color="#06b6d4" />
                             </div>
                             <div className="kpi-main-metric">
-                                {stats.maxWind ? stats.maxWind.val : '-'} <span className="kpi-unit-text">km/h</span>
+                                {hasWind && stats.maxWind ? `${stats.maxWind.val} km/h` : (hasWind ? '-' : <span style={{ fontSize: '1.1rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>)}
                             </div>
                             <div className="kpi-detail-text">
-                                {stats.maxWind ? `${formatDateFR(stats.maxWind.date)} ${stats.maxWind.hxi ? `(${stats.maxWind.hxi})` : ''}` : '-'}
+                                {hasWind && stats.maxWind ? `${formatDateFR(stats.maxWind.date)} ${stats.maxWind.hxi ? `(${stats.maxWind.hxi})` : ''}` : (hasWind ? 'Aucune rafale' : 'Poste sans anémomètre')}
                             </div>
                         </div>
 
@@ -373,10 +373,10 @@ export default function StationClimArchivesTab({ stationId, stationName }) {
                                 <Thermometer size={16} color="#6366f1" />
                             </div>
                             <div className="kpi-main-metric" style={{ color: '#2563eb' }}>
-                                {stats.minTn ? stats.minTn.val : '-'} <span className="kpi-unit-text">°C</span>
+                                {hasTemp && stats.minTn ? `${stats.minTn.val} °C` : (hasTemp ? '-' : <span style={{ fontSize: '1.1rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>)}
                             </div>
                             <div className="kpi-detail-text">
-                                {stats.minTn ? formatDateFR(stats.minTn.date) : '-'} ({stats.frostDays} j. gel)
+                                {hasTemp && stats.minTn ? `${formatDateFR(stats.minTn.date)} (${stats.frostDays} j. gel)` : (hasTemp ? '-' : 'Poste sans thermomètre')}
                             </div>
                         </div>
 
@@ -386,10 +386,10 @@ export default function StationClimArchivesTab({ stationId, stationName }) {
                                 <Sun size={16} color="#ef4444" />
                             </div>
                             <div className="kpi-main-metric" style={{ color: '#dc2626' }}>
-                                {stats.maxTx ? stats.maxTx.val : '-'} <span className="kpi-unit-text">°C</span>
+                                {hasTemp && stats.maxTx ? `${stats.maxTx.val} °C` : (hasTemp ? '-' : <span style={{ fontSize: '1.1rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>)}
                             </div>
                             <div className="kpi-detail-text">
-                                {stats.maxTx ? formatDateFR(stats.maxTx.date) : '-'}
+                                {hasTemp && stats.maxTx ? formatDateFR(stats.maxTx.date) : (hasTemp ? '-' : 'Poste sans thermomètre')}
                             </div>
                         </div>
 
@@ -399,7 +399,7 @@ export default function StationClimArchivesTab({ stationId, stationName }) {
                                 <Info size={16} color="#8b5cf6" />
                             </div>
                             <div className="kpi-main-metric">
-                                {stats.avgTm !== null ? stats.avgTm : '-'} <span className="kpi-unit-text">°C</span>
+                                {hasTemp && stats.avgTm !== null ? `${stats.avgTm} °C` : (hasTemp ? '-' : <span style={{ fontSize: '1.1rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>)}
                             </div>
                             <div className="kpi-detail-text">
                                 (Tn+Tx)/2
@@ -412,10 +412,10 @@ export default function StationClimArchivesTab({ stationId, stationName }) {
                                 <Calendar size={16} color="#f59e0b" />
                             </div>
                             <div className="kpi-main-metric">
-                                {stats.maxDryRun} <span className="kpi-unit-text">jours</span>
+                                {hasRain ? `${stats.maxDryRun} jours` : <span style={{ fontSize: '1.1rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>}
                             </div>
                             <div className="kpi-detail-text">
-                                consécutifs &lt; 0.1mm
+                                {hasRain ? 'consécutifs < 0.1mm' : 'Poste sans pluviomètre'}
                             </div>
                         </div>
                     </div>
@@ -456,17 +456,17 @@ export default function StationClimArchivesTab({ stationId, stationName }) {
                                 {filteredData.map((row, idx) => (
                                     <tr key={idx}>
                                         <td className="cell-date-bold">{formatDateFR(row.date)}</td>
-                                        <td className="cell-tn-blue">{row.tn !== undefined && row.tn !== null ? `${row.tn} °C` : '-'}</td>
-                                        <td className="cell-tx-red">{row.tx !== undefined && row.tx !== null ? `${row.tx} °C` : '-'}</td>
-                                        <td className="cell-tm-slate">{row.tm !== undefined && row.tm !== null ? `${row.tm} °C` : '-'}</td>
-                                        <td className="cell-rain-cyan">{row.rr !== undefined && row.rr !== null ? `${row.rr} mm` : '-'}</td>
+                                        <td className="cell-tn-blue">{row.tn !== undefined && row.tn !== null ? `${row.tn} °C` : (!hasTemp ? <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>Non mesuré</span> : '-')}</td>
+                                        <td className="cell-tx-red">{row.tx !== undefined && row.tx !== null ? `${row.tx} °C` : (!hasTemp ? <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>Non mesuré</span> : '-')}</td>
+                                        <td className="cell-tm-slate">{row.tm !== undefined && row.tm !== null ? `${row.tm} °C` : (!hasTemp ? <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>Non mesuré</span> : '-')}</td>
+                                        <td className="cell-rain-cyan">{row.rr !== undefined && row.rr !== null ? `${row.rr} mm` : (!hasRain ? <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>Non mesuré</span> : '-')}</td>
                                         <td className="cell-wind-dark">
                                             {row.fxi !== undefined && row.fxi !== null ? (
                                                 <>
                                                     <span>{row.fxi} km/h</span>
                                                     {row.hxi && <span className="wind-hour-detail">({row.hxi})</span>}
                                                 </>
-                                            ) : '-'}
+                                            ) : (!hasWind ? <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>Non mesuré</span> : '-')}
                                         </td>
                                         <td>
                                             <div className="pheno-tags-container">

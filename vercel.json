@@ -26,6 +26,10 @@
       "destination": "https://www.mwattest.fr/$1"
     },
     {
+      "source": "/api-meteociel/(.*)",
+      "destination": "https://www.meteociel.fr/$1"
+    },
+    {
       "source": "/api-meteo/(.*)",
       "destination": "https://public-api.meteofrance.fr/public/DPObs/v1/$1"
     },

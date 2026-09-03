@@ -38,6 +38,7 @@ import MeteocielArchives from './modules/rankings/MeteocielArchives';
 import StationArchives from './modules/rankings/StationArchives';
 import HDFRadar from './modules/climatology/HDFRadar';
 import WindyModule from './modules/windy/WindyModule';
+import TableauxClassements from './modules/rankings/TableauxClassements';
 
 import { Menu } from 'lucide-react';
 
@@ -68,6 +69,8 @@ function App() {
       <main className={`main-content ${isEmbed ? 'embed-mode' : ''}`}>
         <Routes>
           <Route path="/" element={<DailyExtremes />} />
+          <Route path="/tableaux" element={<TableauxClassements />} />
+          <Route path="/classements" element={<TableauxClassements />} />
           <Route path="/observations/station/:stationId" element={<StationDetail />} />
           <Route path="/search" element={<CitySearch />} />
           <Route path="/alerts" element={<AlertsManager />} />

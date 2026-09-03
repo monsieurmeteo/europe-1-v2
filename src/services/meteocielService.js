@@ -5,6 +5,7 @@
 const API_METEOCIEL = '/api-meteociel';
 
 export const METEOCIEL_MODES = {
+    TEMPERATURE_DIRECT: { id: '0', label: 'Température Actuelle (Direct)', unit: '°C' },
     TEMPERATURE_MAX: { id: '25', label: 'Températures Maximales', unit: '°C' },
     TEMPERATURE_MIN: { id: '26', label: 'Températures Minimales', unit: '°C' },
     WIND_GUSTS: { id: '27', label: 'Rafales de Vent', unit: 'km/h' },
@@ -12,7 +13,7 @@ export const METEOCIEL_MODES = {
 };
 
 /**
- * Récupère les archives pour une date et un mode donnés
+ * Récupère les archives ou le direct pour une date et un mode donnés
  */
 export const fetchMeteocielArchives = async (date, modeId) => {
     try {
@@ -20,59 +21,83 @@ export const fetchMeteocielArchives = async (date, modeId) => {
         const day = d.getDate();
         const month = d.getMonth() + 1;
         const year = d.getFullYear();
+        const isToday = new Date().toISOString().split('T')[0] === date;
 
-        const url = `${API_METEOCIEL}/obs/classement.php?archive=1&ua=&all=1&mode=${modeId}&pays=&ud=0&dec=0&alt=0&u2=1&ma=0&jour=${day}&mois=${month}&annee=${year}&sub=OK`;
+        const isLive = isToday && (modeId === '0' || modeId === 0);
+        const url = isLive
+            ? `${API_METEOCIEL}/obs/classement.php?archive=0&ua=&all=1&mode=0&pays=&ud=0&dec=0&alt=0&u2=1&ma=0&sub=OK`
+            : `${API_METEOCIEL}/obs/classement.php?archive=1&ua=&all=1&mode=${modeId}&pays=&ud=0&dec=0&alt=0&u2=1&ma=0&jour=${day}&mois=${month}&annee=${year}&sub=OK`;
 
         const response = await fetch(url);
         if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
 
-        const html = await response.text();
+        // Décodage strict en Windows-1252 pour préserver les accents et caractères spéciaux français
+        let html = '';
+        try {
+            const buffer = await response.arrayBuffer();
+            html = new TextDecoder('windows-1252').decode(buffer);
+        } catch (decErr) {
+            html = await response.text();
+        }
+
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
-        // Trouver le tableau après le header "Classement de toutes les stations"
-        const headers = Array.from(doc.querySelectorAll('h4'));
-        const rankingHeader = headers.find(h => h.textContent.includes('Classement de toutes les stations'));
+        // Trouver le tableau des stations (recherche multi-sélecteurs tolérante)
+        const tables = Array.from(doc.querySelectorAll('table'));
+        let targetTable = tables.find(t => {
+            const text = t.textContent || '';
+            return (text.includes('Station') || text.includes('Poste') || text.includes('Ville')) && 
+                   (text.includes('°C') || text.includes('km/h') || text.includes('mm') || text.includes('hPa') || text.includes('Valeur') || text.includes('Temp'));
+        });
 
-        if (!rankingHeader) {
-            return [];
+        if (!targetTable) {
+            const headers = Array.from(doc.querySelectorAll('h4, h3, b'));
+            const rankingHeader = headers.find(h => h.textContent.includes('Classement'));
+            if (rankingHeader) {
+                let sibling = rankingHeader.nextElementSibling;
+                while (sibling && sibling.tagName !== 'TABLE') {
+                    sibling = sibling.nextElementSibling;
+                }
+                targetTable = sibling;
+            }
         }
 
-        // Le tableau est généralement le suivant ou niché
-        let table = rankingHeader.nextElementSibling;
-        while (table && table.tagName !== 'TABLE') {
-            table = table.nextElementSibling;
-        }
+        if (!targetTable) return [];
 
-        if (!table) return [];
+        const rows = Array.from(targetTable.querySelectorAll('tr'));
+        const data = [];
 
-        const rows = Array.from(table.querySelectorAll('tr[bgcolor]'));
-        const data = rows.map(row => {
+        for (const row of rows) {
             const cells = row.querySelectorAll('td');
-            if (cells.length < 2) return null;
+            if (cells.length < 2) continue;
 
-            const stationLong = cells[0].textContent.trim();
-            // Format: "Station Name (Dept)"
-            const match = stationLong.match(/^(.*)\s\((.*)\)$/);
-            const station = match ? match[1].trim() : stationLong;
-            const dept = match ? match[2].trim() : '';
+            const stationLong = cells[0].textContent.trim().replace(/\s+/g, ' ');
+            // Format: "Station Name (Dept)" ou "Station Name"
+            const match = stationLong.match(/^(.*?)(?:\s*\(([0-9AB]{2,3})\))?$/i);
+            if (!match) continue;
 
-            // Nettoyer la valeur (enlever l'unité si présente)
-            let valueStr = cells[1].textContent.trim();
+            const station = match[1].trim();
+            const dept = match[2] || '';
+
+            // Nettoyer la valeur (remplacer virgule par point, extraire nombre)
+            let valueStr = cells[1].textContent.trim().replace(',', '.');
             let value = parseFloat(valueStr.replace(/[^\d.-]/g, ''));
 
-            return {
-                station,
-                dept,
-                value,
-                displayValue: valueStr
-            };
-        }).filter(item => item !== null && !isNaN(item.value));
+            if (!isNaN(value)) {
+                data.push({
+                    station,
+                    dept,
+                    value,
+                    displayValue: valueStr
+                });
+            }
+        }
 
         return data;
     } catch (error) {
-        console.error('[MeteocielService] Error:', error);
-        throw error;
+        console.warn('[MeteocielService] Error fetching archives/live:', error);
+        return [];
     }
 };
 

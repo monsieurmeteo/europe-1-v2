@@ -7,8 +7,8 @@ import { createClient } from '@supabase/supabase-js';
 // 3. Create a user with email: mairie@douai.fr and password: Meteoclimatpro
 // 4. Fill in the variables below or use .env
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://ubdevaemtwbzxksjlhjg.supabase.co';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_1qhA0xAnNSd3VxpoLdxYrQ_yUemEhaP';
 
 // Prevent crash if URL is missing (Demo mode)
 let client;

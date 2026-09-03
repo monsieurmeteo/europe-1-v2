@@ -180,7 +180,7 @@ export default function MonthlyClimateTable({ stationId, stationName }) {
             meanTm: tms.length ? (tms.reduce((a, b) => a + b, 0) / tms.length).toFixed(1) : null,
             maxTx: txs.length ? Math.max(...txs) : null,
             minTn: tns.length ? Math.min(...tns) : null,
-            totalRr: rrs.reduce((a, b) => a + b, 0).toFixed(1),
+            totalRr: rrs.length ? (rrs.reduce((a, b) => a + (typeof b === 'number' && !isNaN(b) ? b : 0), 0)).toFixed(1) : '0.0',
             rainDays: valids.filter(d => d.rr >= 1.0).length,
             frostDays: valids.filter(d => d.tn !== null && d.tn <= 0.0).length,
             heatDays: valids.filter(d => d.tx !== null && d.tx >= 25.0).length,
@@ -202,40 +202,40 @@ export default function MonthlyClimateTable({ stationId, stationName }) {
     };
 
     return (
-        <div className="monthly-climate-table animate-fade-in">
-            {/* Header & Controls */}
-            <div className="monthly-header" style={{ background: 'white', padding: '20px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', marginBottom: '24px' }}>
-                <div className="monthly-title">
-                    <span className="station-label" style={{ color: '#2563eb', fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', fontSize: '0.8rem' }}>
-                        Relevés Climatologiques Officiels (1950 - Hier)
-                    </span>
-                    <h2 style={{ margin: '4px 0 2px', fontSize: '1.6rem', color: '#0f172a', fontWeight: 800 }}>
-                        {MONTHS[selectedMonth]} {selectedYear}
-                    </h2>
-                    <p className="station-meta" style={{ margin: 0, color: '#64748b', fontSize: '0.92rem' }}>
-                        {stationName} ({stationId})
-                    </p>
+        <div className="monthly-climate-container animate-fade-in" style={{ padding: '1rem 0' }}>
+            {/* Barre supérieure : Sélecteurs Mois / Année + Export */}
+            <div className="monthly-controls-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', background: 'white', padding: '16px 20px', borderRadius: '16px', border: '1px solid #e2e8f0', marginBottom: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ background: '#dbeafe', color: '#2563eb', padding: '8px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Calendar size={22} />
+                    </div>
+                    <div>
+                        <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                            Bilan Mensuel : {stationName} ({stationId})
+                        </h2>
+                        <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '2px 0 0' }}>
+                            Relevés quotidiens, moyennes, extrêmes et comparaison aux normales 1991-2020
+                        </p>
+                    </div>
                 </div>
 
-                <div className="monthly-controls" style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-                    {/* Sélecteur de Mois */}
+                <div className="controls-right" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                     <select
+                        className="select-custom"
                         value={selectedMonth}
-                        onChange={e => setSelectedMonth(parseInt(e.target.value, 10))}
-                        className="control-input-style"
-                        style={{ padding: '8px 12px', fontWeight: 700, borderRadius: '8px' }}
+                        onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                        style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontWeight: 700, background: '#f8fafc', color: '#1e293b', cursor: 'pointer' }}
                     >
                         {MONTHS.map((m, i) => (
                             <option key={i} value={i}>{m}</option>
                         ))}
                     </select>
 
-                    {/* Sélecteur d'Année (1950 à aujourd'hui) */}
                     <select
+                        className="select-custom"
                         value={selectedYear}
-                        onChange={e => setSelectedYear(parseInt(e.target.value, 10))}
-                        className="control-input-style"
-                        style={{ padding: '8px 12px', fontWeight: 700, borderRadius: '8px' }}
+                        onChange={(e) => setSelectedYear(Number(e.target.value))}
+                        style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontWeight: 700, background: '#f8fafc', color: '#1e293b', cursor: 'pointer' }}
                     >
                         {years.map(y => (
                             <option key={y} value={y}>{y}</option>
@@ -277,7 +277,7 @@ export default function MonthlyClimateTable({ stationId, stationName }) {
             )}
 
             {/* Cartes KPI du mois */}
-            {stats && (
+            {stats && !loading && (
                 <div className="kpi-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '14px', marginBottom: '24px' }}>
                     <div className="summary-kpi-card kpi-border-red" style={{ background: 'white', padding: '16px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
                         <div className="kpi-top-row" style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '6px' }}>
@@ -285,10 +285,10 @@ export default function MonthlyClimateTable({ stationId, stationName }) {
                             <Sun size={15} color="#ef4444" />
                         </div>
                         <div className="kpi-main-metric" style={{ fontSize: '1.5rem', fontWeight: 800, color: '#dc2626' }}>
-                            {stats.meanTx ? `${stats.meanTx}°C` : '-'}
+                            {hasTemp && stats.meanTx ? `${stats.meanTx}°C` : (hasTemp ? '-' : <span style={{ fontSize: '1rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>)}
                         </div>
                         <div className="kpi-detail-text" style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
-                            Max : {stats.maxTx ? `${stats.maxTx}°C` : '-'}
+                            {hasTemp && stats.maxTx ? `Max : ${stats.maxTx}°C` : (hasTemp ? '-' : 'Poste sans thermomètre')}
                         </div>
                     </div>
 
@@ -298,10 +298,10 @@ export default function MonthlyClimateTable({ stationId, stationName }) {
                             <Thermometer size={15} color="#3b82f6" />
                         </div>
                         <div className="kpi-main-metric" style={{ fontSize: '1.5rem', fontWeight: 800, color: '#2563eb' }}>
-                            {stats.meanTn ? `${stats.meanTn}°C` : '-'}
+                            {hasTemp && stats.meanTn ? `${stats.meanTn}°C` : (hasTemp ? '-' : <span style={{ fontSize: '1rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>)}
                         </div>
                         <div className="kpi-detail-text" style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
-                            Min : {stats.minTn ? `${stats.minTn}°C` : '-'} ({stats.frostDays} j. gel)
+                            {hasTemp && stats.minTn ? `Min : ${stats.minTn}°C (${stats.frostDays} j. gel)` : (hasTemp ? '-' : 'Poste sans thermomètre')}
                         </div>
                     </div>
 
@@ -311,7 +311,7 @@ export default function MonthlyClimateTable({ stationId, stationName }) {
                             <Info size={15} color="#8b5cf6" />
                         </div>
                         <div className="kpi-main-metric" style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>
-                            {stats.meanTm ? `${stats.meanTm}°C` : '-'}
+                            {hasTemp && stats.meanTm ? `${stats.meanTm}°C` : (hasTemp ? '-' : <span style={{ fontSize: '1rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>)}
                         </div>
                         <div className="kpi-detail-text" style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
                             Moyenne (Tn+Tx)/2
@@ -324,10 +324,10 @@ export default function MonthlyClimateTable({ stationId, stationName }) {
                             <CloudRain size={15} color="#0284c7" />
                         </div>
                         <div className="kpi-main-metric" style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0284c7' }}>
-                            {stats.totalRr} <span style={{ fontSize: '0.9rem', color: '#64748b' }}>mm</span>
+                            {hasRain ? `${stats.totalRr} mm` : <span style={{ fontSize: '1rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>}
                         </div>
                         <div className="kpi-detail-text" style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
-                            {stats.rainDays} jours ≥ 1mm
+                            {hasRain ? `${stats.rainDays} jours ≥ 1mm` : 'Poste sans pluviomètre'}
                         </div>
                     </div>
 
@@ -337,17 +337,17 @@ export default function MonthlyClimateTable({ stationId, stationName }) {
                             <Wind size={15} color="#f59e0b" />
                         </div>
                         <div className="kpi-main-metric" style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>
-                            {stats.maxGust ? `${stats.maxGust.val} km/h` : '-'}
+                            {hasWind && stats.maxGust ? `${stats.maxGust.val} km/h` : (hasWind ? '-' : <span style={{ fontSize: '1rem', color: '#94a3b8', fontStyle: 'italic' }}>Non mesuré</span>)}
                         </div>
                         <div className="kpi-detail-text" style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
-                            {stats.maxGust ? `Le ${stats.maxGust.day} ${stats.maxGust.hxi ? `à ${stats.maxGust.hxi}` : ''}` : '-'}
+                            {hasWind && stats.maxGust ? `Le ${stats.maxGust.day} ${stats.maxGust.hxi ? `à ${stats.maxGust.hxi}` : ''}` : (hasWind ? '-' : 'Poste sans anémomètre')}
                         </div>
                     </div>
                 </div>
             )}
 
             {/* Graphique des températures du mois vs Normales */}
-            {stats && (
+            {stats && hasTemp && !loading && (
                 <div className="monthly-chart-section card animate-fade-in" style={{ marginBottom: '2rem', padding: '1.5rem', background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '8px' }}>
                         <h3 style={{ fontSize: '0.95rem', color: '#0f172a', margin: 0, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -433,18 +433,18 @@ export default function MonthlyClimateTable({ stationId, stationName }) {
                                         {d.day} {MONTHS[selectedMonth].substring(0, 4)}.
                                     </td>
                                     <td style={{ padding: '12px 16px', fontWeight: 800, color: '#2563eb' }}>
-                                        {d.tn !== null ? `${d.tn}°C` : '-'}
+                                        {d.tn !== null ? `${d.tn}°C` : (!hasTemp ? <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>Non mesuré</span> : '-')}
                                         {d.htn && <span style={{ fontSize: '0.75rem', color: '#64748b', marginLeft: '4px', fontWeight: 500 }}>({d.htn})</span>}
                                     </td>
                                     <td style={{ padding: '12px 16px', fontWeight: 800, color: '#dc2626' }}>
-                                        {d.tx !== null ? `${d.tx}°C` : '-'}
+                                        {d.tx !== null ? `${d.tx}°C` : (!hasTemp ? <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>Non mesuré</span> : '-')}
                                         {d.htx && <span style={{ fontSize: '0.75rem', color: '#64748b', marginLeft: '4px', fontWeight: 500 }}>({d.htx})</span>}
                                     </td>
                                     <td style={{ padding: '12px 16px', fontWeight: 600, color: '#475569' }}>
-                                        {d.tm !== null ? `${d.tm}°C` : '-'}
+                                        {d.tm !== null ? `${d.tm}°C` : (!hasTemp ? <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>Non mesuré</span> : '-')}
                                     </td>
                                     <td style={{ padding: '12px 16px', fontWeight: 800, color: '#0284c7' }}>
-                                        {d.rr !== null ? `${d.rr.toFixed(1)} mm` : '-'}
+                                        {typeof d.rr === 'number' && !isNaN(d.rr) ? `${d.rr.toFixed(1)} mm` : (!hasRain ? <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>Non mesuré</span> : '-')}
                                     </td>
                                     <td style={{ padding: '12px 16px', fontWeight: 800, color: '#0f172a' }}>
                                         {d.fxi !== null ? (
@@ -452,7 +452,7 @@ export default function MonthlyClimateTable({ stationId, stationName }) {
                                                 <span>{d.fxi} km/h</span>
                                                 {d.hxi && <span style={{ fontSize: '0.75rem', color: '#64748b', marginLeft: '4px', fontWeight: 500 }}>({d.hxi})</span>}
                                             </>
-                                        ) : '-'}
+                                        ) : (!hasWind ? <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>Non mesuré</span> : '-')}
                                     </td>
                                     <td style={{ padding: '12px 16px' }}>
                                         <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>

@@ -5,11 +5,109 @@
 
 import { meteoAuth } from './meteoFranceAuth';
 
-const BASE_CLIM_URL = 'https://public-api.meteofrance.fr/public/DPClim/v1';
+const BASE_CLIM_URL = typeof window !== 'undefined' ? '/api-meteo-clim' : 'https://public-api.meteofrance.fr/public/DPClim/v1';
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const meteoFranceClimService = {
+    /**
+     * Commander et télécharger l'historique quotidien pour PLUSIEURS stations en une seule commande (ou par lots)
+     * @param {string[]|string} stationIds Tableau d'IDs ou ID unique (8 chiffres)
+     * @param {string} startDate Date début YYYY-MM-DD
+     * @param {string} endDate Date fin YYYY-MM-DD
+     * @param {function} onProgress Callback d'avancement optionnel
+     */
+    async fetchMultiStationsHistory(stationIds, startDate, endDate, onProgress = () => {}) {
+        const ids = Array.isArray(stationIds) ? stationIds : [stationIds];
+        if (!ids.length || !startDate || !endDate) return [];
+
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        let safeEnd = endDate > yesterday ? yesterday : endDate;
+        if (startDate > yesterday) return [];
+
+        const deb = startDate + 'T00:00:00Z';
+        const fin = safeEnd + 'T23:59:59Z';
+
+        // Découpage par lots de 50 stations pour respecter les limites URL/HTTP
+        const BATCH_SIZE = 50;
+        const batches = [];
+        for (let i = 0; i < ids.length; i += BATCH_SIZE) {
+            batches.push(ids.slice(i, i + BATCH_SIZE));
+        }
+
+        let token = await meteoAuth.getValidToken();
+        const allResults = [];
+
+        for (let bIdx = 0; bIdx < batches.length; bIdx++) {
+            const batch = batches[bIdx];
+            onProgress(`Commande DPClim lot ${bIdx + 1}/${batches.length} (${batch.length} stations)…`);
+
+            const idsQuery = batch.map(id => `id-station=${encodeURIComponent(id)}`).join('&');
+            const cmdUrl = `${BASE_CLIM_URL}/commande-station/quotidienne?${idsQuery}&date-deb-periode=${encodeURIComponent(deb)}&date-fin-periode=${encodeURIComponent(fin)}`;
+
+            try {
+                let cmdResp = await fetch(cmdUrl, {
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'apikey': token,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (cmdResp.status === 401) {
+                    token = await meteoAuth.generateToken();
+                    cmdResp = await fetch(cmdUrl, {
+                        headers: {
+                            'Authorization': 'Bearer ' + token,
+                            'apikey': token,
+                            'Accept': 'application/json'
+                        }
+                    });
+                }
+
+                if (!cmdResp.ok) {
+                    console.warn(`[meteoFranceClimService] Lot ${bIdx + 1} rejeté (${cmdResp.status})`);
+                    continue;
+                }
+
+                const cmdData = await cmdResp.json();
+                const idCmde = cmdData?.elaboreProduitAvecDemandeResponse?.return;
+                if (!idCmde) continue;
+
+                await sleep(2000);
+                const fileUrl = `${BASE_CLIM_URL}/commande/fichier?id-cmde=${idCmde}`;
+
+                for (let attempt = 1; attempt <= 12; attempt++) {
+                    const fileResp = await fetch(fileUrl, {
+                        headers: {
+                            'Authorization': 'Bearer ' + token,
+                            'apikey': token,
+                            'Accept': '*/*'
+                        }
+                    });
+
+                    if (fileResp.status === 200 || fileResp.status === 201) {
+                        const csvText = await fileResp.text();
+                        const parsed = this.parseDPClimCSV(csvText);
+                        allResults.push(...parsed);
+                        break;
+                    } else if (fileResp.status === 401) {
+                        token = await meteoAuth.generateToken();
+                        await sleep(1500);
+                    } else if (fileResp.status === 204) {
+                        await sleep(2000);
+                    } else {
+                        break;
+                    }
+                }
+            } catch (errLot) {
+                console.warn(`[meteoFranceClimService] Erreur lot ${bIdx + 1}:`, errLot);
+            }
+        }
+
+        return allResults;
+    },
+
     /**
      * Commander et télécharger l'historique quotidien d'une station (1950 à hier)
      * @param {string} stationId Identifiant poste Météo-France (8 chiffres, ex: "59178001")
