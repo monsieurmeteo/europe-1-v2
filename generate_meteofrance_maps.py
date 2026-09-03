@@ -208,16 +208,23 @@ def map_mf_icon(icon):
         'p7': 6,    # Variable avec Averses -> P9 Averses
         'p8': 7,    # Couvert, Bruines ou Pluies -> P10 Pluie faible
         'p9': 8,    # Couvert, Pluies Modérées/fortes -> P11 Pluie forte
-        'p10': 9,   # Couvert, Neige Faible -> P12 Neige
-        'p11': 9,   # Variable, Averses de Neige -> P12 Neige
-        'p12': 9,   # Neige Modérée ou Forte -> P12 Neige
-        'p12bis': 6, # Rares averses -> Averses
-        'p13': 6,   # Pluies éparses -> Averses
-        'p14': 6,   # Pluie -> Averses (Corrected to map to Averses/P9 based on user request)
+        'p10': 7,   # Couvert, Bruine / Pluie faible -> P10 Pluie faible
+        'p11': 6,   # Variable, Averses -> P9 Averses
+        'p12': 7,   # Pluie faible -> P10 Pluie faible (Correction bug picto neige en été)
+        'p12bis': 6, # Rares averses / Averses faibles -> P9 Averses
+        'p13': 6,   # Pluies éparses -> P9 Averses
+        'p14': 7,   # Pluie -> P10 Pluie faible
+        'p14bis': 6, # Averses -> P9 Averses
         'p15': 12,  # Brumes ou Brouillards -> brouillards
         'p16': 12,  # Brouillards Givrants -> brouillards
         'p16bis': 10, # Averses orageuses -> Orages (Corrected from 12 to 10)
         'p17': 12,  # Verglas -> brouillards
+        'p18': 9,   # Neige faible -> P12 Neige
+        'p19': 9,   # Neige modérée -> P12 Neige
+        'p20': 9,   # Neige forte -> P12 Neige
+        'p21': 9,   # Averses de neige -> P12 Neige
+        'p22': 9,   # Pluie et neige mêlées -> P12 Neige
+        'p23': 9,   # Averses de neige mêlée -> P12 Neige
         'p26': 10,  # Orages -> orages
         'p27': 10,  # Orages -> orages
         'p28': 10,  # Orages -> orages
@@ -856,10 +863,10 @@ def main():
         if orientation != 'landscape':
             target_url += f"&orientation={orientation}"
 
-        img_bytes = capture_map_playwright(target_url, orientation)
+        img_bytes = capture_map_playwright(target_url, orientation, timeout=45)
         if img_bytes:
             suffix = f"_{orientation}" if orientation != "landscape" else ""
-            filename = f"carte_{zone_key}_J{actual_day}_{period_name}{suffix}.jpg" if zone_key != "france_pictos" else f"carte_J{actual_day}_{period_name}{suffix}.jpg"
+            filename = f"carte_{zone_key}_J{actual_day}_{period_name}{suffix}.jpg" if zone_key != "france_pictos" else f"carte_{period_name}{suffix}.jpg"
             filepath = os.path.join(DEST_DIR, filename)
             with open(filepath, 'wb') as f_img:
                 f_img.write(img_bytes)
@@ -874,7 +881,7 @@ def main():
     eph_url = f"http://127.0.0.1:8001/index.html?headless=true&use_mf=true&day=0&period=ephemeride&zone={zone_key}&auto_save=true"
     if orientation != 'landscape':
         eph_url += f"&orientation={orientation}"
-    img_bytes = capture_map_playwright(eph_url, orientation)
+    img_bytes = capture_map_playwright(eph_url, orientation, timeout=45)
     if img_bytes:
         suffix = f"_{orientation}" if orientation != "landscape" else ""
         eph_file = os.path.join(DEST_DIR, f"carte_{zone_key}_ephemeride{suffix}.jpg")
